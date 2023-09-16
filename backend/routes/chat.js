@@ -5,7 +5,11 @@ const router = express.Router();
 const fetch = require('node-fetch');
 const { generateAudio } = require('./tts.js');
 
-router.post('/', async (req, res) => {
+
+
+
+
+router.post("/", async (req, res) => {
     const userInput = req.body.question;
 
     console.log("User Input:", userInput);
@@ -26,7 +30,7 @@ router.post('/', async (req, res) => {
         return formatter.format(date);
     }
 
-    const hiveAccess = process.env.HIVE_ACCESS_PUBLIC;  // Keeping only public access as default
+    const hiveAccess = process.env.HIVE_ACCESS_PUBLIC;
     const url = process.env.CHAT_URL + hiveAccess;
 
     let systemMessage = `you are a pirate`;
