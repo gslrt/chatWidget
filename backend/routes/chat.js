@@ -4,10 +4,7 @@ const express = require('express');
 const router = express.Router();
 const fetch = require('node-fetch');
 const { generateAudio } = require('./tts.js');
-
-
-
-
+const db = require('./db');  // Assuming you'll set up a basic db.js for PostgreSQL connection using pg-promise
 
 router.post("/", async (req, res) => {
     const userInput = req.body.question;
@@ -30,7 +27,7 @@ router.post("/", async (req, res) => {
         return formatter.format(date);
     }
 
-    const hiveAccess = process.env.HIVE_ACCESS_PUBLIC;
+    const hiveAccess = process.env.HIVE_ACCESS_PUBLIC;  // Keeping only public access as default
     const url = process.env.CHAT_URL + hiveAccess;
 
     let systemMessage = `you are a pirate`;
@@ -65,6 +62,20 @@ router.post("/", async (req, res) => {
         let aiResponse = responseBody;
         console.log('AI response:', aiResponse);
         let responseObject = { 'text': aiResponse };
+
+        // Begin database logging
+        // Start a conversation
+        const startTimestamp = new Date();
+        const conversationResult = await db.none('INSERT INTO Conversations (start_timestamp, ip_address) VALUES ($1, $2)', [startTimestamp, req.ip]);
+
+        // Log the message
+        await db.none('INSERT INTO Messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [conversationResult.conversation_id, startTimestamp, 'sent', userInput]);
+        await db.none('INSERT INTO Messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [conversationResult.conversation_id, new Date(), 'received', aiResponse]);
+
+        // Here you'd ideally generate an engagement report based on the conversation and store it. This is a placeholder.
+        // await generateEngagementReport(conversationResult.conversation_id);
+
+        // End database logging
 
         if (req.body.ttsEnabled) {
             let audioUrl = await generateAudio(aiResponse);
