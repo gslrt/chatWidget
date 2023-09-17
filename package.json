@@ -12,4 +12,5 @@
     "helmet": "^4.6.0",
     "express-rate-limit": "^5.3.0",
     "node-fetch": "^2.6.1"
+  }
 }
