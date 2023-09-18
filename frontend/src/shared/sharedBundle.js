@@ -1,4 +1,4 @@
-// sharedBundle.js
+// frontend/shared/sharedBundle.js
 
 
 
