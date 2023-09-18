@@ -1,6 +1,4 @@
 const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
 const fetch = require('node-fetch');
 const { generateAudio } = require('../models/tts.js');
 const { Pool } = require('pg');
