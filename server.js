@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const { generateAudio } = require('./backend/models/tts.js');  
 const chatRoute = require('./backend/routes/chat.js');
-
+const io = socketIo(server);
 const app = express();
 
 
