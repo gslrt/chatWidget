@@ -1,15 +1,19 @@
-const express = require('express');
+// backend/routes/chat.js
+
+
 const fetch = require('node-fetch');
 const { generateAudio } = require('../models/tts.js');
 const { Pool } = require('pg');
-const session = require('express-session');
-const RedisStore = require('connect-redis')(session);
+const router = require('express').Router();
 
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false,
+    },
+});
 
-
-
-
-io.on('connection', (socket) => {
+router.handleSocketConnection = (socket) => {
     console.log('User connected:', socket.id);
 
     socket.on('chatMessage', async (data) => {
@@ -33,7 +37,6 @@ io.on('connection', (socket) => {
 
         try {
             if (data.ttsEnabled) {
-                // Fetch the entire response for TTS
                 const response = await fetch(url, {
                     method: "POST",
                     headers: {
@@ -50,7 +53,6 @@ io.on('connection', (socket) => {
                 responseObject['audioUrl'] = audioUrl;
                 socket.emit('botResponse', responseObject);
             } else {
-                // Streaming for non-TTS
                 const response = await fetch(url, {
                     method: "POST",
                     headers: {
@@ -70,23 +72,20 @@ io.on('connection', (socket) => {
                 });
             }
 
-            // Database Logging & Session Handling
             if (!socket.request.session.conversation_id) {
                 const result = await pool.query('INSERT INTO chat_Conversations (start_timestamp, ip_address, user_agent) VALUES ($1, $2, $3) RETURNING conversation_id', [currentTimestamp, socket.request.ip, socket.request.headers['user-agent']]);
                 socket.request.session.conversation_id = result.rows[0].conversation_id;
             }
 
+            const aiResponse = "This is where you'd retrieve the AI's response";  // Placeholder
             await pool.query('INSERT INTO chat_Messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'sent', userInput]);
             await pool.query('INSERT INTO chat_Messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'received', aiResponse]);
             await pool.query('UPDATE chat_Conversations SET end_timestamp = $1 WHERE conversation_id = $2', [currentTimestamp, socket.request.session.conversation_id]);
-
         } catch (fetchError) {
             console.error('Fetch error:', fetchError);
             socket.emit('error', { error: 'Failed to fetch from the API' });
         }
     });
-});
+};
 
-server.listen(process.env.PORT || 3000, () => {
-    console.log(`Server is running on port ${process.env.PORT || 3000}`);
-});
+module.exports = router;
