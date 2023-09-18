@@ -1,4 +1,3 @@
-
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -35,7 +34,7 @@ io.on('connection', (socket) => {
         const url = process.env.CHAT_URL + hiveAccess;
         let systemMessage = `you are a pirate`;
 
-       const dataToSend = {
+        const dataToSend = {
             question: userInput,
             overrideConfig: {
                 systemMessage,
@@ -44,20 +43,47 @@ io.on('connection', (socket) => {
                 pineconeApiKey: process.env.PINECONE_API_KEY,
                 pineconeNamespace: process.env.PINECONE_NAMESPACE,
                 pineconeIndex: process.env.PINECONE_INDEX_NAME
-        }
-    };
+            }
+        };
 
         try {
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${process.env.FLOWISE_API_KEY}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(dataToSend)
-            });
-            const responseBody = await response.json();
-            let aiResponse = responseBody;
+            if (data.ttsEnabled) {
+                // Fetch the entire response for TTS
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${process.env.FLOWISE_API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(dataToSend)
+                });
+                const responseBody = await response.json();
+                let aiResponse = responseBody;
+
+                let responseObject = { 'text': aiResponse };
+                let audioUrl = await generateAudio(aiResponse);
+                responseObject['audioUrl'] = audioUrl;
+                socket.emit('botResponse', responseObject);
+            } else {
+                // Streaming for non-TTS
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${process.env.FLOWISE_API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(dataToSend)
+                });
+
+                response.body.on('data', (chunk) => {
+                    const token = chunk.toString(); 
+                    socket.emit('token', token);
+                });
+
+                response.body.on('end', () => {
+                    socket.emit('end');
+                });
+            }
 
             // Database Logging & Session Handling
             if (!socket.request.session.conversation_id) {
@@ -69,15 +95,6 @@ io.on('connection', (socket) => {
             await pool.query('INSERT INTO chat_Messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'received', aiResponse]);
             await pool.query('UPDATE chat_Conversations SET end_timestamp = $1 WHERE conversation_id = $2', [currentTimestamp, socket.request.session.conversation_id]);
 
-            let responseObject = { 'text': aiResponse };
-            if (data.ttsEnabled) {
-                let audioUrl = await generateAudio(aiResponse);
-                responseObject['audioUrl'] = audioUrl;
-            }
-
-            // Emit the response to the user via socket
-            socket.emit('botResponse', responseObject);
-
         } catch (fetchError) {
             console.error('Fetch error:', fetchError);
             socket.emit('error', { error: 'Failed to fetch from the API' });
@@ -88,4 +105,3 @@ io.on('connection', (socket) => {
 server.listen(process.env.PORT || 3000, () => {
     console.log(`Server is running on port ${process.env.PORT || 3000}`);
 });
-
