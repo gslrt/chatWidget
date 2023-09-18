@@ -10,12 +10,6 @@ const RedisStore = require('connect-redis')(session);
 
 
 
-app.use(session({
-    store: new RedisStore({ url: process.env.REDIS_URL }),
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false
-}));
 
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
