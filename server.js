@@ -30,6 +30,10 @@ app.use(session({
 // Middlewares
 app.use(bodyParser.json());
 
+
+app.use('/frontend/src', express.static(path.join(__dirname, 'frontend/src')));
+
+
 // Routes
 app.use('/chat', chatRoute);
 
