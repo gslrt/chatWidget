@@ -2,11 +2,10 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const fetch = require('node-fetch');
-const { generateAudio } = require('./tts.js');
+const { generateAudio } = require('../models/tts.js');
 const { Pool } = require('pg');
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
-const tts = require('../models/tts.js');
 
 
 const app = express();
