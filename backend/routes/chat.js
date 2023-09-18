@@ -8,15 +8,7 @@ const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 
 
-const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false,
-    },
-});
+
 
 app.use(session({
     store: new RedisStore({ url: process.env.REDIS_URL }),
