@@ -6,6 +6,8 @@ const { generateAudio } = require('./tts.js');
 const { Pool } = require('pg');
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
+const tts = require('../models/tts.js');
+
 
 const app = express();
 const server = http.createServer(app);
