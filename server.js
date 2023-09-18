@@ -4,7 +4,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
-const chatRoute = require('./routes/chat');
+const chatRoute = require('./backend/routes/chat.js');
 
 const app = express();
 
