@@ -4,7 +4,9 @@
 
 import socketIOClient from 'socket.io-client';
 
-function chatWidget() {
+
+export function sharedFunction() {
+
     const socket = socketIOClient("chatwidget-production.up.railway.app");  // Connect to your backend's URL
     let socketIOClientId = '';
 
@@ -87,3 +89,4 @@ function chatWidget() {
         }
     });
 }
+
