@@ -1,12 +1,14 @@
 // webpack.config.js
 
-
 const path = require('path');
 
 module.exports = {
-  entry: './frontend/src/index.js',  // Your main JS file
+  entry: {
+    native: './frontend/src/native/nativeBundle.js',
+    // Add other bundles as needed
+  },
   output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist')  // Output directory
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist')
   }
 };
