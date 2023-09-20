@@ -66,7 +66,11 @@ server.listen(PORT, () => {
 
 // Log the contents of /oxofrmbl
 fs.readdir('/oxofrmbl', (err, files) => {
-    console.log('Contents of /oxofrmbl:', files);
+    if (err) {
+        console.log('Error reading /oxofrmbl:', err);
+    } else {
+        console.log('Contents of /oxofrmbl:', files);
+    }
 });
 
 // Log the webpack output path
