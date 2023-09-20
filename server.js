@@ -10,23 +10,10 @@ const RedisStore = require('connect-redis')(session);
 const cors = require('cors');
 const fs = require('fs');
 
+// Initialize Express app
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
 
-const redisClient = redis.createClient({
-    url: process.env.REDIS_URL
-});
-
-// Set up session storage
-app.use(session({
-    store: new RedisStore({ client: redisClient }),
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false
-}));
-
-// Set up CORS
+// Set up CORS for Express
 const whitelist = process.env.CORS_WHITELIST_WIDGET.split(',');
 const corsOptions = {
     origin: function (origin, callback) {
@@ -38,6 +25,30 @@ const corsOptions = {
     }
 };
 app.use(cors(corsOptions));
+
+// Create HTTP Server
+const server = http.createServer(app);
+
+// Set up CORS for Socket.io
+const io = socketIo(server, {
+  cors: {
+    origin: whitelist,
+    methods: ["GET", "POST"]
+  }
+});
+
+// Initialize Redis client
+const redisClient = redis.createClient({
+    url: process.env.REDIS_URL
+});
+
+// Set up session storage
+app.use(session({
+    store: new RedisStore({ client: redisClient }),
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
 
 // Middlewares
 app.use(bodyParser.json());
@@ -51,6 +62,7 @@ app.use('/frontend/dist', express.static(path.join(__dirname, 'frontend/dist')))
 // Routes
 app.use('/chat', chatRoute);
 
+// Socket.io connection
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
     
@@ -58,8 +70,8 @@ io.on('connection', (socket) => {
     chatRoute.handleSocketConnection(socket);
 });
 
+// Start the server
 const PORT = process.env.PORT || 3000;
-
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
