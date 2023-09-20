@@ -4,7 +4,7 @@ const path = require('path');
 
 module.exports = {
   entry: {
-    native: './frontend/src/native/nativeBundle.js',
+    native: './frontend/src/shared/sharedBundle.js',
     // Add other bundles as needed
   },
   output: {
