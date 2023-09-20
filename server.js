@@ -12,6 +12,7 @@ const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 const cors = require('cors');
 const fs = require('fs');
+const uuid = require('uuid');  // You'll need to install this package
 
 // Initialize Express app
 const app = express();
@@ -67,10 +68,11 @@ app.use('/chat', chatRoute);
 
 // Socket.io connection
 io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
+    const uid = uuid.v4();  // Generate a unique identifier for the user
+    console.log(`User ${uid} connected: ${socket.id}`);
     
-    // Pass the socket to your chatRoute logic or any other routes that need it
-    chatRoute.handleSocketConnection(socket);
+    // Pass the socket and uid to your chatRoute logic or any other routes that need it
+    chatRoute.handleSocketConnection(socket, uid);
 });
 
 // Start the server
