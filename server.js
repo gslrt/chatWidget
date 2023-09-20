@@ -8,6 +8,7 @@ const redis = require('redis');
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 const cors = require('cors');
+const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
@@ -41,28 +42,30 @@ app.use(cors(corsOptions));
 // Middlewares
 app.use(bodyParser.json());
 
-// Determine the volume path
-const volumePath = process.env.RAILWAY_VOLUME_MOUNT_PATH || 'frontend/dist';
-
-// Print full path to the console for debugging
-const fullPath = path.join(__dirname, volumePath);
-console.log(`Full path to dist directory: ${fullPath}`);
-
 // Serve static files for the frontend
-app.use('/frontend/dist', express.static(fullPath));
+const volumePath = process.env.RAILWAY_VOLUME_MOUNT_PATH || '/oxofrmbl';
+app.use('/frontend/dist', express.static(volumePath));
+
+// Log the contents of the dist directory
+fs.readdir(volumePath, (err, files) => {
+  if (err) {
+    console.error("Could not list the directory.", err);
+  } else {
+    console.log("Contents of dist directory:", files);
+  }
+});
 
 // Routes
 app.use('/chat', chatRoute);
 
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
-    
-    // Pass the socket to your chatRoute logic or any other routes that need it
     chatRoute.handleSocketConnection(socket);
 });
 
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
+    console.log(`Full path to dist directory: ${volumePath}`);
     console.log(`Server is running on port ${PORT}`);
 });
