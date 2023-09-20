@@ -67,13 +67,14 @@ app.use('/frontend/dist', express.static(path.join(__dirname, 'frontend/dist')))
 app.use('/chat', chatRoute);
 
 // Socket.io connection
+// In server.js
 io.on('connection', (socket) => {
-    const uid = uuid.v4();  // Generate a unique identifier for the user
+    const uid = uuid.v4();  
     console.log(`User ${uid} connected: ${socket.id}`);
-    
-    // Pass the socket and uid to your chatRoute logic or any other routes that need it
+    socket.emit('uid', uid);  // Emit the UUID to the client
     chatRoute.handleSocketConnection(socket, uid);
 });
+
 
 // Start the server
 const PORT = process.env.PORT || 3000;
