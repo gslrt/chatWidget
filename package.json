@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "Integrating Halvi on a website",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "build": "webpack --mode production"
-  },
+"scripts": {
+  "start": "npm run build && node server.js",
+  "build": "webpack --mode production"
+},
+
   "dependencies": {
     "express": "^4.17.1",
     "pg": "^8.7.1",
