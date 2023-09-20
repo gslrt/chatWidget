@@ -13,8 +13,8 @@ const pool = new Pool({
     },
 });
 
-router.handleSocketConnection = (socket) => {
-    console.log('User connected:', socket.id);
+router.handleSocketConnection = (socket, uid) => {
+    console.log(`User ${uid} connected: ${socket.id}`);
 
     socket.on('chatMessage', async (data) => {
         const userInput = data.question;
@@ -89,3 +89,4 @@ router.handleSocketConnection = (socket) => {
 };
 
 module.exports = router;
+
