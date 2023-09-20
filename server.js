@@ -42,7 +42,8 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 // Serve static files for the frontend
-app.use('/frontend/dist', express.static(path.join(__dirname, 'frontend/dist')));
+const volumePath = process.env.RAILWAY_VOLUME_MOUNT_PATH || 'frontend/dist';
+app.use('/frontend/dist', express.static(path.join(__dirname, volumePath)));
 
 // Routes
 app.use('/chat', chatRoute);
