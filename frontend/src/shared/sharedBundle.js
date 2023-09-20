@@ -4,14 +4,18 @@
 
 import socketIOClient from 'socket.io-client';
 
-
 export function sharedFunction() {
-
-    const socket = socketIOClient("chatwidget-production.up.railway.app");  // Connect to your backend's URL
+    const socket = socketIOClient("chatwidget-production.up.railway.app"); // Connect to your backend's URL
     let socketIOClientId = '';
+    let userUID = '';  // To store the unique user identifier
 
     socket.on('connect', () => {
         socketIOClientId = socket.id;
+    });
+
+    // Listen for the UID generated on the server
+    socket.on('uid', (uid) => {
+        userUID = uid;
     });
 
     socket.on('token', (token) => {
@@ -49,7 +53,8 @@ export function sharedFunction() {
         // Emit the message using sockets
         socket.emit('chatMessage', {
             question: userInput,
-            socketIOClientId: socketIOClientId
+            socketIOClientId: socketIOClientId,
+            userUID: userUID  // Include the UID when emitting the chat message
         });
     });
 
@@ -89,4 +94,3 @@ export function sharedFunction() {
         }
     });
 }
-
