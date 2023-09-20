@@ -41,8 +41,11 @@ app.use(cors(corsOptions));
 // Middlewares
 app.use(bodyParser.json());
 
-// Serve static files for the frontend
+// Determine volume path
 const volumePath = process.env.RAILWAY_VOLUME_MOUNT_PATH || 'frontend/dist';
+console.log('Volume Path:', volumePath);  // Log the volume path for debugging
+
+// Serve static files for the frontend
 app.use('/frontend/dist', express.static(path.join(__dirname, volumePath)));
 
 // Routes
