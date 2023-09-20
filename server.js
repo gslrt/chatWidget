@@ -8,7 +8,6 @@ const redis = require('redis');
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 const cors = require('cors');
-const fs = require('fs');  // Added for file system operations
 
 const app = express();
 const server = http.createServer(app);
@@ -18,6 +17,7 @@ const redisClient = redis.createClient({
     url: process.env.REDIS_URL
 });
 
+// Set up session storage
 app.use(session({
     store: new RedisStore({ client: redisClient }),
     secret: process.env.SESSION_SECRET,
@@ -25,6 +25,7 @@ app.use(session({
     saveUninitialized: false
 }));
 
+// Set up CORS
 const whitelist = process.env.CORS_WHITELIST_WIDGET.split(',');
 const corsOptions = {
     origin: function (origin, callback) {
@@ -35,30 +36,33 @@ const corsOptions = {
         }
     }
 };
-
 app.use(cors(corsOptions));
+
+// Middlewares
 app.use(bodyParser.json());
 
+// Determine the volume path
 const volumePath = process.env.RAILWAY_VOLUME_MOUNT_PATH || 'frontend/dist';
-app.use('/frontend/dist', express.static(path.join(__dirname, volumePath)));
 
+// Print full path to the console for debugging
+const fullPath = path.join(__dirname, volumePath);
+console.log(`Full path to dist directory: ${fullPath}`);
+
+// Serve static files for the frontend
+app.use('/frontend/dist', express.static(fullPath));
+
+// Routes
 app.use('/chat', chatRoute);
 
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
+    
+    // Pass the socket to your chatRoute logic or any other routes that need it
     chatRoute.handleSocketConnection(socket);
 });
 
-// Log the contents of the 'dist' directory
-fs.readdir(path.join(__dirname, 'dist'), (err, files) => {
-  if (err) {
-    console.error('Error reading dist directory:', err);
-  } else {
-    console.log('Contents of dist directory:', files);
-  }
-});
-
 const PORT = process.env.PORT || 3000;
+
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
