@@ -14,9 +14,10 @@ const pool = new Pool({
 });
 
 router.handleSocketConnection = (socket, uid) => {
-    console.log(`User ${uid} connected: ${socket.id}`);
+    console.log(`[Chat Route] User ${uid} connected: ${socket.id}`);
 
     socket.on('chatMessage', async (data) => {
+        console.log("[Chat Route] Received chat message:", data);
         const userInput = data.question;
         const currentTimestamp = new Date();
         const hiveAccess = process.env.HIVE_ACCESS_PUBLIC;
