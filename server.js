@@ -69,7 +69,6 @@ app.use('/chat', chatRoute);
 // Socket.io connection
 io.on('connection', (socket) => {
     const uid = uuid.v4();  
-    console.log(`[Server] User ${uid} connected: ${socket.id}`);
     socket.emit('uid', uid);  // Emit the UUID to the client
     chatRoute.handleSocketConnection(socket, uid);
 });
