@@ -1,6 +1,3 @@
-// server.js
-
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -12,7 +9,8 @@ const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 const cors = require('cors');
 const fs = require('fs');
-const uuid = require('uuid');  // You'll need to install this package
+const uuid = require('uuid');
+const sharedsession = require("express-socket.io-session");  // Add this line
 
 // Initialize Express app
 const app = express();
@@ -33,6 +31,22 @@ app.use(cors(corsOptions));
 // Create HTTP Server
 const server = http.createServer(app);
 
+// Initialize Redis client
+const redisClient = redis.createClient({
+    url: process.env.REDIS_URL
+});
+
+// Define session middleware
+const sessionMiddleware = session({
+    store: new RedisStore({ client: redisClient }),
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+});
+
+// Use session middleware with express
+app.use(sessionMiddleware);
+
 // Set up CORS for Socket.io
 const io = socketIo(server, {
   cors: {
@@ -41,17 +55,9 @@ const io = socketIo(server, {
   }
 });
 
-// Initialize Redis client
-const redisClient = redis.createClient({
-    url: process.env.REDIS_URL
-});
-
-// Set up session storage
-app.use(session({
-    store: new RedisStore({ client: redisClient }),
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false
+// Use session middleware with socket.io
+io.use(sharedsession(sessionMiddleware, {
+    autoSave: true
 }));
 
 // Middlewares
@@ -68,7 +74,7 @@ app.use('/chat', chatRoute);
 
 // Socket.io connection
 io.on('connection', (socket) => {
-    const uid = uuid.v4();  
+    const uid = uuid.v4();
     socket.emit('uid', uid);  // Emit the UUID to the client
     chatRoute.handleSocketConnection(socket, uid);
 });
