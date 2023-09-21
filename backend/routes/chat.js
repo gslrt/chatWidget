@@ -14,6 +14,12 @@ const pool = new Pool({
 
 // Function to update database and session
 const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiResponse) => {
+    // Diagnostic check for session or request object
+    if (!socket.request || !socket.request.session) {
+        console.error('Session or request object is undefined.');
+        return;
+    }
+
     if (!socket.request.session.conversation_id) {
         const result = await pool.query('INSERT INTO chat_Conversations (start_timestamp, ip_address, user_agent) VALUES ($1, $2, $3) RETURNING conversation_id', [currentTimestamp, socket.request.ip, socket.request.headers['user-agent']]);
         socket.request.session.conversation_id = result.rows[0].conversation_id;
