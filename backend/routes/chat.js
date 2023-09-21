@@ -20,8 +20,15 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
         return;
     }
 
+    // Get client IP address
+    const clientIp = socket.handshake.address || socket.conn.remoteAddress || "Unknown";
+    if (clientIp === "Unknown") {
+        console.error('IP address is not set.');
+        return;
+    }
+
     if (!socket.request.session.conversation_id) {
-        const result = await pool.query('INSERT INTO chat_Conversations (start_timestamp, ip_address, user_agent) VALUES ($1, $2, $3) RETURNING conversation_id', [currentTimestamp, socket.request.ip, socket.request.headers['user-agent']]);
+        const result = await pool.query('INSERT INTO chat_Conversations (start_timestamp, ip_address, user_agent) VALUES ($1, $2, $3) RETURNING conversation_id', [currentTimestamp, clientIp, socket.request.headers['user-agent']]);
         socket.request.session.conversation_id = result.rows[0].conversation_id;
     }
 
