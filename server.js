@@ -67,19 +67,20 @@ app.use('/frontend/dist', express.static(path.join(__dirname, 'frontend/dist')))
 app.use('/chat', chatRoute);
 
 // Socket.io connection
-// In server.js
 io.on('connection', (socket) => {
     const uid = uuid.v4();  
-    console.log(`User ${uid} connected: ${socket.id}`);
+    console.log(`[Server] User ${uid} connected: ${socket.id}`);
     socket.emit('uid', uid);  // Emit the UUID to the client
     chatRoute.handleSocketConnection(socket, uid);
 });
 
+// Debugging log: Socket.io connection established
+console.log("[Server] Socket.io connection established");
 
 // Start the server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`[Server] Server is running on port ${PORT}`);
 });
 
 // Log the contents of /oxofrmbl
