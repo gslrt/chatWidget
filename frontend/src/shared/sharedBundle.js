@@ -1,8 +1,23 @@
 // frontend/src/shared/sharedBundle.js
 
-
-
 import socketIOClient from 'socket.io-client';
+
+function createElementFromTemplate(templateId) {
+    const templateElement = document.querySelector(`[template-element="${templateId}"]`);
+    if (templateElement) {
+        return templateElement.cloneNode(true);
+    }
+    return null;
+}
+
+function getCurrentTime() {
+    const now = new Date();
+    return `${now.getHours()}:${now.getMinutes()}`;
+}
+
+function formatTextWithLineBreaks(text) {
+    return text.replace(/\n/g, '<br/>');
+}
 
 export function sharedFunction() {
     const socket = socketIOClient("chatwidget-production.up.railway.app"); // Connect to your backend's URL
@@ -13,7 +28,6 @@ export function sharedFunction() {
         socketIOClientId = socket.id;
     });
 
-    // Listen for the UID generated on the server
     socket.on('uid', (uid) => {
         userUID = uid;
     });
@@ -37,7 +51,7 @@ export function sharedFunction() {
         e.preventDefault();
 
         const userInput = document.querySelector('[element="chat-user-input"]').innerText.trim();
-        
+
         if (!userInput) {
             return;
         }
@@ -50,15 +64,13 @@ export function sharedFunction() {
         userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
         document.querySelector('[list-element="chat-history"]').appendChild(userMessageElement);
 
-        // Emit the message using sockets
         socket.emit('chatMessage', {
             question: userInput,
             socketIOClientId: socketIOClientId,
-            userUID: userUID  // Include the UID when emitting the chat message
+            userUID: userUID
         });
     });
 
-    // Listen for bot's response
     socket.on('botResponse', (data) => {
         const formattedBotResponse = formatTextWithLineBreaks(data.text);
 
@@ -66,7 +78,7 @@ export function sharedFunction() {
         botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
         botMessageElement.querySelector('[element="chat-bot-message-content"]').setAttribute('bot-response-raw', data.text);
 
-        if(data.audioUrl) {
+        if (data.audioUrl) {
             audio.src = data.audioUrl;
             audio.play();
         }
@@ -90,7 +102,7 @@ export function sharedFunction() {
 
         if (e.target.matches('[trigger-action="save-bot-response-as-private-document"]')) {
             const responseContent = e.target.closest('.message.bot').querySelector('[element="chat-bot-message-content"]').getAttribute('bot-response-raw');
-            storeBotResponseInDatabase(responseContent); // Implement this function to save the response to the database
+            // Implement the function to save the response to the database
         }
     });
 }
