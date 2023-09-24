@@ -21,7 +21,14 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
     }
 
     // Get client IP address
-    const clientIp = socket.handshake.address || socket.conn.remoteAddress || "Unknown";
+    const xForwardedFor = (socket.request.headers['x-forwarded-for'] || '').split(',').pop().trim() || 
+                           socket.request.connection.remoteAddress || 
+                           socket.request.socket.remoteAddress || 
+                           socket.request.connection.socket.remoteAddress || 
+                           "Unknown";
+
+    const clientIp = xForwardedFor || "Unknown";
+    
     if (clientIp === "Unknown") {
         console.error('IP address is not set.');
         return;
