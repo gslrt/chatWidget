@@ -23,7 +23,8 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
         return;
     }
 
-    const clientIp = socket.request.headers['x-client-address'] || socket.handshake.address || socket.conn.remoteAddress || "Unknown";
+    // Use the X-Forwarded-For header to get the real client IP
+    const clientIp = socket.request.headers['x-forwarded-for'] || socket.handshake.address || socket.conn.remoteAddress || "Unknown";
 
     if (clientIp === "Unknown" || clientIp.startsWith("192.168.")) {
         console.error('IP address is not set or internal.');
@@ -50,6 +51,7 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
     const country = geoInfo.country_name || "Unknown";
     const region = geoInfo.region || "Unknown";
     const localTime = geoInfo.time_zone ? geoInfo.time_zone.current_time : "Unknown";
+
 
 
 
