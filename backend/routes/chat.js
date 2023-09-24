@@ -40,16 +40,17 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
     };
 
     // Get geolocation information
-try {
-    geoInfo = await getGeolocation(clientIp);
-    if (!geoInfo) {
-        throw new Error('Geolocation API returned null');
+    try {
+        const fetchedGeoInfo = await getGeolocation(clientIp);
+        if (fetchedGeoInfo) {
+            geoInfo = fetchedGeoInfo;
+        } else {
+            console.error("Failed to get geolocation: Geolocation API returned null");
+        }
+    } catch (error) {
+        console.error("Failed to get geolocation:", error.message);
     }
-} catch (error) {
-    console.error("Failed to get geolocation:", error.message);
-}
 
-  
     const city = geoInfo.city;
     const country = geoInfo.country_name;
     const region = geoInfo.region;
@@ -76,6 +77,7 @@ try {
     await pool.query('INSERT INTO chat_Messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'received', aiResponse]);
     await pool.query('UPDATE chat_Conversations SET end_timestamp = $1 WHERE conversation_id = $2', [currentTimestamp, socket.request.session.conversation_id]);
 };
+
 
 
 
