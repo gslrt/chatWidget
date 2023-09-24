@@ -25,7 +25,7 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
 
     const clientIp = socket.request.headers['x-client-address'] || socket.handshake.address || socket.conn.remoteAddress || "Unknown";
 
-    if (clientIp === "Unknown" || clientIp.startsWith("192.168.") /* or other checks for internal IPs */) {
+    if (clientIp === "Unknown" || clientIp.startsWith("192.168.")) {
         console.error('IP address is not set or internal.');
         return;
     }
@@ -40,7 +40,7 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
     try {
         geoInfo = await getGeolocation(clientIp);
         if (!geoInfo) {
-            console.error("Failed to get geolocation: Geolocation API returned null");
+            throw new Error('Geolocation API returned null');
         }
     } catch (error) {
         console.error("Failed to get geolocation:", error.message);
@@ -50,6 +50,7 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
     const country = geoInfo.country_name || "Unknown";
     const region = geoInfo.region || "Unknown";
     const localTime = geoInfo.time_zone ? geoInfo.time_zone.current_time : "Unknown";
+
 
 
 
