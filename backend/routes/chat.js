@@ -15,8 +15,6 @@ const pool = new Pool({
     }
 });
 
-const ipgeolocation = require('ip-geolocation');
-
 // Function to update database and session
 const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiResponse) => {
     // Diagnostic check for session or request object
