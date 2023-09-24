@@ -11,7 +11,7 @@ function loadScript(src) {
 // Main function to handle tracking and dynamic script loading
 (function() {
   // Check for data attributes for chat embedding and widgets
-  const chatElement = document.querySelector('[data-embed-element="native-chat"]');
+  const chatElement = document.querySelector('[embed-element="native-chat"]');
   if (chatElement) {
     // Load the native chat bundle asynchronously
     loadScript('https://chatwidget-production.up.railway.app/frontend/dist/native.bundle.js');
