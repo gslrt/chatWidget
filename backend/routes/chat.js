@@ -12,6 +12,8 @@ const pool = new Pool({
     }
 });
 
+const ipgeolocation = require('ip-geolocation');
+
 // Function to update database and session
 const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiResponse) => {
     // Diagnostic check for session or request object
@@ -21,21 +23,34 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
     }
 
     // Get client IP address
-    const xForwardedFor = (socket.request.headers['x-forwarded-for'] || '').split(',').pop().trim() || 
-                           socket.request.connection.remoteAddress || 
-                           socket.request.socket.remoteAddress || 
-                           socket.request.connection.socket.remoteAddress || 
-                           "Unknown";
-
-    const clientIp = xForwardedFor || "Unknown";
-    
+    const clientIp = socket.handshake.address || socket.conn.remoteAddress || "Unknown";
     if (clientIp === "Unknown") {
         console.error('IP address is not set.');
         return;
     }
 
+    // Get geolocation information
+let geoInfo = await ipgeolocation(clientIp, process.env.GEOLOCATOR_API_KEY);
+
+    const city = geoInfo.city || "Unknown";
+    const country = geoInfo.country_name || "Unknown";
+    const region = geoInfo.region || "Unknown";
+    const localTime = geoInfo.time_zone.current_time || "Unknown";
+
+    // Get device type from user-agent string
+    const userAgent = socket.request.headers['user-agent'] || "Unknown";
+    let deviceType = "desktop";
+    if (/mobile/i.test(userAgent)) {
+        deviceType = "mobile";
+    } else if (/tablet|ipad|playbook|silk/i.test(userAgent)) {
+        deviceType = "tablet";
+    }
+
     if (!socket.request.session.conversation_id) {
-        const result = await pool.query('INSERT INTO chat_Conversations (start_timestamp, ip_address, user_agent) VALUES ($1, $2, $3) RETURNING conversation_id', [currentTimestamp, clientIp, socket.request.headers['user-agent']]);
+        const result = await pool.query(
+            'INSERT INTO chat_Conversations (start_timestamp, ip_address, user_agent, city, country, region, local_time, device_type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING conversation_id',
+            [currentTimestamp, clientIp, userAgent, city, country, region, localTime, deviceType]
+        );
         socket.request.session.conversation_id = result.rows[0].conversation_id;
     }
 
@@ -43,6 +58,7 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
     await pool.query('INSERT INTO chat_Messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'received', aiResponse]);
     await pool.query('UPDATE chat_Conversations SET end_timestamp = $1 WHERE conversation_id = $2', [currentTimestamp, socket.request.session.conversation_id]);
 };
+
 
 router.handleSocketConnection = (socket, uid) => {
     console.log(`[Chat Route] User ${uid} connected: ${socket.id}`);
