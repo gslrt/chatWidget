@@ -40,7 +40,7 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
 
     // Get geolocation information
     try {
-        const fetchedGeoInfo = await new Promise((resolve, reject) => {
+        geoInfo = await new Promise((resolve, reject) => {
             ipgeolocationApi.getGeolocation((json) => {
                 if (json && !json.error) {
                     resolve(json);
@@ -49,9 +49,9 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
                 }
             }, { setIPAddress: clientIp });
         });
-        geoInfo = { ...geoInfo, ...fetchedGeoInfo };
     } catch (error) {
         console.error("Failed to get geolocation:", error.message);
+    }
     }
   
     const city = geoInfo.city;
