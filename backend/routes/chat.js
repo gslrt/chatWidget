@@ -5,6 +5,7 @@ const { generateAudio } = require('../models/tts.js');
 const { Pool } = require('pg');
 const router = require('express').Router();
 const IPGeolocationAPI = require('ip-geolocation-api-javascript-sdk');
+const { getGeolocation } = require('../geolocation');
 const ipgeolocationApi = new IPGeolocationAPI(process.env.GEOLOCATOR_API_KEY, false);
 
 
@@ -39,20 +40,15 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
     };
 
     // Get geolocation information
-    try {
-        geoInfo = await new Promise((resolve, reject) => {
-            ipgeolocationApi.getGeolocation((json) => {
-                if (json && !json.error) {
-                    resolve(json);
-                } else {
-                    reject(new Error('Geolocation API returned an error'));
-                }
-            }, { setIPAddress: clientIp });
-        });
-    } catch (error) {
-        console.error("Failed to get geolocation:", error.message);
+try {
+    geoInfo = await getGeolocation(clientIp);
+    if (!geoInfo) {
+        throw new Error('Geolocation API returned null');
     }
-    }
+} catch (error) {
+    console.error("Failed to get geolocation:", error.message);
+}
+
   
     const city = geoInfo.city;
     const country = geoInfo.country_name;
