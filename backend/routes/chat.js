@@ -4,6 +4,9 @@ const fetch = require('node-fetch');
 const { generateAudio } = require('../models/tts.js');
 const { Pool } = require('pg');
 const router = require('express').Router();
+const IPGeolocationAPI = require('ip-geolocation-api-javascript-sdk');
+const ipgeolocationApi = new IPGeolocationAPI(process.env.GEOLOCATOR_API_KEY, false);
+
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
@@ -30,7 +33,11 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
     }
 
     // Get geolocation information
-let geoInfo = await ipgeolocation(clientIp, process.env.GEOLOCATOR_API_KEY);
+    let geoInfo = await new Promise((resolve, reject) => {
+        ipgeolocationApi.getGeolocation((json) => {
+            resolve(json);
+        }, {setIPAddress: clientIp});
+    });
 
     const city = geoInfo.city || "Unknown";
     const country = geoInfo.country_name || "Unknown";
@@ -58,6 +65,11 @@ let geoInfo = await ipgeolocation(clientIp, process.env.GEOLOCATOR_API_KEY);
     await pool.query('INSERT INTO chat_Messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'received', aiResponse]);
     await pool.query('UPDATE chat_Conversations SET end_timestamp = $1 WHERE conversation_id = $2', [currentTimestamp, socket.request.session.conversation_id]);
 };
+
+
+
+
+
 
 
 router.handleSocketConnection = (socket, uid) => {
