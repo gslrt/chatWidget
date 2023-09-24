@@ -30,25 +30,34 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
         return;
     }
 
+    // Initialize default geoInfo
+    let geoInfo = {
+        city: "Unknown",
+        country_name: "Unknown",
+        region: "Unknown",
+        time_zone: { current_time: "Unknown" }
+    };
+
     // Get geolocation information
-   let geoInfo;
-try {
-    geoInfo = await new Promise((resolve, reject) => {
-        ipgeolocationApi.getGeolocation((json) => {
-            if (json && !json.error) {
-                resolve(json);
-            } else {
-                reject(new Error('Geolocation API returned an error'));
-            }
-        }, {setIPAddress: clientIp});
-    });
-} catch (error) {
-}
+    try {
+        const fetchedGeoInfo = await new Promise((resolve, reject) => {
+            ipgeolocationApi.getGeolocation((json) => {
+                if (json && !json.error) {
+                    resolve(json);
+                } else {
+                    reject(new Error('Geolocation API returned an error'));
+                }
+            }, { setIPAddress: clientIp });
+        });
+        geoInfo = { ...geoInfo, ...fetchedGeoInfo };
+    } catch (error) {
+        console.error("Failed to get geolocation:", error.message);
+    }
   
-    const city = geoInfo.city || "Unknown";
-    const country = geoInfo.country_name || "Unknown";
-    const region = geoInfo.region || "Unknown";
-    const localTime = geoInfo.time_zone.current_time || "Unknown";
+    const city = geoInfo.city;
+    const country = geoInfo.country_name;
+    const region = geoInfo.region;
+    const localTime = geoInfo.time_zone.current_time;
 
     // Get device type from user-agent string
     const userAgent = socket.request.headers['user-agent'] || "Unknown";
