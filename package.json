@@ -23,7 +23,7 @@
     "redis": "^3.1.2",
     "connect-redis": "^6.0.0",
     "uuid": "^8.3.2",
-    "ip-geolocation": "^1.0.0",
+    "ip-geolocation-api-javascript-sdk": "^1.0.9",
     "socket.io-client": "^4.2.0"
   },
   "devDependencies": {
