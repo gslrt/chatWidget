@@ -36,7 +36,7 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
         city: "Unknown",
         country_name: "Unknown",
         region: "Unknown",
-        time_zone: { current_time: "Unknown" }
+        time_zone: { current_time: new Date().toISOString() }  // Set to current server time
     };
 
     // Get geolocation information
@@ -51,10 +51,11 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
         console.error("Failed to get geolocation:", error.message);
     }
 
-    const city = geoInfo.city;
-    const country = geoInfo.country_name;
-    const region = geoInfo.region;
-    const localTime = geoInfo.time_zone.current_time;
+    const city = geoInfo.city || "Unknown";
+    const country = geoInfo.country_name || "Unknown";
+    const region = geoInfo.region || "Unknown";
+    const localTime = geoInfo.time_zone.current_time || new Date().toISOString(); 
+
 
     // Get device type from user-agent string
     const userAgent = socket.request.headers['user-agent'] || "Unknown";
