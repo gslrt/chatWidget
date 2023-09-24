@@ -49,7 +49,7 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
 
     const city = geoInfo.city || "Unknown";
     const country = geoInfo.country_name || "Unknown";
-    const region = geoInfo.region || "Unknown";
+    const state_prov = geoInfo.state_prov || "Unknown";
     const localTime = geoInfo.time_zone ? geoInfo.time_zone.current_time : "Unknown";
 
 
@@ -65,13 +65,13 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
         deviceType = "tablet";
     }
 
-    if (!socket.request.session.conversation_id) {
-        const result = await pool.query(
-            'INSERT INTO chat_Conversations (start_timestamp, ip_address, user_agent, city, country, region, local_time, device_type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING conversation_id',
-            [currentTimestamp, clientIp, userAgent, city, country, region, localTime, deviceType]
-        );
-        socket.request.session.conversation_id = result.rows[0].conversation_id;
-    }
+   if (!socket.request.session.conversation_id) {
+    const result = await pool.query(
+        'INSERT INTO chat_Conversations (start_timestamp, ip_address, user_agent, city, country, state_prov, local_time, device_type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING conversation_id',
+        [currentTimestamp, clientIp, userAgent, city, country, state_prov, localTime, deviceType]
+    );
+    socket.request.session.conversation_id = result.rows[0].conversation_id;
+}
 
     await pool.query('INSERT INTO chat_Messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'sent', userInput]);
     await pool.query('INSERT INTO chat_Messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'received', aiResponse]);
