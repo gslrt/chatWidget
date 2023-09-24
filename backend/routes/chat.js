@@ -18,33 +18,28 @@ const pool = new Pool({
 
 // Function to update database and session
 const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiResponse) => {
-    // Diagnostic check for session or request object
     if (!socket.request || !socket.request.session) {
         console.error('Session or request object is undefined.');
         return;
     }
 
-    // Get client IP address
-    const clientIp = socket.handshake.address || socket.conn.remoteAddress || "Unknown";
-    if (clientIp === "Unknown") {
-        console.error('IP address is not set.');
+    const clientIp = socket.request.headers['x-client-address'] || socket.handshake.address || socket.conn.remoteAddress || "Unknown";
+
+    if (clientIp === "Unknown" || clientIp.startsWith("192.168.") /* or other checks for internal IPs */) {
+        console.error('IP address is not set or internal.');
         return;
     }
 
-    // Initialize default geoInfo
     let geoInfo = {
         city: "Unknown",
         country_name: "Unknown",
         region: "Unknown",
-        time_zone: { current_time: new Date().toISOString() }  // Set to current server time
+        time_zone: { current_time: "Unknown" }
     };
 
-    // Get geolocation information
     try {
-        const fetchedGeoInfo = await getGeolocation(clientIp);
-        if (fetchedGeoInfo) {
-            geoInfo = fetchedGeoInfo;
-        } else {
+        geoInfo = await getGeolocation(clientIp);
+        if (!geoInfo) {
             console.error("Failed to get geolocation: Geolocation API returned null");
         }
     } catch (error) {
@@ -54,7 +49,8 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
     const city = geoInfo.city || "Unknown";
     const country = geoInfo.country_name || "Unknown";
     const region = geoInfo.region || "Unknown";
-    const localTime = geoInfo.time_zone.current_time || new Date().toISOString(); 
+    const localTime = geoInfo.time_zone ? geoInfo.time_zone.current_time : "Unknown";
+
 
 
     // Get device type from user-agent string
