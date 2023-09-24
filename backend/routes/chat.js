@@ -31,12 +31,20 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
     }
 
     // Get geolocation information
-    let geoInfo = await new Promise((resolve, reject) => {
+   let geoInfo;
+try {
+    geoInfo = await new Promise((resolve, reject) => {
         ipgeolocationApi.getGeolocation((json) => {
-            resolve(json);
+            if (json && !json.error) {
+                resolve(json);
+            } else {
+                reject(new Error('Geolocation API returned an error'));
+            }
         }, {setIPAddress: clientIp});
     });
-
+} catch (error) {
+}
+  
     const city = geoInfo.city || "Unknown";
     const country = geoInfo.country_name || "Unknown";
     const region = geoInfo.region || "Unknown";
