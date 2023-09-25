@@ -1,4 +1,4 @@
-// /backeend/WebsiteAnalyticsServerSide.js
+// /backend/WebsiteAnalyticsServerSide.js
 
 
 const { Pool } = require('pg');
