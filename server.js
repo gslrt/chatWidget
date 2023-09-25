@@ -52,7 +52,7 @@ app.use(sessionMiddleware);
 app.use(bodyParser.json());
 
 // Serve static files for the frontend from the /oxofrmbl directory
-app.use('/frontend/dist', express.static('/oxofrmbl'));
+app.use('/frontend/dist', express.static(process.env.RAILWAY_VOLUME_MOUNT_PATH));
 
 // Serve static files for the frontend from the frontend/dist directory
 app.use('/frontend/dist', express.static(path.join(__dirname, 'frontend/dist')));
