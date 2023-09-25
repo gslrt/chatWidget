@@ -4,12 +4,14 @@ const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
 const chatRoute = require('./backend/routes/chat.js');
+const analyticsRoutes = require('./backend/routes/analyticsRoutes');
 const redis = require('redis');
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 const cors = require('cors');
 const fs = require('fs');
-const uuid = require('uuid');  // Make sure to install this package
+const uuid = require('uuid'); 
+
 
 // Initialize Express app
 const app = express();
@@ -57,6 +59,8 @@ app.use('/frontend/dist', express.static(path.join(__dirname, 'frontend/dist')))
 
 // Routes
 app.use('/chat', chatRoute);
+app.use('/analytics', analyticsRoutes);
+
 
 // Set up CORS for Socket.io
 const io = socketIo(server, {
