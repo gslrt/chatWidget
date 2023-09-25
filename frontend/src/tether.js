@@ -18,7 +18,7 @@ function loadScript(src) {
   }
 
   // Load the analytics script asynchronously
-  loadScript('https://chatwidget-production.up.railway.app/frontend/dist/WebsiteAnalyticsClientSide.bundle.js');
+  loadScript('https://chatwidget-production.up.railway.app/frontend/dist/analytics.bundle.js');
   
 
 })();
