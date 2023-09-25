@@ -17,7 +17,8 @@ function loadScript(src) {
     loadScript('https://chatwidget-production.up.railway.app/frontend/dist/native.bundle.js');
   }
 
-  // Initialize tracking (this would be your existing tracking code)
-  // ...
+  // Load the analytics script asynchronously
+  loadScript('https://chatwidget-production.up.railway.app/frontend/dist/WebsiteAnalyticsClientSide.bundle.js');
+  
 
 })();
