@@ -21,8 +21,3 @@ const trackScrollBehavior = () => {
 
 // Add other tracking functions here
 
-export {
-  trackTimeOnPage,
-  trackScrollBehavior,
-  // Export other tracking functions here
-};
