@@ -18,11 +18,3 @@ const trackScrollBehavior = () => {
     // Send this data to the server via API call to another endpoint
   });
 };
-
-// Add other tracking functions here
-
-export {
-  trackTimeOnPage,
-  trackScrollBehavior,
-  // Export other tracking functions here
-};
