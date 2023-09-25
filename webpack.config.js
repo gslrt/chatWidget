@@ -5,6 +5,7 @@ module.exports = {
   entry: {
     native: './frontend/src/native/nativeBundle.js',
     tether: './frontend/src/tether.js',
+    analytics: './frontend/src/WebsiteAnalyticsClientSide.js',
   },
   output: {
     filename: '[name].bundle.js',
