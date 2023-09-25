@@ -1,23 +1,26 @@
-// /frontend/src/WebsiteAnalyticsClientSide.js
 
+// frontend/src/tether.js
 
-// Function to track time spent on a page
-const trackTimeOnPage = () => {
-  const startTime = new Date().getTime();
-  window.addEventListener('beforeunload', () => {
-    const endTime = new Date().getTime();
-    const timeSpent = endTime - startTime;
-    // Send this data to the server via API call to /analytics/trackTimeOnPage
-  });
-};
+// Function to load additional scripts asynchronously
+function loadScript(src) {
+  var script = document.createElement('script');
+  script.async = true;
+  script.src = src;
+  document.body.appendChild(script);
+}
 
-// Function to track scroll behavior
-const trackScrollBehavior = () => {
-  window.addEventListener('scroll', () => {
-    const scrollPosition = window.scrollY;
-    // Send this data to the server via API call to another endpoint
-  });
-};
+// Main function to handle tracking and dynamic script loading
+(function() {
+  // Check for data attributes for chat embedding and widgets
+  const chatElement = document.querySelector('[embed-element="native-chat"]');
+  if (chatElement) {
+    // Load the native chat bundle asynchronously
+    loadScript('https://chatwidget-production.up.railway.app/frontend/dist/native.bundle.js');
+  }
 
-// Add other tracking functions here
+  // Load the analytics script asynchronously
+  loadScript('https://chatwidget-production.up.railway.app/frontend/dist/WebsiteAnalyticsClientSide.bundle.js');
+  
+
+})();
 
