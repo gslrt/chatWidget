@@ -22,7 +22,7 @@ async function initiateNewSession() {
 function sendAnalyticsData(eventType, additionalInfo) {
   const SERVICE_URL = process.env.SERVICE_URL;
   const sessionId = sessionStorage.getItem("sessionId");
-  fetch(`${SERVICE_URL}/analytics`, {
+  fetch(`${SERVICE_URL}/analytics/analytics`, {  
     method: "POST",
     headers: {
       "Content-Type": "application/json"
