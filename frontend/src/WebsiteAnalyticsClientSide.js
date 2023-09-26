@@ -10,7 +10,7 @@ async function initiateNewSession() {
 
 // Function to send analytics data to the backend
 function sendAnalyticsData(eventType, additionalInfo) {
-  const SERVICE_URL = "http://localhost:3000"; // Replace with your actual service URL
+const SERVICE_URL = process.env.SERVICE_URL || "http://localhost:3000";
   const sessionId = sessionStorage.getItem("sessionId");
   fetch(`${SERVICE_URL}/analytics`, {
     method: "POST",
