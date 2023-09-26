@@ -1,16 +1,14 @@
-// /frontend/src/WebsiteAnalyticsClientSide.js
-
 // Function to initiate a new session and get a session ID from the server
 async function initiateNewSession() {
-const SERVICE_URL = process.env.SERVICE_URL;
+  const SERVICE_URL = process.env.SERVICE_URL;
   const response = await fetch(`${SERVICE_URL}/initiate-session`, { method: "POST" });
   const { sessionId } = await response.json();
-sessionStorage.setItem("sessionId", sessionId);
-
+  sessionStorage.setItem("sessionId", sessionId);
+}
 
 // Function to send analytics data to the backend
 function sendAnalyticsData(eventType, additionalInfo) {
-const SERVICE_URL = process.env.SERVICE_URL
+  const SERVICE_URL = process.env.SERVICE_URL;
   const sessionId = sessionStorage.getItem("sessionId");
   fetch(`${SERVICE_URL}/analytics`, {
     method: "POST",
