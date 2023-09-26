@@ -9,7 +9,7 @@ router.post('/initiate-session', async (req, res) => {
   console.log("Received request to /initiate-session"); // <-- Add this line
   try {
     const sessionId = await initiateNewSession(req);
-    res.status(200).send({ sessionId });
+res.status(200).json({ sessionId });
   } catch (error) {
     console.error("Error in /initiate-session:", error); // <-- Add this line
     res.status(500).send("Internal Server Error");
