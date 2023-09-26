@@ -12,9 +12,15 @@ const cors = require('cors');
 const fs = require('fs');
 const uuid = require('uuid'); 
 
-
 // Initialize Express app
 const app = express();
+
+// Logging middleware for debugging
+app.use((req, res, next) => {
+  console.log("Middleware triggered");  
+  console.log("Request URL:", req.originalUrl); 
+  next();
+});
 
 // Set up CORS for Express
 const whitelist = process.env.CORS_WHITELIST_WIDGET.split(',');
@@ -28,7 +34,6 @@ const corsOptions = {
     }
 };
 app.use(cors(corsOptions));
-
 // Create HTTP Server
 const server = http.createServer(app);
 
