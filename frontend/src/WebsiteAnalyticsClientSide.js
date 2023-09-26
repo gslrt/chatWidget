@@ -3,7 +3,7 @@
 
 // Function to send analytics data to the backend
 function sendAnalyticsData(eventType, additionalInfo) {
-  const SERVICE_URL = process.env.SERVICE_URL || "http://localhost:3000";
+  const SERVICE_URL = "http://localhost:3000"; // Replace with your actual service URL
   fetch(`${SERVICE_URL}/analytics`, {
     method: "POST",
     headers: {
@@ -23,10 +23,8 @@ sendAnalyticsData("page_view", { url: window.location.href });
 
 // Heartbeat logic
 let elapsedTime = 0;
-
 function heartbeat() {
   sendAnalyticsData("heartbeat", { timestamp: new Date().toISOString() });
-
   let interval;
 
   if (elapsedTime < 10) {
@@ -61,7 +59,7 @@ eventTypes.forEach((eventType) => {
 
     const trigger = event.target.getAttribute("data-analytics-event-trigger");
     if (trigger) {
-      sendAnalyticsData(eventType, { trigger: trigger, event_type: eventType });
+      sendAnalyticsData(eventType, { trigger: trigger });
     }
   });
 });
@@ -83,3 +81,4 @@ const observer = new IntersectionObserver(function(entries, observer) {
 document.querySelectorAll('[data-analytics-event-trigger]').forEach(element => {
   observer.observe(element);
 });
+
