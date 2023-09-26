@@ -3,6 +3,7 @@
 const fetch = require('node-fetch');
 
 async function getGeolocation(ipAddress) {
+  console.log(`Fetching geolocation for IP: ${ipAddress}`);
   const apiKey = process.env.GEOLOCATOR_API_KEY;
   const url = `https://api.ipgeolocation.io/ipgeo?apiKey=${apiKey}&ip=${ipAddress}`;
 
@@ -20,6 +21,7 @@ async function getGeolocation(ipAddress) {
     return null;
   }
 }
+
 
 module.exports = {
   getGeolocation
