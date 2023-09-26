@@ -5,7 +5,7 @@ async function initiateNewSession() {
 const SERVICE_URL = process.env.SERVICE_URL;
   const response = await fetch(`${SERVICE_URL}/initiate-session`, { method: "POST" });
   const { sessionId } = await response.json();
-  sessionStorage.s
+sessionStorage.setItem("sessionId", sessionId);
 
 
 // Function to send analytics data to the backend
