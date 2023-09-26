@@ -1,9 +1,22 @@
+// WebsiteAnalyticsClientSide.js
+
+
+
+
 // Function to initiate a new session and get a session ID from the server
 async function initiateNewSession() {
   const SERVICE_URL = process.env.SERVICE_URL;
-  const response = await fetch(`${SERVICE_URL}/initiate-session`, { method: "POST" });
-  const { sessionId } = await response.json();
-  sessionStorage.setItem("sessionId", sessionId);
+  try {
+    const response = await fetch(`${SERVICE_URL}/initiate-session`, { method: "POST" });
+    if (response.ok) {
+      const { sessionId } = await response.json();
+      sessionStorage.setItem("sessionId", sessionId);
+    } else {
+      console.error(`Server returned ${response.status}: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error("An error occurred while fetching session data:", error);
+  }
 }
 
 // Function to send analytics data to the backend
