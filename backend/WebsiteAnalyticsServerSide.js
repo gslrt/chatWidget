@@ -2,38 +2,41 @@
 
 
 const { Pool } = require('pg');
+const { getGeolocation } = require('../geolocation');  
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
-// Function to create a new website session
-const createWebsiteSession = async (ipAddress, userAgent, site) => {
-    const query = 'INSERT INTO website_analytics_sessions (ip_address, user_agent, site) VALUES ($1, $2, $3) RETURNING session_id';
-    const values = [ipAddress, userAgent, site];
-    const result = await pool.query(query, values);
-    return result.rows[0].session_id;
+// Function to update analytics database and session
+const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
+  const clientIp = req.ip; 
+  const userAgent = req.headers['user-agent'];
+
+  // Get geolocation data
+  let geoInfo = await getGeolocation(clientIp);
+
+  // Extract session ID
+  const sessionId = req.sessionID;
+
+  // Determine device type
+  let deviceType = "desktop";
+  if (/mobile/i.test(userAgent)) {
+    deviceType = "mobile";
+  } else if (/tablet|ipad|playbook|silk/i.test(userAgent)) {
+    deviceType = "tablet";
+  }
+
+  // SQL query to insert into the sessions table
+  const sessionQuery = 'INSERT INTO website_analytics_sessions(session_id, user_ip, user_agent, start_timestamp, city, country, state_prov, local_time, device_type) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)';
+  await pool.query(sessionQuery, [sessionId, clientIp, userAgent, new Date(), geoInfo.city, geoInfo.country, geoInfo.state_prov, geoInfo.local_time, deviceType]);
+
+  // SQL query to insert into the events table
+  const eventQuery = 'INSERT INTO website_analytics_events(session_id, event_type, additional_info) VALUES($1, $2, $3)';
+  await pool.query(eventQuery, [sessionId, eventType, JSON.stringify(eventData)]);
 };
 
-// Function to update session details
-const updateWebsiteSession = async (sessionId, additionalInfo) => {
-    const query = 'UPDATE website_analytics_sessions SET additional_info = $2 WHERE session_id = $1';
-    const values = [sessionId, JSON.stringify(additionalInfo)];
-    await pool.query(query, values);
-};
-
-// Function to log website events
-const logWebsiteEvent = async (sessionId, eventType, additionalInfo) => {
-    const query = 'INSERT INTO website_analytics_events (session_id, event_type, additional_info) VALUES ($1, $2, $3)';
-    const values = [sessionId, eventType, JSON.stringify(additionalInfo)];
-    await pool.query(query, values);
-};
-
-module.exports = {
-    createWebsiteSession,
-    updateWebsiteSession,
-    logWebsiteEvent
-};
+module.exports = { updateAnalyticsDatabaseAndSession };
