@@ -2,21 +2,10 @@
 
 // Function to initiate a new session and get a session ID from the server
 async function initiateNewSession() {
-  const SERVICE_URL = process.env.SERVICE_URL;
-  try {
-    const response = await fetch(`${SERVICE_URL}/initiate-session`, { method: "POST" });
-    if (!response.ok) {
-      // Log the response text for debugging
-      const text = await response.text();
-      console.error('Server response:', text);
-      return;
-    }
-    const { sessionId } = await response.json();
-    sessionStorage.setItem("sessionId", sessionId);
-  } catch (error) {
-    console.error('Error initiating session:', error);
-  }
-}
+const SERVICE_URL = process.env.SERVICE_URL;
+  const response = await fetch(`${SERVICE_URL}/initiate-session`, { method: "POST" });
+  const { sessionId } = await response.json();
+  sessionStorage.s
 
 
 // Function to send analytics data to the backend
