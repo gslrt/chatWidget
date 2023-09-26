@@ -6,18 +6,17 @@ const { initiateNewSession, updateAnalyticsDatabaseAndSession } = require('../an
 
 // Endpoint to initiate a new session
 router.post('/initiate-session', async (req, res) => {
-  console.log("Received request to /initiate-session"); // <-- Add this line
+  console.log("Received request to /initiate-session");
   try {
     const sessionId = await initiateNewSession(req);
-res.status(200).json({ sessionId });
+    res.status(200).json({ sessionId });
   } catch (error) {
-    console.error("Error in /initiate-session:", error); // <-- Add this line
+    console.error("Error in /initiate-session:", error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-
-// Endpoint for tracking analytics events
+// Existing endpoint for tracking analytics events
 router.post('/analytics', async (req, res) => {
   const { eventType, additionalInfo } = req.body;
   await updateAnalyticsDatabaseAndSession(req, eventType, additionalInfo);
