@@ -2,7 +2,7 @@
 
 // Function to initiate a new session and get a session ID from the server
 async function initiateNewSession() {
-  const SERVICE_URL = "http://localhost:3000"; // Replace with your actual service URL
+const SERVICE_URL = process.env.SERVICE_URL;
   const response = await fetch(`${SERVICE_URL}/initiate-session`, { method: "POST" });
   const { sessionId } = await response.json();
   sessionStorage.setItem("sessionId", sessionId);
