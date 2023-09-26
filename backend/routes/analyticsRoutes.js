@@ -19,8 +19,10 @@ router.post('/initiate-session', async (req, res) => {
 });
 
 router.post('/analytics', async (req, res) => {
-  console.log("Inside /hello-world handler"); // Logging for debugging
-  res.status(200).send("Hello, World!");
+  console.log("Inside /analytics route handler");  
+  const { eventType, additionalInfo } = req.body;
+  await updateAnalyticsDatabaseAndSession(req, eventType, additionalInfo);
+  res.status(200).send('Event recorded');
 });
 
 module.exports = router;
