@@ -16,6 +16,8 @@ const pool = new Pool({
 const initiateNewSession = async (req) => {
   // Generate a unique session ID using UUID
   const sessionId = uuidv4();
+  console.log("Generated UUID:", sessionId);
+
 
   // Use the X-Forwarded-For header to get the real client IP
   const clientIp = (req.headers['x-forwarded-for'] || '').split(',').pop().trim() ||
@@ -54,10 +56,15 @@ const initiateNewSession = async (req) => {
 
   // SQL query to insert into the sessions table
   const sessionQuery = 'INSERT INTO website_analytics_sessions(session_id, user_ip, user_agent, start_timestamp, city, country, state_prov, local_time, device_type) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)';
-  await pool.query(sessionQuery, [sessionId, clientIp, userAgent, new Date(), city, country, state_prov, localTime, deviceType]);
+  console.log("Executing query:", sessionQuery);
+  console.log("With values:", [sessionId, clientIp, userAgent, new Date(), city, country, state_prov, localTime, deviceType]);
 
-  return sessionId;
+  try {
+    await pool.query(sessionQuery, [sessionId, clientIp, userAgent, new Date(), city, country, state_prov, localTime, deviceType]);
+    return sessionId;
+  } catch (error) {
+    console.error("Database Error:", error);
+  }
 };
-
 
 module.exports = { initiateNewSession };
