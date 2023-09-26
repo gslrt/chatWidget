@@ -1,8 +1,3 @@
-// WebsiteAnalyticsClientSide.js
-
-
-
-
 // Function to initiate a new session and get a session ID from the server
 async function initiateNewSession() {
   const SERVICE_URL = process.env.SERVICE_URL;
