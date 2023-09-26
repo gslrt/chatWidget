@@ -16,6 +16,9 @@ const pool = new Pool({
 const initiateNewSession = async (req) => {
   // Generate a unique session ID using UUID
   const sessionId = uuidv4();
+  if (!sessionId) {
+    throw new Error('Failed to generate a valid UUID for the session.');
+  }
 
   // Get the client IP address and user-agent from the request headers
   const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -26,15 +29,16 @@ const initiateNewSession = async (req) => {
     throw new Error("Invalid client IP or user-agent");
   }
 
-  // Get geolocation data
-  let geoInfo;
-  try {
-    geoInfo = await getGeolocation(clientIp);
-  } catch (error) {
-    console.error(`Failed to fetch geolocation for IP: ${clientIp}`, error);
-    geoInfo = {};  // Default empty object if geolocation fetch fails
+    // Get geolocation data
+  let geoInfo = await getGeolocation(clientIp);
+  if (!geoInfo) {
+    geoInfo = {
+      city: 'Unknown',
+      country: 'Unknown',
+      state_prov: 'Unknown',
+      local_time: new Date().toISOString()
+    };
   }
-
   // Determine device type
   let deviceType = "desktop";
   if (/mobile/i.test(userAgent)) {
