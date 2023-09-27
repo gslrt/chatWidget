@@ -84,6 +84,10 @@ io.on('connection', (socket) => {
     socket.emit('uid', uid);  // Emit the UUID to the client
     const sessionId = socket.request.session.sessionID;  // Retrieve sessionId from request session
     socket.sessionId = sessionId;  // Attach sessionId to the socket object
+
+    // Debug: Emit sessionId for debugging
+    socket.emit('debugSessionId', sessionId);
+
     chatRoute.handleSocketConnection(socket, uid);
 });
 
