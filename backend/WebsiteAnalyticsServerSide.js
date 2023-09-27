@@ -61,17 +61,16 @@ const initiateNewSession = async (req) => {
       deviceType = "tablet";
     }
 
-     // Debugging: Print all headers to console
+    // Debugging: Print all headers to console
     console.log("Request headers: ", JSON.stringify(req.headers));
 
     // Capture the site and the referrer
-    const site = req.headers.host || 'Unknown';  // 'host' header usually contains the domain of the server.
+    const site = req.headers.host || 'Unknown';
     const referrerUrl = req.headers.referer || 'Unknown';
 
     // Modify your SQL query and parameters to include site and referrerUrl
     const sessionQuery = 'INSERT INTO website_analytics_sessions(session_id, user_ip, user_agent, start_timestamp, city, country, state_prov, local_time, device_type, country_flag, site, referrer_url) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)';
     const queryParams = [sessionId, clientIp, userAgent, new Date(), city, country, state_prov, localTime, deviceType, countryFlag, site, referrerUrl];
-
 
     console.log(`Executing query: ${sessionQuery}`);
     console.log(`With values: ${JSON.stringify(queryParams)}`);
@@ -87,5 +86,4 @@ const initiateNewSession = async (req) => {
 };
 
 module.exports = { initiateNewSession };
-
 
