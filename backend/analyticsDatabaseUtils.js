@@ -21,9 +21,7 @@ const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
       return;
     }
 
-    // Log eventData for debugging
-    console.log(`Received eventData for eventType ${eventType}: `, JSON.stringify(eventData));
-
+  
     // Handle heartbeat events to update time_spent_on_page
     if (eventType === 'heartbeat') {
       const currentUrl = eventData.url || 'Unknown';
