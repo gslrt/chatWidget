@@ -82,26 +82,35 @@ io.use((socket, next) => {
 io.on('connection', (socket) => {
     const uid = uuid.v4();  
     socket.emit('uid', uid);  // Emit the UUID to the client
+
+    console.log("Debug: socket.request.session:", socket.request.session);
+
     const sessionId = socket.request.session.sessionID;  // Retrieve sessionId from request session
-    socket.sessionId = sessionId;  // Attach sessionId to the socket object
+    console.log("Debug: Retrieved sessionId:", sessionId);
 
-    // Debug: Emit sessionId for debugging
-    socket.emit('debugSessionId', sessionId);
+    if(sessionId) {
+        socket.sessionId = sessionId;  // Attach sessionId to the socket object
+        // Debug: Emit sessionId for debugging
+        socket.emit('debugSessionId', sessionId);
 
-    // When storing session data into Redis
-    redisClient.set(sessionId, JSON.stringify({uid: uid}), (err) => {
-        if (err) console.error('Error storing session data in Redis:', err);
-        else console.log(`Stored session data for sessionId: ${sessionId}`);
-    });
+        // When storing session data into Redis
+        redisClient.set(sessionId, JSON.stringify({uid: uid}), (err) => {
+            if (err) console.error('Error storing session data in Redis:', err);
+            else console.log(`Stored session data for sessionId: ${sessionId}`);
+        });
 
-    // When retrieving session data from Redis just to debug
-    redisClient.get(sessionId, (err, reply) => {
-        if (err) console.error('Error retrieving session data from Redis:', err);
-        else console.log(`Retrieved session data for sessionId: ${sessionId} - Data: ${reply}`);
-    });
+        // When retrieving session data from Redis just to debug
+        redisClient.get(sessionId, (err, reply) => {
+            if (err) console.error('Error retrieving session data from Redis:', err);
+            else console.log(`Retrieved session data for sessionId: ${sessionId} - Data: ${reply}`);
+        });
+    } else {
+        console.error("Session ID is undefined.");
+    }
 
     chatRoute.handleSocketConnection(socket, uid);
 });
+
 
 
 
