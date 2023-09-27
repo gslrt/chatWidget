@@ -32,7 +32,7 @@ const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
       return;
     }
 
-    // Handle page_view events to insert into website_analytics_visited_pages
+  // Handle page_view events to insert into website_analytics_visited_pages
     if (eventType === 'page_view') {
       const pageViewQuery = 'INSERT INTO website_analytics_visited_pages(session_id, url, referrer_url, time_spent_on_page) VALUES($1, $2, $3, $4)';
       const url = eventData.url || 'Unknown';
