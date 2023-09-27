@@ -1,5 +1,16 @@
 // frontend/src/WebsiteAnalyticsClientSide.js
 
+
+
+
+
+
+// Right before the fetch in initiateNewSession()
+console.log("Current URL in initiateNewSession: ", window.location.href);
+console.log("Document Referrer in initiateNewSession: ", document.referrer);
+
+
+
 // Function to initiate a new session and get a session ID from the server
 async function initiateNewSession() {
   // Check if session ID already exists in sessionStorage
@@ -35,6 +46,13 @@ async function initiateNewSession() {
     return null;
   }
 }
+
+
+// Right before the fetch in sendAnalyticsData()
+console.log("Current URL in sendAnalyticsData: ", window.location.href);
+console.log("Document Referrer in sendAnalyticsData: ", document.referrer);
+
+
 
 function sendAnalyticsData(eventType, additionalInfo) {
   const SERVICE_URL = process.env.SERVICE_URL;
