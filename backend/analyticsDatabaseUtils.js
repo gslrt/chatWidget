@@ -16,7 +16,6 @@ const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
   try {
     // Exclude 'heartbeat' events from being recorded
     if (eventType === 'heartbeat') {
-      console.log("Ignoring heartbeat event");
       return;
     }
 
