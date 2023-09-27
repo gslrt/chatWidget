@@ -82,6 +82,14 @@ io.use((socket, next) => {
 io.on('connection', (socket) => {
     const uid = uuid.v4();  
     socket.emit('uid', uid);  // Emit the UUID to the client
+
+    // Listen for 'initializeSession' event to receive the session ID from the frontend
+    socket.on('initializeSession', (data) => {
+        const { sessionId } = data;
+        socket.request.session.sessionID = sessionId;
+        console.log(`Received sessionId: ${sessionId}`);
+    });
+
     chatRoute.handleSocketConnection(socket, uid);
 });
 
