@@ -16,7 +16,8 @@ async function initiateNewSession() {
   // Check if session ID already exists in sessionStorage
   let sessionId = sessionStorage.getItem("sessionId");
   
-  const site = window.location.hostname;  // Capture the site
+  const site = window.location.hostname;
+  const referrerUrl = document.referrer || "Direct";
 
   if (sessionId) {
     // If session ID exists, no need to create a new one
@@ -30,7 +31,7 @@ async function initiateNewSession() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ site })  // Include the site
+body: JSON.stringify({ site, referrer: referrerUrl })  
     });
     
     if (response.ok) {
