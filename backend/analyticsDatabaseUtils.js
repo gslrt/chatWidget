@@ -2,7 +2,6 @@
 
 const { v4: uuidv4 } = require('uuid');
 const { Pool } = require('pg');
-const { getGeolocation } = require('../geolocation');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
