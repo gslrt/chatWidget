@@ -25,4 +25,4 @@ const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
   await pool.query(eventQuery, [sessionId, eventType, JSON.stringify(eventData)]);
 };
 
-module.exports = { initiateNewSession, updateAnalyticsDatabaseAndSession };
+module.exports = { updateAnalyticsDatabaseAndSession };
