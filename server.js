@@ -17,8 +17,6 @@ const app = express();
 
 // Logging middleware for debugging
 app.use((req, res, next) => {
-  console.log("Middleware triggered");  
-  console.log("Request URL:", req.originalUrl); 
   next();
 });
 
