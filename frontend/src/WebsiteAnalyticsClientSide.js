@@ -18,17 +18,16 @@ async function initiateNewSession() {
   }
 }
 
-// Function to send analytics data to the backend
 function sendAnalyticsData(eventType, additionalInfo) {
   const SERVICE_URL = process.env.SERVICE_URL;
   const sessionId = sessionStorage.getItem("sessionId");
   fetch(`${SERVICE_URL}/analytics/analytics`, {  
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "X-Session-ID": sessionId
     },
     body: JSON.stringify({
-      sessionId,
       eventType,
       additionalInfo
     })
