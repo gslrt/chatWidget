@@ -88,8 +88,21 @@ io.on('connection', (socket) => {
     // Debug: Emit sessionId for debugging
     socket.emit('debugSessionId', sessionId);
 
+    // When storing session data into Redis
+    redisClient.set(sessionId, JSON.stringify({uid: uid}), (err) => {
+        if (err) console.error('Error storing session data in Redis:', err);
+        else console.log(`Stored session data for sessionId: ${sessionId}`);
+    });
+
+    // When retrieving session data from Redis just to debug
+    redisClient.get(sessionId, (err, reply) => {
+        if (err) console.error('Error retrieving session data from Redis:', err);
+        else console.log(`Retrieved session data for sessionId: ${sessionId} - Data: ${reply}`);
+    });
+
     chatRoute.handleSocketConnection(socket, uid);
 });
+
 
 
 
