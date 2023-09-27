@@ -12,6 +12,11 @@ const pool = new Pool({
   }
 });
 
+
+// Capture the site from the request payload
+const site = req.body.site || 'Unknown';
+
+
 // Function to initiate a new session and update the analytics database
 const initiateNewSession = async (req) => {
   try {
