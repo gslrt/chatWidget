@@ -27,17 +27,19 @@ const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
       return;
     }
 
-    // Debugging: Log the session ID
-    console.log(`Session ID for updateAnalyticsDatabaseAndSession: ${sessionId}`);
+    if (eventType === 'page_view') {
+      // Insert into website_analytics_visited_pages
+      const pageViewQuery = 'INSERT INTO website_analytics_visited_pages(session_id, url, time_spent_on_page) VALUES($1, $2, $3)';
+      const url = eventData.url || 'Unknown'; 
+      const timeSpent = 0;
+      await pool.query(pageViewQuery, [sessionId, url, timeSpent]);
+    }
 
     // SQL query to insert the event into the analytics database
     const eventQuery = 'INSERT INTO website_analytics_events(session_id, event_type, additional_info) VALUES($1, $2, $3)';
     
     // Execute the query
     await pool.query(eventQuery, [sessionId, eventType, JSON.stringify(eventData)]);
-
-    console.log(`Successfully inserted event ${eventType} for session ${sessionId}`);
-
   } catch (error) {
     console.error(`Error in updateAnalyticsDatabaseAndSession: ${error}`);
   }
