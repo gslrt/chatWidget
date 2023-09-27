@@ -56,27 +56,28 @@ initiateNewSession().then((sessionId) => {
   // Track initial page view
   sendAnalyticsData("page_view", { url: window.location.href });
 
-  // Heartbeat logic
-  let elapsedTime = 0;
-  function heartbeat() {
-    sendAnalyticsData("heartbeat", { timestamp: new Date().toISOString() });
-    let interval;
+ // Heartbeat logic
+let elapsedTime = 0;
+function heartbeat() {
+  sendAnalyticsData("heartbeat", { timestamp: new Date().toISOString(), url: window.location.href });
+  let interval;
 
-    if (elapsedTime < 10) {
-      interval = 1000;
-    } else if (elapsedTime < 60) {
-      interval = 2000;
-    } else if (elapsedTime < 120) {
-      interval = 10000;
-    } else if (elapsedTime < 240) {
-      interval = 20000;
-    } else {
-      interval = 30000;
-    }
-
-    setTimeout(heartbeat, interval);
-    elapsedTime += interval / 1000;
+  if (elapsedTime < 10) {
+    interval = 1000;
+  } else if (elapsedTime < 60) {
+    interval = 2000;
+  } else if (elapsedTime < 120) {
+    interval = 10000;
+  } else if (elapsedTime < 240) {
+    interval = 20000;
+  } else {
+    interval = 30000;
   }
+
+  setTimeout(heartbeat, interval);
+  elapsedTime += interval / 1000;
+}
+
 
   // Start the heartbeat
   heartbeat();
