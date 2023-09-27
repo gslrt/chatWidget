@@ -1,12 +1,10 @@
 // frontend/src/WebsiteAnalyticsClientSide.js
 
-
-
 // Function to initiate a new session and get a session ID from the server
 async function initiateNewSession() {
   // Check if session ID already exists in sessionStorage
   let sessionId = sessionStorage.getItem("sessionId");
-  
+
   if (sessionId) {
     // If session ID exists, no need to create a new one
     return sessionId;
@@ -32,7 +30,7 @@ async function initiateNewSession() {
 function sendAnalyticsData(eventType, additionalInfo) {
   const SERVICE_URL = process.env.SERVICE_URL;
   const sessionId = sessionStorage.getItem("sessionId");
-  fetch(`${SERVICE_URL}/analytics/analytics`, {  
+  fetch(`${SERVICE_URL}/analytics/analytics`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -53,31 +51,33 @@ initiateNewSession().then((sessionId) => {
     console.error("Failed to initialize session.");
     return;
   }
+
+  const referrerUrl = document.referrer || "Direct"; // Direct navigation if referrer is empty
+
   // Track initial page view
-  sendAnalyticsData("page_view", { url: window.location.href });
+  sendAnalyticsData("page_view", { url: window.location.href, referrer: referrerUrl });
 
- // Heartbeat logic
-let elapsedTime = 0;
-function heartbeat() {
-  sendAnalyticsData("heartbeat", { timestamp: new Date().toISOString(), url: window.location.href });
-  let interval;
+  // Heartbeat logic
+  let elapsedTime = 0;
+  function heartbeat() {
+    sendAnalyticsData("heartbeat", { timestamp: new Date().toISOString(), url: window.location.href });
+    let interval;
 
-  if (elapsedTime < 10) {
-    interval = 1000;
-  } else if (elapsedTime < 60) {
-    interval = 2000;
-  } else if (elapsedTime < 120) {
-    interval = 10000;
-  } else if (elapsedTime < 240) {
-    interval = 20000;
-  } else {
-    interval = 30000;
+    if (elapsedTime < 10) {
+      interval = 1000;
+    } else if (elapsedTime < 60) {
+      interval = 2000;
+    } else if (elapsedTime < 120) {
+      interval = 10000;
+    } else if (elapsedTime < 240) {
+      interval = 20000;
+    } else {
+      interval = 30000;
+    }
+
+    setTimeout(heartbeat, interval);
+    elapsedTime += interval / 1000;
   }
-
-  setTimeout(heartbeat, interval);
-  elapsedTime += interval / 1000;
-}
-
 
   // Start the heartbeat
   heartbeat();
@@ -118,3 +118,4 @@ function heartbeat() {
     observer.observe(element);
   });
 });
+
