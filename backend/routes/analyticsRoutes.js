@@ -20,7 +20,6 @@ router.post('/initiate-session', async (req, res) => {
 
 
 router.post('/analytics', async (req, res) => {
-  console.log("Inside /analytics route handler");  
   const { eventType, additionalInfo } = req.body;
   
   req.sessionID = req.headers["x-session-id"];
