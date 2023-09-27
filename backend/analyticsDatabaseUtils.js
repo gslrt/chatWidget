@@ -36,9 +36,10 @@ const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
       const url = eventData.url || 'Unknown'; 
       const timeSpent = 0;
       await pool.query(pageViewQuery, [sessionId, url, timeSpent]);
+      return; 
     }
 
-    // SQL query to insert the event into the analytics database
+    // SQL query to insert other event types into the analytics database
     const eventQuery = 'INSERT INTO website_analytics_events(session_id, event_type, additional_info) VALUES($1, $2, $3)';
     
     // Execute the query
