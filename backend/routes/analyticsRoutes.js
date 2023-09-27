@@ -8,15 +8,16 @@ const { initiateNewSession } = require('../WebsiteAnalyticsServerSide');
 
 
 router.post('/initiate-session', async (req, res) => {
-  console.log("Inside /initiate-session route handler"); 
   try {
     const sessionId = await initiateNewSession(req);
+    console.log("Sending sessionId:", sessionId);
     res.status(200).json({ sessionId });
   } catch (error) {
     console.error("Error in /initiate-session:", error);
     res.status(500).send("Internal Server Error");
   }
 });
+
 
 router.post('/analytics', async (req, res) => {
   console.log("Inside /analytics route handler");  
