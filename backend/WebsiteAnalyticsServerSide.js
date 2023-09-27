@@ -47,12 +47,17 @@ const initiateNewSession = async (req) => {
       return null;
     }
 
+
+    const site = req.hostname || null;  // Using Express.js property for hostname
+    const referrerUrl = req.headers.referer || null;  // Using HTTP Referer header
+
+
     // Prepare data for database insertion
    const city = geoInfo.city || null;
-const country = geoInfo.country_name || null;
-const state_prov = geoInfo.state_prov || null;
-const localTime = geoInfo.date_time ? new Date(geoInfo.date_time).toISOString() : new Date().toISOString();
-const countryFlag = geoInfo.country_flag || null;
+   const country = geoInfo.country_name || null;
+   const state_prov = geoInfo.state_prov || null;
+   const localTime = geoInfo.date_time ? new Date(geoInfo.date_time).toISOString() : new Date().toISOString();
+   const countryFlag = geoInfo.country_flag || null;
 
     
     let deviceType = "desktop";
@@ -63,8 +68,9 @@ const countryFlag = geoInfo.country_flag || null;
     }
 
 // SQL query to insert into the sessions table
-const sessionQuery = 'INSERT INTO website_analytics_sessions(session_id, user_ip, user_agent, start_timestamp, city, country, state_prov, local_time, device_type, country_flag) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)';
-const queryParams = [sessionId, clientIp, userAgent, new Date(), city, country, state_prov, localTime, deviceType, countryFlag];
+const sessionQuery = 'INSERT INTO website_analytics_sessions(session_id, user_ip, user_agent, start_timestamp, city, country, state_prov, local_time, device_type, country_flag, site, referrer_url) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)';
+const queryParams = [sessionId, clientIp, userAgent, new Date(), city, country, state_prov, localTime, deviceType, countryFlag, site, referrerUrl];
+
 
 
     console.log(`Executing query: ${sessionQuery}`);
