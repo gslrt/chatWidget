@@ -1,7 +1,6 @@
 // /backend/WebsiteAnalyticsServerSide.js
 
 
-c
 const { v4: uuidv4 } = require('uuid');
 const { Pool } = require('pg');
 const { getGeolocation } = require('./geolocation');
