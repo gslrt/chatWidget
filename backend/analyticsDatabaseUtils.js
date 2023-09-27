@@ -24,8 +24,9 @@ const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
 
     // Handle heartbeat events to update time_spent_on_page
     if (eventType === 'heartbeat') {
-      const updateQuery = 'UPDATE website_analytics_visited_pages SET time_spent_on_page = time_spent_on_page + 1 WHERE session_id = $1';
-      await pool.query(updateQuery, [sessionId]);
+      const currentUrl = eventData.url || 'Unknown';
+      const updateQuery = `UPDATE website_analytics_visited_pages SET time_spent_on_page = time_spent_on_page + 1 WHERE session_id = $1 AND url = $2`;
+      await pool.query(updateQuery, [sessionId, currentUrl]);
       return;
     }
 
@@ -47,6 +48,9 @@ const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
     console.error(`Error in updateAnalyticsDatabaseAndSession: ${error}`);
   }
 };
+
+module.exports = { updateAnalyticsDatabaseAndSession };
+
 
 module.exports = { updateAnalyticsDatabaseAndSession };
 
