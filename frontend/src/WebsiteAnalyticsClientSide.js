@@ -4,6 +4,8 @@
 async function initiateNewSession() {
   // Check if session ID already exists in sessionStorage
   let sessionId = sessionStorage.getItem("sessionId");
+  
+  const site = window.location.hostname;  // Capture the site
 
   if (sessionId) {
     // If session ID exists, no need to create a new one
@@ -12,7 +14,14 @@ async function initiateNewSession() {
 
   const SERVICE_URL = process.env.SERVICE_URL;
   try {
-    const response = await fetch(`${SERVICE_URL}/analytics/initiate-session`, { method: "POST" });
+    const response = await fetch(`${SERVICE_URL}/analytics/initiate-session`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ site })  // Include the site
+    });
+    
     if (response.ok) {
       const { sessionId } = await response.json();
       sessionStorage.setItem("sessionId", sessionId);
@@ -30,6 +39,8 @@ async function initiateNewSession() {
 function sendAnalyticsData(eventType, additionalInfo) {
   const SERVICE_URL = process.env.SERVICE_URL;
   const sessionId = sessionStorage.getItem("sessionId");
+  const site = window.location.hostname;  // Capture the site
+
   fetch(`${SERVICE_URL}/analytics/analytics`, {
     method: "POST",
     headers: {
@@ -38,6 +49,7 @@ function sendAnalyticsData(eventType, additionalInfo) {
     },
     body: JSON.stringify({
       eventType,
+      site,  // Include the site
       additionalInfo
     })
   }).then(response => {
@@ -52,8 +64,8 @@ initiateNewSession().then((sessionId) => {
     return;
   }
 
-  const referrerUrl = document.referrer || "Direct"; // Direct navigation if referrer is empty
-
+  const referrerUrl = document.referrer || "Direct";
+  
   // Track initial page view
   sendAnalyticsData("page_view", { url: window.location.href, referrer: referrerUrl });
 
