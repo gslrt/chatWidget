@@ -13,15 +13,30 @@ const pool = new Pool({
 
 // Function to update analytics database and session
 const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
-  const clientIp = req.ip;
-  const userAgent = req.headers['user-agent'];
+  try {
+    // Extract session ID (Assuming it's set somewhere else in your code via uuidv4)
+    const sessionId = req.sessionID;
 
-  // Extract session ID
-  const sessionId = req.sessionID;
+    // Validate if sessionID exists
+    if (!sessionId) {
+      console.error("Session ID is missing. Exiting function.");
+      return;
+    }
 
-  // Store event in database
-  const eventQuery = 'INSERT INTO website_analytics_events(session_id, event_type, additional_info) VALUES($1, $2, $3)';
-  await pool.query(eventQuery, [sessionId, eventType, JSON.stringify(eventData)]);
+    // Debugging: Log the session ID
+    console.log(`Session ID for updateAnalyticsDatabaseAndSession: ${sessionId}`);
+
+    // SQL query to insert the event into the analytics database
+    const eventQuery = 'INSERT INTO website_analytics_events(session_id, event_type, additional_info) VALUES($1, $2, $3)';
+    
+    // Execute the query
+    await pool.query(eventQuery, [sessionId, eventType, JSON.stringify(eventData)]);
+
+    console.log(`Successfully inserted event ${eventType} for session ${sessionId}`);
+
+  } catch (error) {
+    console.error(`Error in updateAnalyticsDatabaseAndSession: ${error}`);
+  }
 };
 
 module.exports = { updateAnalyticsDatabaseAndSession };
