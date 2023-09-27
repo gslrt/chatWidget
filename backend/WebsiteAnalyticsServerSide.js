@@ -51,7 +51,9 @@ const initiateNewSession = async (req) => {
     const city = geoInfo.city || "Unknown";
     const country = geoInfo.country_name || "Unknown";
     const state_prov = geoInfo.state_prov || "Unknown";
-    const localTime = geoInfo.time_zone ? geoInfo.time_zone.current_time : "Unknown";
+    const countryFlag = geoInfo.country_flag || "Unknown";
+    const localTime = geoInfo.date_time || "Unknown";
+    
     let deviceType = "desktop";
     if (/mobile/i.test(userAgent)) {
       deviceType = "mobile";
@@ -59,9 +61,10 @@ const initiateNewSession = async (req) => {
       deviceType = "tablet";
     }
 
-    // SQL query to insert into the sessions table
-    const sessionQuery = 'INSERT INTO website_analytics_sessions(session_id, user_ip, user_agent, start_timestamp, city, country, state_prov, local_time, device_type) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)';
-    const queryParams = [sessionId, clientIp, userAgent, new Date(), city, country, state_prov, localTime, deviceType];
+  // SQL query to insert into the sessions table
+const sessionQuery = 'INSERT INTO website_analytics_sessions(session_id, user_ip, user_agent, start_timestamp, city, country, state_prov, local_time, device_type, country_flag) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)';  
+const queryParams = [sessionId, clientIp, userAgent, new Date(), city, country, state_prov, localTime, deviceType, countryFlag]; 
+
     console.log(`Executing query: ${sessionQuery}`);
     console.log(`With values: ${JSON.stringify(queryParams)}`);
 
