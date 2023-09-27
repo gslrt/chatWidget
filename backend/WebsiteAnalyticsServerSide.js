@@ -14,20 +14,23 @@ const pool = new Pool({
 
 // Function to initiate a new session and update the analytics database
 const initiateNewSession = async (req) => {
-  try {
-    // Generate a unique session ID using UUID
-    const sessionId = uuidv4();
-    console.log(`Generated UUID: ${sessionId}`);
+  // Generate a unique session ID using UUID
+  const sessionId = uuidv4();
+  console.log("Generated UUID:", sessionId);
 
-    // Get the client IP from headers or request object
-    const clientIp = (req.headers['x-forwarded-for'] || '').split(',').pop().trim() || req.connection.remoteAddress || "Unknown";
-    console.log(`Client IP: ${clientIp}`);
+  // Use the X-Forwarded-For header to get the real client IP
+  const clientIp = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 
+                   req.connection.remoteAddress || 
+                   req.socket.remoteAddress || 
+                   req.connection.socket.remoteAddress || 
+                   "Unknown";
 
-    // If the IP is unknown or internal, log and return
-    if (clientIp === "Unknown" || clientIp.startsWith("192.168.")) {
-      console.error(`IP address is not set or internal: ${clientIp}`);
-      return null;
-    }
+  console.log("Client IP:", clientIp); // Log the client IP for debugging
+
+  if (clientIp === "Unknown" || clientIp.startsWith("192.168.") || clientIp.startsWith("::ffff:192.168.")) {
+    console.error('IP address is not set or internal.');
+    return;
+  }
 
     // Get user agent from headers
     const userAgent = req.headers['user-agent'];
