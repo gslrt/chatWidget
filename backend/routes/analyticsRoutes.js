@@ -2,10 +2,10 @@
 
 const express = require('express');
 const router = express.Router();
-const { initiateNewSession, updateAnalyticsDatabaseAndSession } = require('../analyticsDatabaseUtils');
+const { updateAnalyticsDatabaseAndSession } = require('../analyticsDatabaseUtils');
+const { initiateNewSession } = require('../WebsiteAnalyticsServerSide');
 
-// Endpoint to initiate a new session
-// backend/routes/analyticsRoutes.js
+
 
 router.post('/initiate-session', async (req, res) => {
   console.log("Inside /initiate-session route handler"); 
