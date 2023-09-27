@@ -32,17 +32,16 @@ const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
 
     // Handle page_view events to insert into website_analytics_visited_pages
     if (eventType === 'page_view') {
-      const pageViewQuery = 'INSERT INTO website_analytics_visited_pages(session_id, url, time_spent_on_page) VALUES($1, $2, $3)';
-      const url = eventData.url || 'Unknown'; 
+      const pageViewQuery = 'INSERT INTO website_analytics_visited_pages(session_id, url, referrer_url, time_spent_on_page) VALUES($1, $2, $3, $4)';
+      const url = eventData.url || 'Unknown';
+      const referrer = eventData.referrer || 'Unknown';
       const timeSpent = 0;
-      await pool.query(pageViewQuery, [sessionId, url, timeSpent]);
-      return; 
+      await pool.query(pageViewQuery, [sessionId, url, referrer, timeSpent]);
+      return;
     }
 
-    // SQL query to insert other event types into the analytics database
+    // SQL query to insert the event into the analytics database
     const eventQuery = 'INSERT INTO website_analytics_events(session_id, event_type, additional_info) VALUES($1, $2, $3)';
-    
-    // Execute the query
     await pool.query(eventQuery, [sessionId, eventType, JSON.stringify(eventData)]);
 
   } catch (error) {
