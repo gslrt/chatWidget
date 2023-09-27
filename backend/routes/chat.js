@@ -22,15 +22,22 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
         console.error('Session or request object is undefined.');
         return;
     }
-    const sessionId = socket.sessionId;  // Access sessionId from socket object
+
+    // Debugging statement to print out the session ID
+    console.log("Debug: Session ID:", socket.request.session.sessionID);
 
     if (!socket.request.session.conversation_id) {
         const result = await pool.query(
             'INSERT INTO website_chat_conversations (start_timestamp, session_id) VALUES ($1, $2) RETURNING conversation_id',
-            [currentTimestamp, sessionId]  // Use sessionId here
-        );
+            [currentTimestamp, socket.request.session.sessionID]
+        )
+        .catch(err => {
+            console.error('Database Error:', err);
+        });
+
         socket.request.session.conversation_id = result.rows[0].conversation_id;
     }
+
 
     await pool.query('INSERT INTO website_chat_messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'sent', userInput]);
     await pool.query('INSERT INTO website_chat_messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'received', aiResponse]);
