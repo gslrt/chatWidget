@@ -1,3 +1,6 @@
+
+
+
 const { v4: uuidv4 } = require('uuid');
 const { Pool } = require('pg');
 const { getGeolocation } = require('./geolocation');
@@ -14,7 +17,6 @@ const initiateNewSession = async (req) => {
   try {
     // Capture the site from the request payload or headers
     const site = req.body.site || req.headers.host || 'Unknown';
-    console.log("Received Site:", site);  // Debug log
 
     // Generate a unique session ID using UUID
     const sessionId = uuidv4();
@@ -26,6 +28,7 @@ const initiateNewSession = async (req) => {
                      req.socket.remoteAddress || 
                      req.connection.socket.remoteAddress || 
                      "Unknown";
+
     console.log("Client IP:", clientIp);
 
     if (clientIp === "Unknown" || clientIp.startsWith("192.168.") || clientIp.startsWith("::ffff:192.168.")) {
@@ -64,11 +67,10 @@ const initiateNewSession = async (req) => {
     // Debugging: Print all headers to console
     console.log("Request headers: ", JSON.stringify(req.headers));
 
-    // Capture the referrer
-    const referrerUrl = req.headers.referer || 'Unknown';
-    console.log("Received Referrer URL:", referrerUrl);  // Debug log
+    // Capture referrer
+    const referrerUrl = req.body.additionalInfo?.referrer || req.headers.referer || 'Unknown';
 
-    // Modify your SQL query and parameters to include site and referrerUrl
+    // SQL query to insert the session into the database, now including referrerUrl
     const sessionQuery = 'INSERT INTO website_analytics_sessions(session_id, user_ip, user_agent, start_timestamp, city, country, state_prov, local_time, device_type, country_flag, site, referrer_url) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)';
     const queryParams = [sessionId, clientIp, userAgent, new Date(), city, country, state_prov, localTime, deviceType, countryFlag, site, referrerUrl];
 
