@@ -4,17 +4,28 @@
 
 // Function to initiate a new session and get a session ID from the server
 async function initiateNewSession() {
+  // Check if session ID already exists in sessionStorage
+  let sessionId = sessionStorage.getItem("sessionId");
+  
+  if (sessionId) {
+    // If session ID exists, no need to create a new one
+    return sessionId;
+  }
+
   const SERVICE_URL = process.env.SERVICE_URL;
   try {
     const response = await fetch(`${SERVICE_URL}/analytics/initiate-session`, { method: "POST" });
     if (response.ok) {
       const { sessionId } = await response.json();
       sessionStorage.setItem("sessionId", sessionId);
+      return sessionId;
     } else {
       console.error(`Server returned ${response.status}: ${response.statusText}`);
+      return null;
     }
   } catch (error) {
     console.error("An error occurred while fetching session data:", error);
+    return null;
   }
 }
 
@@ -37,7 +48,11 @@ function sendAnalyticsData(eventType, additionalInfo) {
 }
 
 // Initialize a new session and run analytics logic
-initiateNewSession().then(() => {
+initiateNewSession().then((sessionId) => {
+  if (!sessionId) {
+    console.error("Failed to initialize session.");
+    return;
+  }
   // Track initial page view
   sendAnalyticsData("page_view", { url: window.location.href });
 
