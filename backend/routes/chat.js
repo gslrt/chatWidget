@@ -23,65 +23,18 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
         return;
     }
 
-    // Use the X-Forwarded-For header to get the real client IP
-    const clientIp = socket.request.headers['x-forwarded-for'] || socket.handshake.address || socket.conn.remoteAddress || "Unknown";
-
-    if (clientIp === "Unknown" || clientIp.startsWith("192.168.")) {
-        console.error('IP address is not set or internal.');
-        return;
+    if (!socket.request.session.conversation_id) {
+        const result = await pool.query(
+            'INSERT INTO website_chat_conversations (start_timestamp, session_id) VALUES ($1, $2) RETURNING conversation_id',
+            [currentTimestamp, socket.request.session.sessionID]
+        );
+        socket.request.session.conversation_id = result.rows[0].conversation_id;
     }
 
-    let geoInfo = {
-        city: "Unknown",
-        country_name: "Unknown",
-        region: "Unknown",
-        time_zone: { current_time: "Unknown" }
-    };
-
-    try {
-        geoInfo = await getGeolocation(clientIp);
-        if (!geoInfo) {
-            throw new Error('Geolocation API returned null');
-        }
-    } catch (error) {
-        console.error("Failed to get geolocation:", error.message);
-    }
-
-    const city = geoInfo.city || "Unknown";
-    const country = geoInfo.country_name || "Unknown";
-    const state_prov = geoInfo.state_prov || "Unknown";
-    const localTime = geoInfo.time_zone ? geoInfo.time_zone.current_time : "Unknown";
-
-
-
-
-
-    // Get device type from user-agent string
-    const userAgent = socket.request.headers['user-agent'] || "Unknown";
-    let deviceType = "desktop";
-    if (/mobile/i.test(userAgent)) {
-        deviceType = "mobile";
-    } else if (/tablet|ipad|playbook|silk/i.test(userAgent)) {
-        deviceType = "tablet";
-    }
-
-   if (!socket.request.session.conversation_id) {
-    const result = await pool.query(
-        'INSERT INTO chat_Conversations (start_timestamp, ip_address, user_agent, city, country, state_prov, local_time, device_type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING conversation_id',
-        [currentTimestamp, clientIp, userAgent, city, country, state_prov, localTime, deviceType]
-    );
-    socket.request.session.conversation_id = result.rows[0].conversation_id;
-}
-
-    await pool.query('INSERT INTO chat_Messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'sent', userInput]);
-    await pool.query('INSERT INTO chat_Messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'received', aiResponse]);
-    await pool.query('UPDATE chat_Conversations SET end_timestamp = $1 WHERE conversation_id = $2', [currentTimestamp, socket.request.session.conversation_id]);
+    await pool.query('INSERT INTO website_chat_messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'sent', userInput]);
+    await pool.query('INSERT INTO website_chat_messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'received', aiResponse]);
+    await pool.query('UPDATE website_chat_conversations SET end_timestamp = $1 WHERE conversation_id = $2', [currentTimestamp, socket.request.session.conversation_id]);
 };
-
-
-
-
-
 
 
 
