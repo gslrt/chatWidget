@@ -1,6 +1,7 @@
 // /backend/WebsiteAnalyticsServerSide.js
 
 
+c
 const { v4: uuidv4 } = require('uuid');
 const { Pool } = require('pg');
 const { getGeolocation } = require('./geolocation');
@@ -12,12 +13,12 @@ const pool = new Pool({
   }
 });
 
-
 // Function to initiate a new session and update the analytics database
 const initiateNewSession = async (req) => {
   try {
-    // Capture the site from the request payload (move this line inside here)
-    const site = req.body.site || 'Unknown';
+    // Capture the site from the request payload or headers
+    const site = req.body.site || req.headers.host || 'Unknown';
+
     // Generate a unique session ID using UUID
     const sessionId = uuidv4();
     console.log("Generated UUID:", sessionId);
@@ -67,8 +68,7 @@ const initiateNewSession = async (req) => {
     // Debugging: Print all headers to console
     console.log("Request headers: ", JSON.stringify(req.headers));
 
-    // Capture the site and the referrer
-    const site = req.headers.host || 'Unknown';
+    // Capture referrer
     const referrerUrl = req.headers.referer || 'Unknown';
 
     // Modify your SQL query and parameters to include site and referrerUrl
