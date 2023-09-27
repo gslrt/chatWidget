@@ -14,11 +14,6 @@ const pool = new Pool({
 // Function to update analytics database and session
 const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
   try {
-    // Exclude 'heartbeat' events from being recorded
-    if (eventType === 'heartbeat') {
-      return;
-    }
-
     const sessionId = req.sessionID;
 
     // Validate if sessionID exists
@@ -27,8 +22,15 @@ const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
       return;
     }
 
+    // Handle heartbeat events to update time_spent_on_page
+    if (eventType === 'heartbeat') {
+      const updateQuery = 'UPDATE website_analytics_visited_pages SET time_spent_on_page = time_spent_on_page + 1 WHERE session_id = $1';
+      await pool.query(updateQuery, [sessionId]);
+      return;
+    }
+
+    // Handle page_view events to insert into website_analytics_visited_pages
     if (eventType === 'page_view') {
-      // Insert into website_analytics_visited_pages
       const pageViewQuery = 'INSERT INTO website_analytics_visited_pages(session_id, url, time_spent_on_page) VALUES($1, $2, $3)';
       const url = eventData.url || 'Unknown'; 
       const timeSpent = 0;
@@ -40,6 +42,7 @@ const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
     
     // Execute the query
     await pool.query(eventQuery, [sessionId, eventType, JSON.stringify(eventData)]);
+
   } catch (error) {
     console.error(`Error in updateAnalyticsDatabaseAndSession: ${error}`);
   }
