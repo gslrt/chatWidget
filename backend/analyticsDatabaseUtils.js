@@ -50,7 +50,3 @@ const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
 };
 
 module.exports = { updateAnalyticsDatabaseAndSession };
-
-
-module.exports = { updateAnalyticsDatabaseAndSession };
-
