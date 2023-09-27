@@ -20,12 +20,14 @@ function formatTextWithLineBreaks(text) {
 }
 
 export function sharedFunction() {
-    const socket = socketIOClient("chatwidget-production.up.railway.app"); // Connect to your backend's URL
+    const socket = socketIOClient("chatwidget-production.up.railway.app");
     let socketIOClientId = '';
-    let userUID = '';  // To store the unique user identifier
+    let userUID = ''; 
+    const sessionId = sessionStorage.getItem("sessionId");
 
     socket.on('connect', () => {
         socketIOClientId = socket.id;
+        socket.emit('initializeSession', { sessionId: sessionId });  // Emit the session ID to the backend
     });
 
     socket.on('uid', (uid) => {
