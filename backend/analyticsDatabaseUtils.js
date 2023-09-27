@@ -14,7 +14,12 @@ const pool = new Pool({
 // Function to update analytics database and session
 const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
   try {
-    // Extract session ID (Assuming it's set somewhere else in your code via uuidv4)
+    // Exclude 'heartbeat' events from being recorded
+    if (eventType === 'heartbeat') {
+      console.log("Ignoring heartbeat event");
+      return;
+    }
+
     const sessionId = req.sessionID;
 
     // Validate if sessionID exists
@@ -40,3 +45,4 @@ const updateAnalyticsDatabaseAndSession = async (req, eventType, eventData) => {
 };
 
 module.exports = { updateAnalyticsDatabaseAndSession };
+
