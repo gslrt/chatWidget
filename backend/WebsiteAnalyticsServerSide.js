@@ -13,13 +13,11 @@ const pool = new Pool({
 });
 
 
-// Capture the site from the request payload
-const site = req.body.site || 'Unknown';
-
-
 // Function to initiate a new session and update the analytics database
 const initiateNewSession = async (req) => {
   try {
+    // Capture the site from the request payload (move this line inside here)
+    const site = req.body.site || 'Unknown';
     // Generate a unique session ID using UUID
     const sessionId = uuidv4();
     console.log("Generated UUID:", sessionId);
