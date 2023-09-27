@@ -15,8 +15,9 @@ const pool = new Pool({
 // Function to initiate a new session and update the analytics database
 const initiateNewSession = async (req) => {
   try {
-    // Capture the site from the request payload or headers
-    const site = req.body.site || req.headers.host || 'Unknown';
+   // Capture the site and referrer from the request payload or headers
+  const site = req.body.site || req.headers.host || 'Unknown';
+  const referrer = req.body.referrer || req.headers.referer || 'Unknown';
 
     // Generate a unique session ID using UUID
     const sessionId = uuidv4();
