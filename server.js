@@ -46,13 +46,18 @@ const sessionMiddleware = session({
         ttl: 3600 
     }),
     secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        secure: false, // set to true if you are using https
+        maxAge: 3600000 // 1 hour
+    }
 });
-
 
 // Use session middleware with Express
 app.use(sessionMiddleware);
+
 
 // Middlewares
 app.use(bodyParser.json());
