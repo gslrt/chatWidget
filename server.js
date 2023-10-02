@@ -76,6 +76,7 @@ const io = socketIo(server, {
 // Use session middleware with Socket.io
 io.use((socket, next) => {
     sessionMiddleware(socket.request, socket.request.res || {}, () => {
+        console.log("Socket.request.session:", socket.request.session);  // Add this line
         const sessionId = socket.request.session.sessionID;
         if (sessionId) {
             socket.sessionId = sessionId;
@@ -83,6 +84,7 @@ io.use((socket, next) => {
         next();
     });
 });
+
 
 
 // Socket.io connection
