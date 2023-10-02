@@ -99,6 +99,7 @@ io.on('connection', (socket) => {
         socket.sessionId = newSessionId;
         console.log(`[Socket.io] Updated sessionId for user ${uid}: ${newSessionId}`);
     });
+});
 
 
 
