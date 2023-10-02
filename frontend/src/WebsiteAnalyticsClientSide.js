@@ -34,10 +34,11 @@ async function initiateNewSession() {
 body: JSON.stringify({ site, referrer: referrerUrl })  
     });
     
-    if (response.ok) {
-      const { sessionId } = await response.json();
-      sessionStorage.setItem("sessionId", sessionId);
-      return sessionId;
+   if (response.ok) {
+  const { sessionId } = await response.json();
+  sessionStorage.setItem("sessionId", sessionId);
+  console.log("Set session ID in sessionStorage:", sessionId);  // Add this line
+  return sessionId;
     } else {
       console.error(`Server returned ${response.status}: ${response.statusText}`);
       return null;
@@ -53,6 +54,8 @@ body: JSON.stringify({ site, referrer: referrerUrl })
 console.log("Current URL in sendAnalyticsData: ", window.location.href);
 console.log("Document Referrer in sendAnalyticsData: ", document.referrer);
 
+const sessionId = sessionStorage.getItem("sessionId");
+console.log("Session ID before Socket initialization:", sessionId);  // Add this line
 
 
 function sendAnalyticsData(eventType, additionalInfo) {
