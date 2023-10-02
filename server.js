@@ -40,6 +40,16 @@ const redisClient = redis.createClient({
     url: process.env.REDIS_URL
 });
 
+// Log successful Redis connection
+redisClient.on('connect', function() {
+    console.log('Connected to Redis');
+});
+
+// Log Redis errors
+redisClient.on('error', function(err) {
+    console.log('Redis error:', err);
+});
+
 // Define session middleware
 const sessionMiddleware = session({
     store: new RedisStore({ client: redisClient }),
@@ -86,17 +96,35 @@ io.use((socket, next) => {
 // Socket.io connection
 io.on('connection', (socket) => {
     console.log('Debug: Complete Session Object:', socket.request.session);
+
+    // Generate a unique ID
     const uid = uuid.v4();  
     socket.emit('uid', uid);  // Emit the UUID to the client
-    const sessionId = socket.request.session.sessionID;  // Retrieve sessionId from request session
-    socket.sessionId = sessionId;  // Attach sessionId to the socket object
+
+    // Retrieve sessionId from the request session
+    const sessionId = socket.request.session.sessionID;
+
+    // Attach sessionId to the socket object
+    socket.sessionId = sessionId; 
 
     // Debug: Emit sessionId for debugging
     socket.emit('debugSessionId', sessionId);
 
+    // When storing session data into Redis
+    redisClient.set(sessionId, JSON.stringify(socket.request.session), (err) => {
+        if (err) console.error('Error storing session data in Redis:', err);
+        else console.log(`Stored session data for sessionId: ${sessionId}`);
+    });
+
+    // When retrieving session data from Redis
+    redisClient.get(sessionId, (err, reply) => {
+        if (err) console.error('Error retrieving session data from Redis:', err);
+        else console.log(`Retrieved session data for sessionId: ${sessionId} - Data: ${reply}`);
+    });
+
+    // Handle chat
     chatRoute.handleSocketConnection(socket, uid);
 });
-
 
 
 
