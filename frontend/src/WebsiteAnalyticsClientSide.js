@@ -83,6 +83,9 @@ initiateNewSession().then((sessionId) => {
     return;
   }
 
+  // Emit syncSessionId event to sync the session ID with the server
+  socket.emit('syncSessionId', sessionId);
+
   const referrerUrl = document.referrer || "Direct";
   
   // Track initial page view
