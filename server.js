@@ -80,13 +80,20 @@ io.use((socket, next) => {
         
         // Initialize sessionID if it doesn't exist
         if (!socket.request.session.sessionID) {
+            // Only set a new session ID if one doesn't already exist
             socket.request.session.sessionID = uuid.v4();
-            socket.request.session.save();
         }
         
-        next();
+        // Save the session
+        socket.request.session.save((err) => {
+            if (err) {
+                console.error('Error saving session:', err);
+            }
+            next();
+        });
     });
 });
+
 
 // Socket.io connection
 io.on('connection', (socket) => {
