@@ -68,6 +68,7 @@ app.use('/frontend/dist', express.static(process.env.RAILWAY_VOLUME_MOUNT_PATH))
 // Serve static files for the frontend from the frontend/dist directory
 app.use('/frontend/dist', express.static(path.join(__dirname, 'frontend/dist')));
 
+
 // Routes
 app.use('/chat', chatRoute);
 app.use('/analytics', analyticsRoutes);
