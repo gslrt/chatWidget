@@ -13,18 +13,14 @@ console.log("Document Referrer in initiateNewSession: ", document.referrer);
 
 // Function to initiate a new session and get a session ID from the server
 async function initiateNewSession() {
-  console.log("Initiating new session");  // Added debug log
-  
   // Check if session ID already exists in sessionStorage
   let sessionId = sessionStorage.getItem("sessionId");
-  console.log("Session ID from sessionStorage:", sessionId);  // Added debug log
   
   const site = window.location.hostname;
   const referrerUrl = document.referrer || "Direct";
 
   if (sessionId) {
     // If session ID exists, no need to create a new one
-    console.log("Session ID exists, no need to create a new one.");  // Added debug log
     return sessionId;
   }
 
@@ -40,20 +36,27 @@ async function initiateNewSession() {
     
     if (response.ok) {
       const { sessionId } = await response.json();
-      console.log("Received session ID from server:", sessionId);  // Added debug log
       sessionStorage.setItem("sessionId", sessionId);
-      console.log("Set session ID in sessionStorage:", sessionId);  // Added debug log
-      initializeSocketConnection(sessionId);
+      console.log("Set session ID in sessionStorage:", sessionId);
+      
+      // Make sure that initializeSocketConnection is defined before this line
+      if (typeof initializeSocketConnection === "function") {
+        initializeSocketConnection(sessionId);  
+      } else {
+        console.error("initializeSocketConnection function is not defined");
+      }
+
       return sessionId;
     } else {
-      console.log("Server returned an error while initiating session:", response.status);  // Added debug log
+      console.error(`Server returned ${response.status}: ${response.statusText}`);
       return null;
     }
   } catch (error) {
-    console.log("Error while initiating session:", error);  // Added debug log
+    console.error("An error occurred while fetching session data:", error);
     return null;
   }
 }
+
 
 
 
