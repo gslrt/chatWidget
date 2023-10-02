@@ -77,29 +77,25 @@ const io = socketIo(server, {
 // Use session middleware with Socket.io
 io.use((socket, next) => {
     sessionMiddleware(socket.request, socket.request.res || {}, () => {
-        // Add more debug logs
-        if(socket.request.session) {
-            console.log("Debug: Session exists before saving:", JSON.stringify(socket.request.session));
-        } else {
-            console.log("Debug: Session does not exist before saving");
+        // Check if the session object exists
+        if (!socket.request.session) {
+            console.error("Session object doesn't exist");
+            return next(new Error("Session object doesn't exist"));
         }
 
+        // Log the full session object for debugging
+        console.log("Debug: Full socket.request.session object:", JSON.stringify(socket.request.session));
+        
         // Manually save the session before calling next
         socket.request.session.save((err) => {
             if (err) {
                 console.error('Error saving session:', err);
             }
-
-            if(socket.request.session) {
-                console.log("Debug: Session exists after saving:", JSON.stringify(socket.request.session));
-            } else {
-                console.log("Debug: Session does not exist after saving");
-            }
-
             next();
         });
     });
 });
+
 
 
 
