@@ -75,41 +75,27 @@ const io = socketIo(server, {
 
 // Use session middleware with Socket.io
 io.use((socket, next) => {
-    sessionMiddleware(socket.request, {}, next);
+    sessionMiddleware(socket.request, socket.request.res, () => {
+        // Manually save the session before calling next
+        socket.request.session.save(() => {
+            next();
+        });
+    });
 });
 
 // Socket.io connection
 io.on('connection', (socket) => {
     const uid = uuid.v4();  
     socket.emit('uid', uid);  // Emit the UUID to the client
-
-    console.log("Debug: socket.request.session:", socket.request.session);
-
     const sessionId = socket.request.session.sessionID;  // Retrieve sessionId from request session
-    console.log("Debug: Retrieved sessionId:", sessionId);
+    socket.sessionId = sessionId;  // Attach sessionId to the socket object
 
-    if(sessionId) {
-        socket.sessionId = sessionId;  // Attach sessionId to the socket object
-        // Debug: Emit sessionId for debugging
-        socket.emit('debugSessionId', sessionId);
-
-        // When storing session data into Redis
-        redisClient.set(sessionId, JSON.stringify({uid: uid}), (err) => {
-            if (err) console.error('Error storing session data in Redis:', err);
-            else console.log(`Stored session data for sessionId: ${sessionId}`);
-        });
-
-        // When retrieving session data from Redis just to debug
-        redisClient.get(sessionId, (err, reply) => {
-            if (err) console.error('Error retrieving session data from Redis:', err);
-            else console.log(`Retrieved session data for sessionId: ${sessionId} - Data: ${reply}`);
-        });
-    } else {
-        console.error("Session ID is undefined.");
-    }
+    // Debug: Emit sessionId for debugging
+    socket.emit('debugSessionId', sessionId);
 
     chatRoute.handleSocketConnection(socket, uid);
 });
+
 
 
 
