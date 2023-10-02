@@ -9,9 +9,9 @@ const { initiateNewSession } = require('../WebsiteAnalyticsServerSide');
 
 router.post('/initiate-session', async (req, res) => {
   try {
-    // If sessionID doesn't exist, generate it through initiateNewSession
-    const sessionId = req.session.sessionID || await initiateNewSession(req); 
-    req.session.sessionID = sessionId; // Save it in the session
+    const sessionId = await initiateNewSession(req);
+    req.session.sessionID = sessionId; // Manually set the sessionID
+    req.session.save(); // Save the session
     console.log("Sending sessionId:", sessionId);
     res.status(200).json({ sessionId });
   } catch (error) {
@@ -19,6 +19,7 @@ router.post('/initiate-session', async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
 
 
 router.post('/analytics', async (req, res) => {
