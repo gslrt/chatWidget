@@ -75,63 +75,32 @@ const io = socketIo(server, {
 
 // Use session middleware with Socket.io
 io.use((socket, next) => {
-    sessionMiddleware(socket.request, socket.request.res || {}, () => {
-        // Check if the session object exists
-        if (!socket.request.session) {
-            console.error("Session object doesn't exist");
-            return next(new Error("Session object doesn't exist"));
-        }
-
-        // Check if sessionID exists in the session object
-        if (!socket.request.session.sessionID) {
-            console.error("sessionID is not in the session object");
-        }
-
-        // Log the full session object for debugging
+    sessionMiddleware(socket.request, {}, () => {
         console.log("Debug: Full socket.request.session object:", JSON.stringify(socket.request.session));
         
-        // Manually save the session before calling next
-        socket.request.session.save((err) => {
-            if (err) {
-                console.error('Error saving session:', err);
-            }
-            next();
-        });
+        // Initialize sessionID if it doesn't exist
+        if (!socket.request.session.sessionID) {
+            socket.request.session.sessionID = uuid.v4();
+            socket.request.session.save();
+        }
+        
+        next();
     });
 });
 
-
-
-
-
 // Socket.io connection
 io.on('connection', (socket) => {
-    // Generate a UUID for the client
     const uid = uuid.v4();  
-    
-    // Emit the UUID to the client
     socket.emit('uid', uid);  
-    
-    // Retrieve the session ID from the Express session middleware
+
     const sessionId = socket.request.session.sessionID;  
-
-   // More debugging: Log full session object
-    console.log('Debug: Complete Session Object:', JSON.stringify(socket.request.session));
-    
-
-    
-    // Attach the session ID to the socket object, so it can be used later in other events
-    socket.sessionId = sessionId;  
-
-      // Log the session ID for debugging purposes
     console.log(`[Socket.io] User ${uid} connected with sessionId: ${sessionId}`);
-    
-    // Emit the session ID to the client for debugging
-    socket.emit('debugSessionId', sessionId);  
-    
-    // Handle the chat connection
+
+    socket.sessionId = sessionId;
+    socket.emit('debugSessionId', sessionId);
     chatRoute.handleSocketConnection(socket, uid);
 });
+
 
 
 
