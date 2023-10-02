@@ -77,11 +77,15 @@ const io = socketIo(server, {
 io.use((socket, next) => {
     sessionMiddleware(socket.request, socket.request.res, () => {
         // Manually save the session before calling next
-        socket.request.session.save(() => {
+        socket.request.session.save((err) => {
+            if (err) {
+                console.error('Error saving session:', err);
+            }
             next();
         });
     });
 });
+
 
 // Socket.io connection
 io.on('connection', (socket) => {
