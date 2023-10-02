@@ -11,7 +11,8 @@ router.post('/initiate-session', async (req, res) => {
   try {
     // If sessionID doesn't exist, generate it through initiateNewSession
     const sessionId = req.session.sessionID || await initiateNewSession(req); 
-    req.session.sessionID = sessionId; // Save it in the session
+    req.session.sessionID = sessionId; 
+    console.log("Debug: Session ID in /initiate-session: ", req.session.sessionID);
     console.log("Sending sessionId:", sessionId);
     res.status(200).json({ sessionId });
   } catch (error) {
