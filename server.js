@@ -40,16 +40,6 @@ const redisClient = redis.createClient({
     url: process.env.REDIS_URL
 });
 
-// Log successful Redis connection
-redisClient.on('connect', function() {
-    console.log('Connected to Redis');
-});
-
-// Log Redis errors
-redisClient.on('error', function(err) {
-    console.log('Redis error:', err);
-});
-
 // Define session middleware
 const sessionMiddleware = session({
     store: new RedisStore({ client: redisClient }),
@@ -86,47 +76,18 @@ const io = socketIo(server, {
 // Use session middleware with Socket.io
 io.use((socket, next) => {
     sessionMiddleware(socket.request, socket.request.res, () => {
-        // Log session object for debugging
-        console.log("Debug: socket.request.session:", socket.request.session);
-        
         // Manually save the session before calling next
-        socket.request.session.save((err) => {
-            if (err) {
-                console.error('Error saving session:', err);
-            }
+        socket.request.session.save(() => {
             next();
         });
     });
 });
 
+// Socket.io connection
 io.on('connection', (socket) => {
-    const sessionId = socket.request.session.sessionID;
-
-    // Debug: Log retrieved session ID
-    console.log(`Debug: Retrieved sessionId: ${sessionId}`);
-
-    // Check before storing into Redis
-    if(sessionId) {
-        // When storing session data into Redis
-        redisClient.set(sessionId, JSON.stringify(socket.request.session), (err) => {
-            if (err) console.error('Error storing session data in Redis:', err);
-            else console.log(`Stored session data for sessionId: ${sessionId}`);
-        });
-
-        // When retrieving session data from Redis
-        redisClient.get(sessionId, (err, reply) => {
-            if (err) console.error('Error retrieving session data from Redis:', err);
-            else console.log(`Retrieved session data for sessionId: ${sessionId} - Data: ${reply}`);
-        });
-
-    } else {
-        console.log('Session ID is undefined.');
-    }
-
-    // Your existing code here for handling chat etc.
-    console.log('Debug: Complete Session Object:', socket.request.session);
     const uid = uuid.v4();  
     socket.emit('uid', uid);  // Emit the UUID to the client
+    const sessionId = socket.request.session.sessionID;  // Retrieve sessionId from request session
     socket.sessionId = sessionId;  // Attach sessionId to the socket object
 
     // Debug: Emit sessionId for debugging
