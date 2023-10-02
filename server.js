@@ -79,14 +79,23 @@ const io = socketIo(server, {
 // Use session middleware with Socket.io
 io.use((socket, next) => {
     sessionMiddleware(socket.request, socket.request.res || {}, () => {
-        console.log("Socket.request.session:", socket.request.session);  // Add this line
+        // Debugging: Log the entire session object
+        console.log("Debug: Session object in Socket.io middleware", socket.request.session);
+        
         const sessionId = socket.request.session.sessionID;
         if (sessionId) {
             socket.sessionId = sessionId;
+            
+            // Debugging: Log that the session ID was successfully set on the socket
+            console.log("Debug: Successfully set socket.sessionId:", sessionId);
+        } else {
+            // Debugging: Log if the session ID was missing
+            console.log("Debug: Session ID is missing in Socket.io middleware");
         }
         next();
     });
 });
+
 
 
 
