@@ -84,14 +84,36 @@ io.use((socket, next) => {
     });
 });
 
+
+// Socket.io connection
 io.on('connection', (socket) => {
-    const uid = uuid.v4();
+    // Generate a UUID for the client
+    const uid = uuid.v4();  
+    
+    // Emit the UUID to the client
     socket.emit('uid', uid);  
-    const sessionId = socket.sessionId || "undefined";  // Fallback to "undefined" if not set
+    
+    // Retrieve the session ID from the Express session middleware
+    const sessionId = socket.request.session.sessionID;  
+    
+    // Log the session ID for debugging purposes
     console.log(`[Socket.io] User ${uid} connected with sessionId: ${sessionId}`);
-    socket.emit('debugSessionId', sessionId);
+    
+    // Attach the session ID to the socket object, so it can be used later in other events
+    socket.sessionId = sessionId;  
+    
+    // Emit the session ID to the client for debugging
+    socket.emit('debugSessionId', sessionId);  
+    
+    // Handle the chat connection
     chatRoute.handleSocketConnection(socket, uid);
-});
+
+    // This is where you handle the 'syncSessionId' event
+    socket.on('syncSessionId', (newSessionId) => {
+        // Update the session ID for this socket connection
+        socket.sessionId = newSessionId;
+        console.log(`[Socket.io] Updated sessionId for user ${uid}: ${newSessionId}`);
+    });
 
 
 
