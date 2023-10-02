@@ -73,7 +73,6 @@ const io = socketIo(server, {
   }
 });
 
-
 // Use session middleware with Socket.io
 io.use((socket, next) => {
     sessionMiddleware(socket.request, socket.request.res || {}, () => {
@@ -81,6 +80,11 @@ io.use((socket, next) => {
         if (!socket.request.session) {
             console.error("Session object doesn't exist");
             return next(new Error("Session object doesn't exist"));
+        }
+
+        // Check if sessionID exists in the session object
+        if (!socket.request.session.sessionID) {
+            console.error("sessionID is not in the session object");
         }
 
         // Log the full session object for debugging
@@ -95,6 +99,7 @@ io.use((socket, next) => {
         });
     });
 });
+
 
 
 
