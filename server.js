@@ -100,10 +100,12 @@ io.on('connection', (socket) => {
     chatRoute.handleSocketConnection(socket, uid);
 
     // Add this part to handle syncing the session ID
-    socket.on('syncSessionId', (newSessionId) => {
-        socket.sessionId = newSessionId;
-        console.log(`[Socket.io] Updated sessionId for user ${uid}: ${newSessionId}`);
-    });
+ socket.on('syncSessionId', (newSessionId) => {
+    console.log(`Received new session ID: ${newSessionId}`);  // Add this line for debugging
+    socket.sessionId = newSessionId;
+    console.log(`[Socket.io] Updated sessionId for user ${uid}: ${newSessionId}`);
+});
+
 });
 
 
