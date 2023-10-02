@@ -113,12 +113,17 @@ io.on('connection', (socket) => {
     
     // Retrieve the session ID from the Express session middleware
     const sessionId = socket.request.session.sessionID;  
+
+   // More debugging: Log full session object
+    console.log('Debug: Complete Session Object:', JSON.stringify(socket.request.session));
     
-    // Log the session ID for debugging purposes
-    console.log(`[Socket.io] User ${uid} connected with sessionId: ${sessionId}`);
+
     
     // Attach the session ID to the socket object, so it can be used later in other events
     socket.sessionId = sessionId;  
+
+      // Log the session ID for debugging purposes
+    console.log(`[Socket.io] User ${uid} connected with sessionId: ${sessionId}`);
     
     // Emit the session ID to the client for debugging
     socket.emit('debugSessionId', sessionId);  
