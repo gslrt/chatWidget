@@ -85,6 +85,7 @@ io.use((socket, next) => {
 
 // Socket.io connection
 io.on('connection', (socket) => {
+    console.log('Debug: Complete Session Object:', socket.request.session);
     const uid = uuid.v4();  
     socket.emit('uid', uid);  // Emit the UUID to the client
     const sessionId = socket.request.session.sessionID;  // Retrieve sessionId from request session
