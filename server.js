@@ -75,38 +75,24 @@ const io = socketIo(server, {
 
 // Use session middleware with Socket.io
 io.use((socket, next) => {
-    sessionMiddleware(socket.request, {}, () => {
-        console.log("Debug: Full socket.request.session object:", JSON.stringify(socket.request.session));
-        
-        // Initialize sessionID if it doesn't exist
-        if (!socket.request.session.sessionID) {
-            // Only set a new session ID if one doesn't already exist
-            socket.request.session.sessionID = uuid.v4();
+    sessionMiddleware(socket.request, socket.request.res || {}, () => {
+        const sessionId = socket.request.session.sessionID;
+        if (sessionId) {
+            socket.sessionId = sessionId;
         }
-        
-        // Save the session
-        socket.request.session.save((err) => {
-            if (err) {
-                console.error('Error saving session:', err);
-            }
-            next();
-        });
+        next();
     });
 });
 
-
-// Socket.io connection
 io.on('connection', (socket) => {
-    const uid = uuid.v4();  
+    const uid = uuid.v4();
     socket.emit('uid', uid);  
-
-    const sessionId = socket.request.session.sessionID;  
+    const sessionId = socket.sessionId || "undefined";  // Fallback to "undefined" if not set
     console.log(`[Socket.io] User ${uid} connected with sessionId: ${sessionId}`);
-
-    socket.sessionId = sessionId;
     socket.emit('debugSessionId', sessionId);
     chatRoute.handleSocketConnection(socket, uid);
 });
+
 
 
 
