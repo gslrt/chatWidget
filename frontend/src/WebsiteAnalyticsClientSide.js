@@ -34,12 +34,13 @@ async function initiateNewSession() {
 body: JSON.stringify({ site, referrer: referrerUrl })  
     });
     
-   if (response.ok) {
-  const { sessionId } = await response.json();
-  sessionStorage.setItem("sessionId", sessionId);
-  console.log("Set session ID in sessionStorage:", sessionId);  // Add this line
-  return sessionId;
-    } else {
+     if (response.ok) {
+    const { sessionId } = await response.json();
+    sessionStorage.setItem("sessionId", sessionId);
+    console.log("Set session ID in sessionStorage:", sessionId);
+    initializeSocketConnection(sessionId);  
+    return sessionId;
+  } else {
       console.error(`Server returned ${response.status}: ${response.statusText}`);
       return null;
     }
