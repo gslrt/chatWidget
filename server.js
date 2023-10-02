@@ -76,6 +76,9 @@ const io = socketIo(server, {
 // Use session middleware with Socket.io
 io.use((socket, next) => {
     sessionMiddleware(socket.request, socket.request.res, () => {
+        // Log the full session object for debugging
+        console.log("Debug: Full socket.request.session object:", JSON.stringify(socket.request.session));
+        
         // Manually save the session before calling next
         socket.request.session.save((err) => {
             if (err) {
@@ -85,6 +88,7 @@ io.use((socket, next) => {
         });
     });
 });
+
 
 
 // Socket.io connection
