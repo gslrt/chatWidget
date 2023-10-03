@@ -25,13 +25,10 @@ export function sharedFunction() {
     let userUID = ''; 
     const sessionId = sessionStorage.getItem("sessionId");
 
-    // Emit the session ID right after establishing the Socket.io connection
     socket.on('connect', () => {
-    socketIOClientId = socket.id;
-    console.log(`Emitting session ID to server: ${sessionId}`);  // Add this line for debugging
-    socket.emit('initializeSession', { sessionId: sessionId });  // Emit the session ID to the backend
-});
-
+        socketIOClientId = socket.id;
+        socket.emit('initializeSession', { sessionId: sessionId });  // Emit the session ID to the backend
+    });
 
     socket.on('uid', (uid) => {
         userUID = uid;
