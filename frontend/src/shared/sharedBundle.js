@@ -21,18 +21,22 @@ function formatTextWithLineBreaks(text) {
 
 export function sharedFunction() {
     const socket = socketIOClient("chatwidget-production.up.railway.app");
-    let socketIOClientId = '';
-    let userUID = ''; 
-    const sessionId = sessionStorage.getItem("sessionId");
+let socketIOClientId = '';
+let userUID = ''; 
 
-    socket.on('connect', () => {
-        socketIOClientId = socket.id;
-        socket.emit('initializeSession', { sessionId: sessionId });  // Emit the session ID to the backend
-    });
+// Read session ID from sessionStorage
+const sessionId = sessionStorage.getItem("sessionId");
 
-    socket.on('uid', (uid) => {
-        userUID = uid;
-    });
+socket.on('connect', () => {
+    socketIOClientId = socket.id;
+    
+    // Emit the session ID to the server
+    if (sessionId) {
+        socket.emit('setSessionId', sessionId);  
+    } else {
+        console.warn("Session ID is not available in sessionStorage");
+    }
+});
 
     socket.on('token', (token) => {
         // Handle the token, e.g., append each token to the bot's message in real-time.
