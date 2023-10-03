@@ -31,12 +31,17 @@ async function initiateNewSession() {
       headers: {
         "Content-Type": "application/json",
       },
-body: JSON.stringify({ site, referrer: referrerUrl })  
+      body: JSON.stringify({ site, referrer: referrerUrl })  
     });
     
     if (response.ok) {
       const { sessionId } = await response.json();
       sessionStorage.setItem("sessionId", sessionId);
+
+      // Dispatch an event indicating that the session is ready
+      const sessionEvent = new Event('sessionReady');
+      document.dispatchEvent(sessionEvent);
+
       return sessionId;
     } else {
       console.error(`Server returned ${response.status}: ${response.statusText}`);
@@ -47,6 +52,7 @@ body: JSON.stringify({ site, referrer: referrerUrl })
     return null;
   }
 }
+
 
 
 // Right before the fetch in sendAnalyticsData()
