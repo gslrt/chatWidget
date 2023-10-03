@@ -40,24 +40,16 @@ const redisClient = redis.createClient({
     url: process.env.REDIS_URL
 });
 
+// Define session middleware
 const sessionMiddleware = session({
-    store: new RedisStore({ 
-        client: redisClient,
-        ttl: 3600 
-    }),
+    store: new RedisStore({ client: redisClient }),
     secret: process.env.SESSION_SECRET,
-    resave: true,
-    saveUninitialized: true,
-    cookie: {
-        httpOnly: true,
-        secure: false, // set to true if you are using https
-        maxAge: 3600000 // 1 hour
-    }
+    resave: false,
+    saveUninitialized: false
 });
 
 // Use session middleware with Express
 app.use(sessionMiddleware);
-
 
 // Middlewares
 app.use(bodyParser.json());
@@ -67,7 +59,6 @@ app.use('/frontend/dist', express.static(process.env.RAILWAY_VOLUME_MOUNT_PATH))
 
 // Serve static files for the frontend from the frontend/dist directory
 app.use('/frontend/dist', express.static(path.join(__dirname, 'frontend/dist')));
-
 
 // Routes
 app.use('/chat', chatRoute);
@@ -84,52 +75,26 @@ const io = socketIo(server, {
 
 // Use session middleware with Socket.io
 io.use((socket, next) => {
-    sessionMiddleware(socket.request, socket.request.res || {}, () => {
-        // Debugging: Log the entire session object
-        console.log("Debug: Session object in Socket.io middleware", socket.request.session);
-        
-        const sessionId = socket.request.session.sessionID;
-        if (sessionId) {
-            socket.sessionId = sessionId;
-            
-            // Debugging: Log that the session ID was successfully set on the socket
-            console.log("Debug: Successfully set socket.sessionId:", sessionId);
-        } else {
-            // Debugging: Log if the session ID was missing
-            console.log("Debug: Session ID is missing in Socket.io middleware");
-        }
-        next();
+    sessionMiddleware(socket.request, socket.request.res, () => {
+        // Manually save the session before calling next
+        socket.request.session.save(() => {
+            next();
+        });
     });
 });
-
-
-
 
 // Socket.io connection
 io.on('connection', (socket) => {
-    const uid = uuid.v4();
-    socket.emit('uid', uid);  
-    const sessionId = socket.sessionId || "undefined";  // Fallback to "undefined" if not set
-    console.log(`[Socket.io] User ${uid} connected with sessionId: ${sessionId}`);
+    const uid = uuid.v4();  
+    socket.emit('uid', uid);  // Emit the UUID to the client
+    const sessionId = socket.request.session.sessionID;  // Retrieve sessionId from request session
+    socket.sessionId = sessionId;  // Attach sessionId to the socket object
+
+    // Debug: Emit sessionId for debugging
     socket.emit('debugSessionId', sessionId);
+
     chatRoute.handleSocketConnection(socket, uid);
-
-   // Listen for the session ID sent from the client and associate it with the socket.
-    socket.on('setSessionId', (receivedSessionId) => {
-        socket.sessionId = receivedSessionId;
-        console.log(`Received new session ID from client: ${receivedSessionId}`);
-    });
-
-    // Add this part to handle syncing the session ID
- socket.on('syncSessionId', (newSessionId) => {
-    console.log(`Received new session ID: ${newSessionId}`);  // Add this line for debugging
-    socket.sessionId = newSessionId;
-    console.log(`[Socket.io] Updated sessionId for user ${uid}: ${newSessionId}`);
 });
-
-});
-
-
 
 
 
