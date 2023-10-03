@@ -31,30 +31,14 @@ async function initiateNewSession() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ site, referrer: referrerUrl })  
+body: JSON.stringify({ site, referrer: referrerUrl })  
     });
     
-   if (response.ok) {
-  const { sessionId } = await response.json();
-  sessionStorage.setItem("sessionId", sessionId);
-  console.log("Set session ID in sessionStorage:", sessionId);
-  
-  // Emit the session ID to the server through Socket.io
-  if (typeof socket !== 'undefined' && socket.connected) {
-    socket.emit('syncSessionId', sessionId); // or 'setSessionId', whichever you are using on the server
-  } else {
-    console.error("Socket is either undefined or not connected");
-  }
-
-  // Make sure that initializeSocketConnection is defined before this line
-  if (typeof initializeSocketConnection === "function") {
-    initializeSocketConnection(sessionId);  
-  } else {
-    console.error("initializeSocketConnection function is not defined");
-  }
-
-  return sessionId;
-} else {
+    if (response.ok) {
+      const { sessionId } = await response.json();
+      sessionStorage.setItem("sessionId", sessionId);
+      return sessionId;
+    } else {
       console.error(`Server returned ${response.status}: ${response.statusText}`);
       return null;
     }
@@ -65,14 +49,10 @@ async function initiateNewSession() {
 }
 
 
-
-
 // Right before the fetch in sendAnalyticsData()
 console.log("Current URL in sendAnalyticsData: ", window.location.href);
 console.log("Document Referrer in sendAnalyticsData: ", document.referrer);
 
-const sessionId = sessionStorage.getItem("sessionId");
-console.log("Session ID before Socket initialization:", sessionId);  // Add this line
 
 
 function sendAnalyticsData(eventType, additionalInfo) {
@@ -102,9 +82,6 @@ initiateNewSession().then((sessionId) => {
     console.error("Failed to initialize session.");
     return;
   }
-
-  // Emit syncSessionId event to sync the session ID with the server
-  socket.emit('syncSessionId', sessionId);
 
   const referrerUrl = document.referrer || "Direct";
   
@@ -172,4 +149,3 @@ initiateNewSession().then((sessionId) => {
     observer.observe(element);
   });
 });
-
