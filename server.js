@@ -114,6 +114,12 @@ io.on('connection', (socket) => {
     socket.emit('debugSessionId', sessionId);
     chatRoute.handleSocketConnection(socket, uid);
 
+   // Listen for the session ID sent from the client and associate it with the socket.
+    socket.on('setSessionId', (receivedSessionId) => {
+        socket.sessionId = receivedSessionId;
+        console.log(`Received new session ID from client: ${receivedSessionId}`);
+    });
+
     // Add this part to handle syncing the session ID
  socket.on('syncSessionId', (newSessionId) => {
     console.log(`Received new session ID: ${newSessionId}`);  // Add this line for debugging
