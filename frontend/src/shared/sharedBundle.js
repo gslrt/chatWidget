@@ -20,9 +20,17 @@ function formatTextWithLineBreaks(text) {
 }
 
 export function sharedFunction() {
-    const socket = socketIOClient("chatwidget-production.up.railway.app");
-let socketIOClientId = '';
-let userUID = ''; 
+  const socket = socketIOClient("chatwidget-production.up.railway.app");
+  let socketIOClientId = '';
+  let userUID = ''; 
+
+  // Event listener for the sessionReady event
+  document.addEventListener('sessionReady', function() {
+    const sessionId = sessionStorage.getItem("sessionId");
+    if (sessionId && socket) {
+      socket.emit('setSessionId', sessionId);
+    }
+  });
 
 // Read session ID from sessionStorage
 const sessionId = sessionStorage.getItem("sessionId");
