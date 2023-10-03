@@ -59,7 +59,7 @@ const initiateNewSession = async (req) => {
     // Execute the query
     await pool.query(sessionQuery, queryParams);
 
-    return sessionId; // Return the sessionId back to the caller
+    return sessionId;
   } catch (error) {
     console.error(`Error in initiateNewSession: ${error}`);
     return null;
