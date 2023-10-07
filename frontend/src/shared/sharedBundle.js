@@ -18,35 +18,31 @@ function getCurrentTime() {
 function formatTextWithLineBreaks(text) {
     return text.replace(/\n/g, '<br/>');
 }
+
 export function sharedFunction() {
-  // Initialize socket connection
-  const socket = socketIOClient("chatwidget-production.up.railway.app");
-  let socketIOClientId = '';
-  let userUID = '';
+    const socket = socketIOClient("chatwidget-production.up.railway.app");
+    let socketIOClientId = '';
+    let userUID = '';
 
-  // Event listener for the sessionReady event
-  document.addEventListener('sessionReady', function() {
-    const sessionId = sessionStorage.getItem("sessionId");
-    console.log("sessionReady event fired. sessionId:", sessionId);
-    if (sessionId && socket) {
-      socket.emit('setSessionId', sessionId);
-    }
-  });
+    // Event listener for the sessionReady event
+    document.addEventListener('sessionReady', function() {
+        const sessionId = sessionStorage.getItem("sessionId");
+        console.log("sessionReady event fired. sessionId:", sessionId);
+        if (sessionId && socket) {
+            socket.emit('setSessionId', sessionId);
+        }
+    });
 
-  // When the socket connects, attempt to send the session ID to the server
-  socket.on('connect', () => {
-    socketIOClientId = socket.id;
-    const sessionId = sessionStorage.getItem("sessionId");
-    console.log("Socket connected. sessionId:", sessionId); // Debug line
-    if (sessionId) {
-      socket.emit('setSessionId', sessionId);
-    } else {
-      console.warn("Session ID is not available in sessionStorage");
-    }
-  });
-    
-}
-
+    // When the socket connects, attempt to send the session ID to the server
+    socket.on('connect', () => {
+        socketIOClientId = socket.id;
+        const sessionId = sessionStorage.getItem("sessionId");
+        if (sessionId) {
+            socket.emit('setSessionId', sessionId);
+        } else {
+            console.warn("Session ID is not available in sessionStorage");
+        }
+    });
 
     socket.on('token', (token) => {
         // Handle the token, e.g., append each token to the bot's message in real-time.
@@ -65,21 +61,16 @@ export function sharedFunction() {
 
     document.querySelector('[trigger-action="submit-chat-input"]').addEventListener('click', function (e) {
         e.preventDefault();
-
         const userInput = document.querySelector('[element="chat-user-input"]').innerText.trim();
-
         if (!userInput) {
             return;
         }
-
         document.querySelector('[element="chat-user-input"]').innerText = '';
         thinkingStateElement.style.display = 'block';
-
         const userMessageElement = createElementFromTemplate('chat-user-message-wrapper');
         userMessageElement.querySelector('[element="chat-user-message-content"]').textContent = userInput;
         userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
         document.querySelector('[list-element="chat-history"]').appendChild(userMessageElement);
-
         socket.emit('chatMessage', {
             question: userInput,
             socketIOClientId: socketIOClientId,
@@ -89,16 +80,13 @@ export function sharedFunction() {
 
     socket.on('botResponse', (data) => {
         const formattedBotResponse = formatTextWithLineBreaks(data.text);
-
         const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
         botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
         botMessageElement.querySelector('[element="chat-bot-message-content"]').setAttribute('bot-response-raw', data.text);
-
         if (data.audioUrl) {
             audio.src = data.audioUrl;
             audio.play();
         }
-
         botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
         document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
         thinkingStateElement.style.display = 'none';
@@ -107,7 +95,6 @@ export function sharedFunction() {
     document.addEventListener('click', function (e) {
         if (e.target.matches('[trigger-action="copy-bot-response-to-clipboard"]')) {
             e.preventDefault();
-
             const lastBotMessageContent = document.querySelectorAll('[element="chat-bot-message-content"]')[document.querySelectorAll('[element="chat-bot-message-content"]').length - 1].innerText;
             navigator.clipboard.writeText(lastBotMessageContent).then(function () {
                 console.log('Bot response copied to clipboard');
@@ -121,3 +108,4 @@ export function sharedFunction() {
             // Implement the function to save the response to the database
         }
     });
+}
