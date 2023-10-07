@@ -20,9 +20,6 @@ function formatTextWithLineBreaks(text) {
 }
 
 export function sharedFunction() {
-
-
-    export function sharedFunction() {
   // Event listener for the sessionReady event
   document.addEventListener('sessionReady', function() {
     const sessionId = sessionStorage.getItem("sessionId");
@@ -31,33 +28,21 @@ export function sharedFunction() {
     }
   });
 
-        
   const socket = socketIOClient("chatwidget-production.up.railway.app");
   let socketIOClientId = '';
   let userUID = ''; 
 
-  // Event listener for the sessionReady event
-  document.addEventListener('sessionReady', function() {
+  // When the socket connects, attempt to send the session ID to the server
+  socket.on('connect', () => {
+    socketIOClientId = socket.id;
+    
     const sessionId = sessionStorage.getItem("sessionId");
-    if (sessionId && socket) {
-      socket.emit('setSessionId', sessionId);
+    if (sessionId) {
+      socket.emit('setSessionId', sessionId);  
+    } else {
+      console.warn("Session ID is not available in sessionStorage");
     }
   });
-
-// Read session ID from sessionStorage
-const sessionId = sessionStorage.getItem("sessionId");
-
-socket.on('connect', () => {
-  socketIOClientId = socket.id;
-
-  // Emit the session ID to the server
-  const sessionId = sessionStorage.getItem("sessionId");
-  if (sessionId) {
-    socket.emit('setSessionId', sessionId);  
-  } else {
-    console.warn("Session ID is not available in sessionStorage");
-  }
-});
 
 
     socket.on('token', (token) => {
