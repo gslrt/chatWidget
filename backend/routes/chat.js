@@ -49,6 +49,11 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
 router.handleSocketConnection = (socket, uid) => {
     console.log(`[Chat Route] User ${uid} connected: ${socket.id}`);
 
+    // Capture the session ID from the client
+    socket.on('setSessionId', (sessionId) => {
+        socket.request.session.sessionID = sessionId;
+    });
+    
     socket.on('chatMessage', async (data) => {
         try {
             console.log("[Chat Route] Received chat message:", data);
