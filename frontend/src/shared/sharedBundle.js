@@ -113,4 +113,3 @@ socket.on('connect', () => {
             // Implement the function to save the response to the database
         }
     });
-}
