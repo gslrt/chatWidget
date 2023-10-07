@@ -45,6 +45,7 @@ export function sharedFunction() {
     }
   });
     
+}
 
 
     socket.on('token', (token) => {
