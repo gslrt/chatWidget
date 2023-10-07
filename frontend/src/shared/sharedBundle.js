@@ -19,30 +19,25 @@ function formatTextWithLineBreaks(text) {
     return text.replace(/\n/g, '<br/>');
 }
 
-export function sharedFunction() {
-  // Event listener for the sessionReady event
-  document.addEventListener('sessionReady', function() {
+// Inside sharedFunction
+document.addEventListener('sessionReady', function() {
     const sessionId = sessionStorage.getItem("sessionId");
+    console.log("sessionReady event fired. sessionId:", sessionId);
     if (sessionId && socket) {
-      socket.emit('setSessionId', sessionId);
+        socket.emit('setSessionId', sessionId);
     }
-  });
+});
 
-  const socket = socketIOClient("chatwidget-production.up.railway.app");
-  let socketIOClientId = '';
-  let userUID = ''; 
-
-  // When the socket connects, attempt to send the session ID to the server
-  socket.on('connect', () => {
-    socketIOClientId = socket.id;
-    
+socket.on('connect', () => {
     const sessionId = sessionStorage.getItem("sessionId");
+    console.log("Socket connected. sessionId:", sessionId);
     if (sessionId) {
-      socket.emit('setSessionId', sessionId);  
+        socket.emit('setSessionId', sessionId);
     } else {
-      console.warn("Session ID is not available in sessionStorage");
+        console.warn("Session ID is not available in sessionStorage");
     }
-  });
+});
+
 
 
     socket.on('token', (token) => {
