@@ -23,20 +23,33 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
         return;
     }
 
-    // Debugging statement to print out the session ID
-    console.log("Debug: Session ID:", socket.request.session.sessionID);
+    const sessionId = socket.request.session.sessionID;
 
+    // Check if a conversation with this session ID already exists
     if (!socket.request.session.conversation_id) {
-        const result = await pool.query(
-            'INSERT INTO website_chat_conversations (start_timestamp, session_id) VALUES ($1, $2) RETURNING conversation_id',
-            [currentTimestamp, socket.request.session.sessionID]
-        )
-        .catch(err => {
+        const existingConv = await pool.query(
+            'SELECT conversation_id FROM website_chat_conversations WHERE session_id = $1 LIMIT 1',
+            [sessionId]
+        ).catch(err => {
             console.error('Database Error:', err);
         });
 
-        socket.request.session.conversation_id = result.rows[0].conversation_id;
+        // If a conversation already exists, use its conversation_id
+        if (existingConv.rows.length > 0) {
+            socket.request.session.conversation_id = existingConv.rows[0].conversation_id;
+        } else {
+            // Else, create a new conversation
+            const result = await pool.query(
+                'INSERT INTO website_chat_conversations (start_timestamp, session_id) VALUES ($1, $2) RETURNING conversation_id',
+                [currentTimestamp, sessionId]
+            ).catch(err => {
+                console.error('Database Error:', err);
+            });
+
+            socket.request.session.conversation_id = result.rows[0].conversation_id;
+        }
     }
+
 
 
     await pool.query('INSERT INTO website_chat_messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'sent', userInput]);
