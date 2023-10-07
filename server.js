@@ -42,11 +42,15 @@ const redisClient = redis.createClient({
 
 // Define session middleware
 const sessionMiddleware = session({
-    store: new RedisStore({ client: redisClient }),
+    store: new RedisStore({ 
+        client: redisClient, 
+        ttl: 1800  // Expiry time in seconds
+    }),
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false
 });
+
 
 // Use session middleware with Express
 app.use(sessionMiddleware);
