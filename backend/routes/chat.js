@@ -69,6 +69,11 @@ router.handleSocketConnection = (socket, uid) => {
     
     socket.on('chatMessage', async (data) => {
         try {
+
+
+            // Enable TTS by default
+        data.ttsEnabled = true;
+            
             console.log("[Chat Route] Received chat message:", data);
             const userInput = data.question;
             const currentTimestamp = new Date();
