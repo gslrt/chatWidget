@@ -92,6 +92,43 @@ export function sharedFunction() {
         thinkingStateElement.style.display = 'none';
     });
 
+    
+
+    // Update the UI based on the current mode
+function updateUIMode(mode) {
+    const chatWidget = document.querySelector('.chat-widget');
+    const modeTitle = document.querySelector('[element="toggle-chat-mode-title"]');
+    const modeDescription = document.querySelector('[element="toggle-chat-mode-description"]');
+
+    // Remove all mode classes
+    chatWidget.classList.remove('mode-a', 'mode-b', 'mode-c');
+    
+    // Add the new mode class
+    chatWidget.classList.add(`mode-${mode.toLowerCase()}`);
+
+    switch (mode) {
+        case 'A':
+            modeTitle.textContent = "Mode A";
+            modeDescription.textContent = "Wait for audio";
+            break;
+        case 'B':
+            modeTitle.textContent = "Conversation Mode";
+            modeDescription.textContent = "Free talk";
+            // Additional logic specific to Conversation Mode (enlarge avatar, activate microphone, etc.)
+            activateMicrophone();
+            showLargeAvatar();
+            break;
+        case 'C':
+            modeTitle.textContent = "Mode C";
+            modeDescription.textContent = "Text only";
+            break;
+        default:
+            console.error('Invalid mode');
+            return;
+    }
+}
+
+
      // Visual feedback based on audio
     const audioPlayer = document.getElementById('audioPlayer');
     const avatarWrapper = document.querySelector('[element="chat-bot-avatar-wrapper"]');
