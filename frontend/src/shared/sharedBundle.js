@@ -93,9 +93,10 @@ export function sharedFunction() {
     });
 
      // Visual feedback based on audio
-    document.addEventListener('DOMContentLoaded', function () {
-        const audioPlayer = document.getElementById('audioPlayer');
-        const avatarWrapper = document.querySelector('[element="chat-bot-avatar-wrapper"]');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const avatarWrapper = document.querySelector('[element="chat-bot-avatar-wrapper"]');
+
+    if (audioPlayer && avatarWrapper) {
         let pulsingAnimation;
 
         const randomInterval = () => Math.random() * 200;
@@ -125,22 +126,7 @@ export function sharedFunction() {
         audioPlayer.addEventListener('ended', () => {
             stopPulsing();
         });
-    });
-
-    document.addEventListener('click', function (e) {
-        if (e.target.matches('[trigger-action="copy-bot-response-to-clipboard"]')) {
-            e.preventDefault();
-            const lastBotMessageContent = document.querySelectorAll('[element="chat-bot-message-content"]')[document.querySelectorAll('[element="chat-bot-message-content"]').length - 1].innerText;
-            navigator.clipboard.writeText(lastBotMessageContent).then(function () {
-                console.log('Bot response copied to clipboard');
-            }, function (err) {
-                console.error('Could not copy bot response: ', err);
-            });
-        }
-
-        if (e.target.matches('[trigger-action="save-bot-response-as-private-document"]')) {
-            const responseContent = e.target.closest('.message.bot').querySelector('[element="chat-bot-message-content"]').getAttribute('bot-response-raw');
-            // Implement the function to save the response to the database
-        }
-    });
+    } else {
+        console.warn("Required DOM elements for visual feedback are not available yet.");
+    }
 }
