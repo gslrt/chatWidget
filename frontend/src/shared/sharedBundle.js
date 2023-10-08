@@ -92,6 +92,41 @@ export function sharedFunction() {
         thinkingStateElement.style.display = 'none';
     });
 
+     // Visual feedback based on audio
+    document.addEventListener('DOMContentLoaded', function () {
+        const audioPlayer = document.getElementById('audioPlayer');
+        const avatarWrapper = document.querySelector('[element="chat-bot-avatar-wrapper"]');
+        let pulsingAnimation;
+
+        const randomInterval = () => Math.random() * 200;
+        const randomSaturation = () => Math.random() * 1.1 + 1.3;
+
+        const startPulsing = () => {
+            pulsingAnimation = setInterval(() => {
+                avatarWrapper.style.transition = 'filter 0.3s';
+                avatarWrapper.style.filter = `saturate(${randomSaturation()})`;
+            }, randomInterval());
+        };
+
+        const stopPulsing = () => {
+            clearInterval(pulsingAnimation);
+            avatarWrapper.style.transition = 'filter 1s';
+            avatarWrapper.style.filter = 'saturate(1)';
+        };
+
+        audioPlayer.addEventListener('play', () => {
+            startPulsing();
+        });
+
+        audioPlayer.addEventListener('pause', () => {
+            stopPulsing();
+        });
+
+        audioPlayer.addEventListener('ended', () => {
+            stopPulsing();
+        });
+    });
+
     document.addEventListener('click', function (e) {
         if (e.target.matches('[trigger-action="copy-bot-response-to-clipboard"]')) {
             e.preventDefault();
