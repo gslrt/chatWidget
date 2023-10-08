@@ -132,3 +132,59 @@ export function sharedFunction() {
         console.warn("Required DOM elements for visual feedback are not available yet.");
     }
 }
+
+
+
+
+
+// Load the initial mode from sessionStorage or default to 'A'
+let currentMode = sessionStorage.getItem('chatMode') || 'A';
+
+// Update the UI based on the current mode
+function updateUIMode() {
+    const modeTitle = document.querySelector('[element="toggle-chat-mode-title"]');
+    const modeDescription = document.querySelector('[element="toggle-chat-mode-description"]');
+
+    switch (currentMode) {
+        case 'A':
+            modeTitle.textContent = "Mode A";
+            modeDescription.textContent = "Wait for audio";
+            break;
+        case 'B':
+            modeTitle.textContent = "Conversation Mode";
+            modeDescription.textContent = "Free talk";
+            break;
+        case 'C':
+            modeTitle.textContent = "Mode C";
+            modeDescription.textContent = "Text only";
+            break;
+        default:
+            console.error('Invalid mode');
+            return;
+    }
+
+    // Store the current mode in sessionStorage
+    sessionStorage.setItem('chatMode', currentMode);
+}
+
+// Listen for clicks on the toggle element
+document.querySelector('[trigger-action="toggle-chat-mode"]').addEventListener('click', function() {
+    // Cycle through modes A -> B -> C -> A
+    if (currentMode === 'A') {
+        currentMode = 'B';
+    } else if (currentMode === 'B') {
+        currentMode = 'C';
+    } else if (currentMode === 'C') {
+        currentMode = 'A';
+    } else {
+        console.error('Invalid current mode');
+        return;
+    }
+
+    // Update the UI based on the new mode
+    updateUIMode();
+});
+
+// Initial UI setup
+updateUIMode();
+
