@@ -129,41 +129,51 @@ function updateUIMode(mode) {
 }
 
 
-     // Visual feedback based on audio
-    const audioPlayer = document.getElementById('audioPlayer');
-    const avatarWrapper = document.querySelector('[element="chat-bot-avatar-wrapper"]');
+// Define a variable to keep track of the current mode
+let currentMode = 'A';
 
-    if (audioPlayer && avatarWrapper) {
-        let pulsingAnimation;
+// Update the UI based on the current mode
+function updateUIMode() {
+    const modeTitle = document.querySelector('[element="toggle-chat-mode-title"]');
+    const modeDescription = document.querySelector('[element="toggle-chat-mode-description"]');
 
-        const randomInterval = () => Math.random() * 200;
-        const randomSaturation = () => Math.random() * 1.1 + 1.3;
-
-        const startPulsing = () => {
-            pulsingAnimation = setInterval(() => {
-                avatarWrapper.style.transition = 'filter 0.3s';
-                avatarWrapper.style.filter = `saturate(${randomSaturation()})`;
-            }, randomInterval());
-        };
-
-        const stopPulsing = () => {
-            clearInterval(pulsingAnimation);
-            avatarWrapper.style.transition = 'filter 1s';
-            avatarWrapper.style.filter = 'saturate(1)';
-        };
-
-        audioPlayer.addEventListener('play', () => {
-            startPulsing();
-        });
-
-        audioPlayer.addEventListener('pause', () => {
-            stopPulsing();
-        });
-
-        audioPlayer.addEventListener('ended', () => {
-            stopPulsing();
-        });
-    } else {
-        console.warn("Required DOM elements for visual feedback are not available yet.");
+    switch (currentMode) {
+        case 'A':
+            modeTitle.textContent = "Mode A";
+            modeDescription.textContent = "Wait for audio";
+            break;
+        case 'B':
+            modeTitle.textContent = "Conversation Mode";
+            modeDescription.textContent = "Free talk";
+            break;
+        case 'C':
+            modeTitle.textContent = "Mode C";
+            modeDescription.textContent = "Text only";
+            break;
+        default:
+            console.error('Invalid mode');
+            return;
     }
 }
+
+// Listen for clicks on the toggle element
+document.querySelector('[trigger-action="toggle-chat-mode"]').addEventListener('click', function() {
+    // Cycle through modes A -> B -> C -> A
+    if (currentMode === 'A') {
+        currentMode = 'B';
+    } else if (currentMode === 'B') {
+        currentMode = 'C';
+    } else if (currentMode === 'C') {
+        currentMode = 'A';
+    } else {
+        console.error('Invalid current mode');
+        return;
+    }
+
+    // Update the UI based on the new mode
+    updateUIMode();
+});
+
+// Initial UI setup
+updateUIMode();
+
