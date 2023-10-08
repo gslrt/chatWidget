@@ -27,19 +27,31 @@ let currentMode = sessionStorage.getItem('chatMode') || 'A';
 function updateUIMode() {
   const modeTitle = document.querySelector('[element="toggle-chat-mode-title"]');
   const modeDescription = document.querySelector('[element="toggle-chat-mode-description"]');
+  const conversationModeWrapper = document.querySelector('[element="conversation-mode-message-wrapper"]');
+  const visualizerWrapper = document.querySelector('[element="interface-visualizer-wrapper"]');
+  const chatHistory = document.querySelector('[element="chat-history"]');
 
   switch (currentMode) {
     case 'A':
       modeTitle.textContent = "Mode A";
       modeDescription.textContent = "Wait for audio";
+      conversationModeWrapper.classList.add('hide');
+      visualizerWrapper.classList.remove('conversation-mode');
+      chatHistory.classList.remove('conversation-mode');
       break;
     case 'B':
       modeTitle.textContent = "Conversation Mode";
       modeDescription.textContent = "Free talk";
+      conversationModeWrapper.classList.remove('hide');
+      visualizerWrapper.classList.add('conversation-mode');
+      chatHistory.classList.add('conversation-mode');
       break;
     case 'C':
       modeTitle.textContent = "Mode C";
       modeDescription.textContent = "Text only";
+      conversationModeWrapper.classList.add('hide');
+      visualizerWrapper.classList.remove('conversation-mode');
+      chatHistory.classList.remove('conversation-mode');
       break;
     default:
       console.error('Invalid mode');
@@ -105,10 +117,13 @@ export function sharedFunction() {
     socket.emit('chatMessage', {
       question: userInput,
       socketIOClientId: socketIOClientId,
-      userUID: userUID
+      userUID: userUID,
+      mode: currentMode
     });
   });
 
+
+  
 
   // Visual feedback based on audio
   const audioPlayer = document.getElementById('audioPlayer');
