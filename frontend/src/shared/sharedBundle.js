@@ -1,5 +1,4 @@
 // frontend/src/shared/sharedBundle.js
-
 import socketIOClient from 'socket.io-client';
 
 function createElementFromTemplate(templateId) {
@@ -24,7 +23,11 @@ export function sharedFunction() {
     let socketIOClientId = '';
     let userUID = '';
 
-    // Event listener for the sessionReady event
+    // Initialize Web Audio API components
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const analyser = audioCtx.createAnalyser();
+    let pulsingAnimation;
+
     document.addEventListener('sessionReady', function() {
         const sessionId = sessionStorage.getItem("sessionId");
         console.log("sessionReady event fired. sessionId:", sessionId);
@@ -33,7 +36,6 @@ export function sharedFunction() {
         }
     });
 
-    // When the socket connects, attempt to send the session ID to the server
     socket.on('connect', () => {
         socketIOClientId = socket.id;
         const sessionId = sessionStorage.getItem("sessionId");
@@ -45,12 +47,30 @@ export function sharedFunction() {
     });
 
     socket.on('token', (token) => {
-        // Handle the token, e.g., append each token to the bot's message in real-time.
+        // Handle the token
     });
 
-    const audio = document.getElementById('audioPlayer');
     const thinkingStateElement = document.querySelector('[element="chat-thinking-state-wrapper"]');
     thinkingStateElement.style.display = 'none';
+
+    const avatarWrapper = document.querySelector('[element="chat-bot-avatar-wrapper"]');
+
+    const startPulsing = () => {
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        pulsingAnimation = setInterval(() => {
+            analyser.getByteFrequencyData(dataArray);
+            const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+            const saturation = 1 + average / 256;
+            avatarWrapper.style.transition = 'filter 0.1s';
+            avatarWrapper.style.filter = `saturate(${saturation})`;
+        }, 100);
+    };
+
+    const stopPulsing = () => {
+        clearInterval(pulsingAnimation);
+        avatarWrapper.style.transition = 'filter 1s';
+        avatarWrapper.style.filter = 'saturate(1)';
+    };
 
     document.querySelector('[element="chat-user-input"]').addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
@@ -84,49 +104,20 @@ export function sharedFunction() {
         botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
         botMessageElement.querySelector('[element="chat-bot-message-content"]').setAttribute('bot-response-raw', data.text);
         if (data.audioUrl) {
-            audio.src = data.audioUrl;
-            audio.play();
+            fetch(data.audioUrl)
+                .then(response => response.arrayBuffer())
+                .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
+                .then(audioBuffer => {
+                    const source = audioCtx.createBufferSource();
+                    source.buffer = audioBuffer;
+                    source.connect(analyser);
+                    analyser.connect(audioCtx.destination);
+                    source.start();
+                    startPulsing();
+                });
         }
         botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
         document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
         thinkingStateElement.style.display = 'none';
     });
-
-     // Visual feedback based on audio
-    const audioPlayer = document.getElementById('audioPlayer');
-    const avatarWrapper = document.querySelector('[element="chat-bot-avatar-wrapper"]');
-
-    if (audioPlayer && avatarWrapper) {
-        let pulsingAnimation;
-
-        const randomInterval = () => Math.random() * 200;
-        const randomSaturation = () => Math.random() * 1.1 + 1.3;
-
-        const startPulsing = () => {
-            pulsingAnimation = setInterval(() => {
-                avatarWrapper.style.transition = 'filter 0.3s';
-                avatarWrapper.style.filter = `saturate(${randomSaturation()})`;
-            }, randomInterval());
-        };
-
-        const stopPulsing = () => {
-            clearInterval(pulsingAnimation);
-            avatarWrapper.style.transition = 'filter 1s';
-            avatarWrapper.style.filter = 'saturate(1)';
-        };
-
-        audioPlayer.addEventListener('play', () => {
-            startPulsing();
-        });
-
-        audioPlayer.addEventListener('pause', () => {
-            stopPulsing();
-        });
-
-        audioPlayer.addEventListener('ended', () => {
-            stopPulsing();
-        });
-    } else {
-        console.warn("Required DOM elements for visual feedback are not available yet.");
-    }
 }
