@@ -94,86 +94,41 @@ export function sharedFunction() {
 
     
 
-    // Update the UI based on the current mode
-function updateUIMode(mode) {
-    const chatWidget = document.querySelector('.chat-widget');
-    const modeTitle = document.querySelector('[element="toggle-chat-mode-title"]');
-    const modeDescription = document.querySelector('[element="toggle-chat-mode-description"]');
+   // Visual feedback based on audio
+    const audioPlayer = document.getElementById('audioPlayer');
+    const avatarWrapper = document.querySelector('[element="chat-bot-avatar-wrapper"]');
 
-    // Remove all mode classes
-    chatWidget.classList.remove('mode-a', 'mode-b', 'mode-c');
-    
-    // Add the new mode class
-    chatWidget.classList.add(`mode-${mode.toLowerCase()}`);
+    if (audioPlayer && avatarWrapper) {
+        let pulsingAnimation;
 
-    switch (mode) {
-        case 'A':
-            modeTitle.textContent = "Mode A";
-            modeDescription.textContent = "Wait for audio";
-            break;
-        case 'B':
-            modeTitle.textContent = "Conversation Mode";
-            modeDescription.textContent = "Free talk";
-            // Additional logic specific to Conversation Mode (enlarge avatar, activate microphone, etc.)
-            activateMicrophone();
-            showLargeAvatar();
-            break;
-        case 'C':
-            modeTitle.textContent = "Mode C";
-            modeDescription.textContent = "Text only";
-            break;
-        default:
-            console.error('Invalid mode');
-            return;
-    }
-}
+        const randomInterval = () => Math.random() * 200;
+        const randomSaturation = () => Math.random() * 1.1 + 1.3;
 
+        const startPulsing = () => {
+            pulsingAnimation = setInterval(() => {
+                avatarWrapper.style.transition = 'filter 0.3s';
+                avatarWrapper.style.filter = `saturate(${randomSaturation()})`;
+            }, randomInterval());
+        };
 
-// Define a variable to keep track of the current mode
-let currentMode = 'A';
+        const stopPulsing = () => {
+            clearInterval(pulsingAnimation);
+            avatarWrapper.style.transition = 'filter 1s';
+            avatarWrapper.style.filter = 'saturate(1)';
+        };
 
-// Update the UI based on the current mode
-function updateUIMode() {
-    const modeTitle = document.querySelector('[element="toggle-chat-mode-title"]');
-    const modeDescription = document.querySelector('[element="toggle-chat-mode-description"]');
+        audioPlayer.addEventListener('play', () => {
+            startPulsing();
+        });
 
-    switch (currentMode) {
-        case 'A':
-            modeTitle.textContent = "Mode A";
-            modeDescription.textContent = "Wait for audio";
-            break;
-        case 'B':
-            modeTitle.textContent = "Conversation Mode";
-            modeDescription.textContent = "Free talk";
-            break;
-        case 'C':
-            modeTitle.textContent = "Mode C";
-            modeDescription.textContent = "Text only";
-            break;
-        default:
-            console.error('Invalid mode');
-            return;
-    }
-}
+        audioPlayer.addEventListener('pause', () => {
+            stopPulsing();
+        });
 
-// Listen for clicks on the toggle element
-document.querySelector('[trigger-action="toggle-chat-mode"]').addEventListener('click', function() {
-    // Cycle through modes A -> B -> C -> A
-    if (currentMode === 'A') {
-        currentMode = 'B';
-    } else if (currentMode === 'B') {
-        currentMode = 'C';
-    } else if (currentMode === 'C') {
-        currentMode = 'A';
+        audioPlayer.addEventListener('ended', () => {
+            stopPulsing();
+        });
     } else {
-        console.error('Invalid current mode');
-        return;
+        console.warn("Required DOM elements for visual feedback are not available yet.");
     }
-
-    // Update the UI based on the new mode
-    updateUIMode();
-});
-
-// Initial UI setup
-updateUIMode();
-
+}
