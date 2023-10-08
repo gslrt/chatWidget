@@ -11,14 +11,18 @@ const RedisStore = require('connect-redis')(session);
 const cors = require('cors');
 const fs = require('fs');
 const uuid = require('uuid'); 
-
-// Initialize Express app
 const app = express();
 
 // Logging middleware for debugging
 app.use((req, res, next) => {
   next();
 });
+
+
+const setupGoogleCredentials = require('./setupGoogleCreds.js');  
+
+// Call the function to set up Google Cloud credentials
+setupGoogleCredentials();
 
 // Set up CORS for Express
 const whitelist = process.env.CORS_WHITELIST_WIDGET.split(',');
