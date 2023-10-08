@@ -179,6 +179,138 @@ export function sharedFunction() {
 
 
 
+
+
+function chatRecording() {
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recording = false;
+    let stream;
+
+    // Corresponding HTML elements
+    const triggerDiv = document.querySelector('div[trigger-action="toggle-audio-record-chat-input"]');
+    const input = document.querySelector('div[element="chat-user-input"]');
+    const canvas = document.querySelector('canvas[element="audio-recording-visualizer"]');
+    const canvasContainer = document.querySelector('div[element="audio-recording-visualizer-code"]');
+    const canvasCtx = canvas.getContext('2d');
+
+    // Existing configurations
+    canvasContainer.style.display = "none"; 
+
+    let audioCtx;
+    let source;
+    let analyser;
+    let dataArray;
+
+    const initAudioContext = () => {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        source = audioCtx.createMediaStreamSource(stream);
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 1024;
+        analyser.smoothingTimeConstant = 0.9;
+        const bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+        source.connect(analyser);
+
+        function draw() {
+            requestAnimationFrame(draw);
+            analyser.getByteTimeDomainData(dataArray);
+            canvasCtx.fillStyle = 'rgb(28, 28, 28)';
+            canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+            canvasCtx.lineWidth = 2;
+            canvasCtx.strokeStyle = 'rgb(255, 0, 0)';
+            canvasCtx.beginPath();
+            const sliceWidth = canvas.width * 1.0 / bufferLength;
+            let x = 0;
+
+            for (let i = 0; i < bufferLength; i++) {
+                const v = dataArray[i] / 128.0;
+                const y = v * canvas.height / 2;
+
+                if (i === 0) {
+                    canvasCtx.moveTo(x, y);
+                } else {
+                    canvasCtx.lineTo(x, y);
+                }
+
+                x += sliceWidth;
+            }
+
+            canvasCtx.lineTo(canvas.width, canvas.height / 2);
+            canvasCtx.stroke();
+        };
+
+        draw();
+    }
+    const toggleRecording = async () => {
+        if (recording) {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                triggerDiv.style.backgroundColor = '';
+                canvasContainer.style.display = "none"; 
+            }
+        } else {
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            mediaRecorder = new MediaRecorder(stream);
+            initAudioContext();
+
+            input.textContent = ''; 
+
+            mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+
+            mediaRecorder.onstop = () => {
+                const formData = new FormData();
+                formData.append('file', new Blob(audioChunks, { type: 'audio/webm' }), 'audio.webm');
+
+                const token = localStorage.getItem('token');
+
+                fetch('YOUR_API_URL_HERE', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                    },
+                    body: formData,
+                    credentials: 'include'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.text) {
+                        input.textContent = data.text;
+                    } else {
+                        console.error(data.error);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+
+                audioChunks = [];
+            };
+
+            mediaRecorder.start();
+            triggerDiv.style.backgroundColor = 'red';
+            canvasContainer.style.display = "block"; 
+        }
+
+        recording = !recording;
+    }
+
+    triggerDiv.addEventListener('click', toggleRecording);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    chatRecording(); // Initialize your new chat recording functionality
+});
+
+
+
+
+
+
+
+  
+
   
   // Listen for clicks on the toggle element
   document.querySelector('[trigger-action="toggle-chat-mode"]').addEventListener('click', function() {
