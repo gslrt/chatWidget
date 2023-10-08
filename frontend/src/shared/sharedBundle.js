@@ -50,7 +50,6 @@ function updateUIMode() {
   sessionStorage.setItem('chatMode', currentMode);
 }
 
-// Main shared function
 export function sharedFunction() {
   const socket = socketIOClient("chatwidget-production.up.railway.app");
   let socketIOClientId = '';
@@ -80,13 +79,53 @@ export function sharedFunction() {
     // Handle the token, e.g., append each token to the bot's message in real-time.
   });
 
-  // All your existing chat logic is already integrated here. No need to insert anything else.
+  const audio = document.getElementById('audioPlayer');
+  const thinkingStateElement = document.querySelector('[element="chat-thinking-state-wrapper"]');
+  thinkingStateElement.style.display = 'none';
 
-  // Initialize UI mode
-  updateUIMode();
+  document.querySelector('[element="chat-user-input"]').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.querySelector('[trigger-action="submit-chat-input"]').click();
+    }
+  });
 
-  // Listener for chat mode toggle
+  document.querySelector('[trigger-action="submit-chat-input"]').addEventListener('click', function (e) {
+    e.preventDefault();
+    const userInput = document.querySelector('[element="chat-user-input"]').innerText.trim();
+    if (!userInput) {
+      return;
+    }
+    document.querySelector('[element="chat-user-input"]').innerText = '';
+    thinkingStateElement.style.display = 'block';
+    const userMessageElement = createElementFromTemplate('chat-user-message-wrapper');
+    userMessageElement.querySelector('[element="chat-user-message-content"]').textContent = userInput;
+    userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
+    document.querySelector('[list-element="chat-history"]').appendChild(userMessageElement);
+    socket.emit('chatMessage', {
+      question: userInput,
+      socketIOClientId: socketIOClientId,
+      userUID: userUID
+    });
+  });
+
+  socket.on('botResponse', (data) => {
+    const formattedBotResponse = formatTextWithLineBreaks(data.text);
+    const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
+    botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
+    botMessageElement.querySelector('[element="chat-bot-message-content"]').setAttribute('bot-response-raw', data.text);
+    if (data.audioUrl) {
+      audio.src = data.audioUrl;
+      audio.play();
+    }
+    botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
+    document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
+    thinkingStateElement.style.display = 'none';
+  });
+
+  // Listen for clicks on the toggle element
   document.querySelector('[trigger-action="toggle-chat-mode"]').addEventListener('click', function() {
+    // Cycle through modes A -> B -> C -> A
     if (currentMode === 'A') {
       currentMode = 'B';
     } else if (currentMode === 'B') {
@@ -101,4 +140,7 @@ export function sharedFunction() {
     // Update the UI based on the new mode
     updateUIMode();
   });
+
+  // Initial UI setup
+  updateUIMode();
 }
