@@ -259,20 +259,23 @@ function chatRecording() {
 
             mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
 
-            mediaRecorder.onstop = () => {
-                const formData = new FormData();
-                formData.append('file', new Blob(audioChunks, { type: 'audio/webm' }), 'audio.webm');
+          mediaRecorder.onstop = () => {
+    const formData = new FormData();
+    formData.append('file', new Blob(audioChunks, { type: 'audio/webm' }), 'audio.webm');
 
-                const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
 
-                fetch('YOUR_API_URL_HERE', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + token,
-                    },
-                    body: formData,
-                    credentials: 'include'
-                })
+    // Use process.env.TRANSCRIBE_SERVER_URL directly
+    const transcribeApiUrl = `${process.env.TRANSCRIBE_SERVER_URL}/transcribe`;
+
+    fetch(transcribeApiUrl, {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + token,
+        },
+        body: formData,
+        credentials: 'include'
+    })
                 .then(response => response.json())
                 .then(data => {
                     if (data.text) {
