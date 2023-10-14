@@ -182,6 +182,7 @@ export function sharedFunction() {
 
 
 function chatRecording() {
+    console.log("Debug: Inside chatRecording function"); // Debug line
     let mediaRecorder = null;
     let audioChunks = [];
     let recording = false;
@@ -189,6 +190,8 @@ function chatRecording() {
 
     // Corresponding HTML elements
     const triggerDiv = document.querySelector('div[trigger-action="toggle-audio-record-chat-input"]');
+    console.log("Debug: Preparing to add event listener to:", triggerDiv); // Debug line
+
     const input = document.querySelector('div[element="chat-user-input"]');
     const canvas = document.querySelector('canvas[element="audio-recording-visualizer"]');
     const canvasContainer = document.querySelector('div[element="audio-recording-visualizer-code"]');
@@ -196,7 +199,6 @@ function chatRecording() {
 
     // Existing configurations
     canvasContainer.style.display = "none"; 
-
     let audioCtx;
     let source;
     let analyser;
@@ -243,7 +245,10 @@ function chatRecording() {
         draw();
     }
     const toggleRecording = async () => {
+        console.log("Debug: Inside toggleRecording function"); // Debug line
+
         if (recording) {
+            console.log("Debug: Stopping recording"); // Debug line
             if (mediaRecorder && mediaRecorder.state === 'recording') {
                 mediaRecorder.stop();
                 mediaRecorder.stream.getTracks().forEach(track => track.stop());
@@ -251,6 +256,7 @@ function chatRecording() {
                 canvasContainer.style.display = "none"; 
             }
         } else {
+            console.log("Debug: Starting recording"); // Debug line
             stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
             mediaRecorder = new MediaRecorder(stream);
             initAudioContext();
@@ -259,7 +265,7 @@ function chatRecording() {
 
             mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
 
-          mediaRecorder.onstop = () => {
+            mediaRecorder.onstop = () => {
     const formData = new FormData();
     formData.append('file', new Blob(audioChunks, { type: 'audio/webm' }), 'audio.webm');
 
@@ -289,7 +295,7 @@ function chatRecording() {
                 });
 
                 audioChunks = [];
-            };
+    };
 
             mediaRecorder.start();
             triggerDiv.style.backgroundColor = 'red';
@@ -297,9 +303,14 @@ function chatRecording() {
         }
 
         recording = !recording;
-    }
+    };
 
-    triggerDiv.addEventListener('click', toggleRecording);
+    if (triggerDiv) {  // Check if triggerDiv exists
+        console.log("Debug: Adding event listener to triggerDiv"); // Debug line
+        triggerDiv.addEventListener('click', toggleRecording);
+    } else {
+        console.log("Debug: triggerDiv not found"); // Debug line
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
