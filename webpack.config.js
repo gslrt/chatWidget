@@ -16,6 +16,7 @@ module.exports = {
     plugins: [
     new webpack.DefinePlugin({
       'process.env.SERVICE_URL': JSON.stringify(process.env.SERVICE_URL),
+      'process.env.TRANSCRIBE_SERVER_URL': JSON.stringify(process.env.TRANSCRIBE_SERVER_URL),
     }),
   ],
 };
