@@ -182,18 +182,23 @@ export function sharedFunction() {
 
 
 function chatRecording() {
+    console.log("Debug: Inside chatRecording function"); // Debug line
     let mediaRecorder = null;
     let audioChunks = [];
     let recording = false;
     let stream;
 
+    // Corresponding HTML elements
     const triggerDiv = document.querySelector('div[trigger-action="toggle-audio-record-chat-input"]');
+    console.log("Debug: Preparing to add event listener to:", triggerDiv); // Debug line
+
     const input = document.querySelector('div[element="chat-user-input"]');
     const canvas = document.querySelector('canvas[element="audio-recording-visualizer"]');
     const canvasContainer = document.querySelector('div[element="audio-recording-visualizer-code"]');
     const canvasCtx = canvas.getContext('2d');
 
-    canvasContainer.style.display = "none";
+    // Existing configurations
+    canvasContainer.style.display = "none"; 
     let audioCtx;
     let source;
     let analyser;
@@ -235,42 +240,48 @@ function chatRecording() {
 
             canvasCtx.lineTo(canvas.width, canvas.height / 2);
             canvasCtx.stroke();
-        }
+        };
 
         draw();
-    };
-
+    }
     const toggleRecording = async () => {
+        console.log("Debug: Inside toggleRecording function"); // Debug line
+
         if (recording) {
+            console.log("Debug: Stopping recording"); // Debug line
             if (mediaRecorder && mediaRecorder.state === 'recording') {
                 mediaRecorder.stop();
                 mediaRecorder.stream.getTracks().forEach(track => track.stop());
                 triggerDiv.style.backgroundColor = '';
-                canvasContainer.style.display = "none";
+                canvasContainer.style.display = "none"; 
             }
         } else {
+            console.log("Debug: Starting recording"); // Debug line
             stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
             mediaRecorder = new MediaRecorder(stream);
             initAudioContext();
 
-            input.textContent = '';
+            input.textContent = ''; 
 
             mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
 
             mediaRecorder.onstop = () => {
-                const formData = new FormData();
-                formData.append('file', new Blob(audioChunks, { type: 'audio/webm' }), 'audio.webm');
-                const token = localStorage.getItem('token');
-                const transcribeApiUrl = `${process.env.TRANSCRIBE_SERVER_URL}/transcribe`;
+    const formData = new FormData();
+    formData.append('file', new Blob(audioChunks, { type: 'audio/webm' }), 'audio.webm');
 
-                fetch(transcribeApiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + token,
-                    },
-                    body: formData,
-                    credentials: 'include'
-                })
+    const token = localStorage.getItem('token');
+
+    // Use process.env.TRANSCRIBE_SERVER_URL directly
+    const transcribeApiUrl = `${process.env.TRANSCRIBE_SERVER_URL}/transcribe`;
+
+    fetch(transcribeApiUrl, {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + token,
+        },
+        body: formData,
+        credentials: 'include'
+    })
                 .then(response => response.json())
                 .then(data => {
                     if (data.text) {
@@ -284,26 +295,31 @@ function chatRecording() {
                 });
 
                 audioChunks = [];
-            };
+    };
 
             mediaRecorder.start();
             triggerDiv.style.backgroundColor = 'red';
-            canvasContainer.style.display = "block";
+            canvasContainer.style.display = "block"; 
         }
 
         recording = !recording;
     };
 
-   if (triggerDiv) {
-    console.log("Debug: Adding event listener to triggerDiv");
-    triggerDiv.addEventListener('click', toggleRecording);
-} else {
-    console.log("Debug: triggerDiv not found");
+    if (triggerDiv) {  // Check if triggerDiv exists
+        console.log("Debug: Adding event listener to triggerDiv"); // Debug line
+        triggerDiv.addEventListener('click', toggleRecording);
+    } else {
+        console.log("Debug: triggerDiv not found"); // Debug line
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    chatRecording();
+    chatRecording(); // Initialize your new chat recording functionality
 });
+
+
+
+
 
 
 
@@ -327,3 +343,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Update the UI based on the new mode
     updateUIMode();
   });
+
+  // Initial UI setup
+  updateUIMode();
+}
