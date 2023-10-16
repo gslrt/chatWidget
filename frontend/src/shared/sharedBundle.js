@@ -181,22 +181,36 @@ export function sharedFunction() {
 
 
 
-function chatRecording() {
-    console.log("Debug: Inside chatRecording function");
 
-    let mediaRecorder = null;
-    let audioChunks = [];
+
+
+
+  
+function chatRecording() {
+    console.log("Debug: Starting chatRecording function");
+
     let recording = false;
+    let audioChunks = [];
     let stream;
+    let audioCtx;
+    let source;
+    let analyser;
+    let dataArray;
 
     const triggerDiv = document.querySelector('div[trigger-action="toggle-audio-record-chat-input"]');
 
-    if (triggerDiv) {
-        console.log("Debug: Found the audio record toggle button.");
-    } else {
-        console.error("Debug: Did not find the audio record toggle button.");
+    if (!triggerDiv) {
+        console.error("Debug: Could not find the audio record toggle button.");
         return;  // Exit the function if the main element is not found
+    } else {
+        console.log("Debug: Found the audio record toggle button.");
     }
+
+    const canvas = document.querySelector('canvas[element="audio-recording-visualizer"]');
+    const input = document.querySelector('div[element="chat-user-input"]');
+    const canvasCtx = canvas.getContext('2d');
+    const canvasContainer = document.querySelector('div[element="audio-recording-visualizer-code"]');
+    canvasContainer.style.display = "none"; 
 
     const initAudioContext = () => {
         console.log("Debug: Inside initAudioContext function");
@@ -307,16 +321,18 @@ function chatRecording() {
         recording = !recording;
     };
 
-    if (triggerDiv) {  // Check if triggerDiv exists
-        console.log("Debug: Adding event listener to triggerDiv"); // Debug line
-        triggerDiv.addEventListener('click', toggleRecording);
-    } else {
-        console.log("Debug: triggerDiv not found"); // Debug line
-    }
+    triggerDiv.addEventListener('click', function() {
+        console.log("Debug: Audio record button clicked.");
+        toggleRecording();
+    });
+
+    console.log("Debug: Event listener attached to audio record button.");
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    chatRecording(); // Initialize your new chat recording functionality
+// Ensure chatRecording is called after DOM is fully loaded:
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Debug: DOM fully loaded.");
+    chatRecording();
 });
 
 
@@ -324,6 +340,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+
+
+
+
+  
 
   
 
