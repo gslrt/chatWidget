@@ -182,29 +182,25 @@ export function sharedFunction() {
 
 
 function chatRecording() {
-    console.log("Debug: Inside chatRecording function"); // Debug line
+    console.log("Debug: Inside chatRecording function");
+
     let mediaRecorder = null;
     let audioChunks = [];
     let recording = false;
     let stream;
 
-    // Corresponding HTML elements
     const triggerDiv = document.querySelector('div[trigger-action="toggle-audio-record-chat-input"]');
-    console.log("Debug: Preparing to add event listener to:", triggerDiv); // Debug line
 
-    const input = document.querySelector('div[element="chat-user-input"]');
-    const canvas = document.querySelector('canvas[element="audio-recording-visualizer"]');
-    const canvasContainer = document.querySelector('div[element="audio-recording-visualizer-code"]');
-    const canvasCtx = canvas.getContext('2d');
-
-    // Existing configurations
-    canvasContainer.style.display = "none"; 
-    let audioCtx;
-    let source;
-    let analyser;
-    let dataArray;
+    if (triggerDiv) {
+        console.log("Debug: Found the audio record toggle button.");
+    } else {
+        console.error("Debug: Did not find the audio record toggle button.");
+        return;  // Exit the function if the main element is not found
+    }
 
     const initAudioContext = () => {
+        console.log("Debug: Inside initAudioContext function");
+        
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         source = audioCtx.createMediaStreamSource(stream);
         analyser = audioCtx.createAnalyser();
@@ -240,15 +236,16 @@ function chatRecording() {
 
             canvasCtx.lineTo(canvas.width, canvas.height / 2);
             canvasCtx.stroke();
-        };
+        }
 
         draw();
-    }
+    };
+
     const toggleRecording = async () => {
-        console.log("Debug: Inside toggleRecording function"); // Debug line
+        console.log("Debug: Inside toggleRecording function");
 
         if (recording) {
-            console.log("Debug: Stopping recording"); // Debug line
+            console.log("Debug: Stopping recording");
             if (mediaRecorder && mediaRecorder.state === 'recording') {
                 mediaRecorder.stop();
                 mediaRecorder.stream.getTracks().forEach(track => track.stop());
@@ -256,8 +253,16 @@ function chatRecording() {
                 canvasContainer.style.display = "none"; 
             }
         } else {
-            console.log("Debug: Starting recording"); // Debug line
-            stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            console.log("Debug: Starting recording");
+            
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                console.log("Debug: Media stream acquired.");
+            } catch (error) {
+                console.error("Debug: Failed to acquire media stream.", error);
+                return;  // Exit if the stream could not be acquired
+            }
+
             mediaRecorder = new MediaRecorder(stream);
             initAudioContext();
 
@@ -266,36 +271,33 @@ function chatRecording() {
             mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
 
             mediaRecorder.onstop = () => {
-    const formData = new FormData();
-    formData.append('file', new Blob(audioChunks, { type: 'audio/webm' }), 'audio.webm');
+                const formData = new FormData();
+                formData.append('file', new Blob(audioChunks, { type: 'audio/webm' }), 'audio.webm');
+                const token = localStorage.getItem('token');
+                const transcribeApiUrl = `${process.env.TRANSCRIBE_SERVER_URL}/transcribe`;
 
-    const token = localStorage.getItem('token');
-
-    // Use process.env.TRANSCRIBE_SERVER_URL directly
-    const transcribeApiUrl = `${process.env.TRANSCRIBE_SERVER_URL}/transcribe`;
-
-    fetch(transcribeApiUrl, {
-        method: 'POST',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-        },
-        body: formData,
-        credentials: 'include'
-    })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.text) {
-                        input.textContent = data.text;
-                    } else {
-                        console.error(data.error);
-                    }
+                fetch(transcribeApiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                    },
+                    body: formData,
+                    credentials: 'include'
                 })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.text) {
+                            input.textContent = data.text;
+                        } else {
+                            console.error(data.error);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
 
                 audioChunks = [];
-    };
+            };
 
             mediaRecorder.start();
             triggerDiv.style.backgroundColor = 'red';
