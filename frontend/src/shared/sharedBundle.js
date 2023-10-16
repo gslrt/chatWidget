@@ -1,4 +1,7 @@
 // frontend/src/shared/sharedBundle.js
+console.log("Script is loaded!");
+
+
 
 import socketIOClient from 'socket.io-client';
 
