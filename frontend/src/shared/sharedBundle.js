@@ -294,9 +294,11 @@ function chatRecording() {
         recording = !recording;
     };
 
-    if (triggerDiv) {
-        triggerDiv.addEventListener('click', toggleRecording);
-    }
+   if (triggerDiv) {
+    console.log("Debug: Adding event listener to triggerDiv");
+    triggerDiv.addEventListener('click', toggleRecording);
+} else {
+    console.log("Debug: triggerDiv not found");
 }
 
 document.addEventListener('DOMContentLoaded', function () {
