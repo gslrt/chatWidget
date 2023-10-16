@@ -188,34 +188,22 @@ export function sharedFunction() {
 
   
 function chatRecording() {
-    console.log("Debug: Starting chatRecording function");
+    const triggerDiv = document.querySelector('div[trigger-action="toggle-audio-record-chat-input"]');
+    const canvasContainer = document.querySelector('.audio-recording-visualizer');
+    const canvas = document.querySelector('canvas[element="audio-recording-visualizer"]');
+    const input = document.querySelector('div[element="chat-user-input"]');
 
+    if (!triggerDiv) {
+        console.error("Could not find the audio record toggle button.");
+        return;
+    }
+
+    let audioCtx, source, analyser, dataArray, mediaRecorder;
     let recording = false;
     let audioChunks = [];
     let stream;
-    let audioCtx;
-    let source;
-    let analyser;
-    let dataArray;
-
-    const triggerDiv = document.querySelector('div[trigger-action="toggle-audio-record-chat-input"]');
-
-    if (!triggerDiv) {
-        console.error("Debug: Could not find the audio record toggle button.");
-        return;  // Exit the function if the main element is not found
-    } else {
-        console.log("Debug: Found the audio record toggle button.");
-    }
-
-    const canvas = document.querySelector('canvas[element="audio-recording-visualizer"]');
-    const input = document.querySelector('div[element="chat-user-input"]');
-    const canvasCtx = canvas.getContext('2d');
-    const canvasContainer = document.querySelector('div[element="audio-recording-visualizer-code"]');
-    canvasContainer.style.display = "none"; 
 
     const initAudioContext = () => {
-        console.log("Debug: Inside initAudioContext function");
-        
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         source = audioCtx.createMediaStreamSource(stream);
         analyser = audioCtx.createAnalyser();
@@ -224,6 +212,7 @@ function chatRecording() {
         const bufferLength = analyser.frequencyBinCount;
         dataArray = new Uint8Array(bufferLength);
         source.connect(analyser);
+        const canvasCtx = canvas.getContext('2d');
 
         function draw() {
             requestAnimationFrame(draw);
@@ -257,86 +246,67 @@ function chatRecording() {
     };
 
     const toggleRecording = async () => {
-        console.log("Debug: Inside toggleRecording function");
-
         if (recording) {
-            console.log("Debug: Stopping recording");
             if (mediaRecorder && mediaRecorder.state === 'recording') {
                 mediaRecorder.stop();
                 mediaRecorder.stream.getTracks().forEach(track => track.stop());
                 triggerDiv.style.backgroundColor = '';
-                canvasContainer.style.display = "none"; 
+                canvasContainer.style.display = "none";
             }
         } else {
-            console.log("Debug: Starting recording");
-            
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-                console.log("Debug: Media stream acquired.");
-            } catch (error) {
-                console.error("Debug: Failed to acquire media stream.", error);
-                return;  // Exit if the stream could not be acquired
-            }
+                mediaRecorder = new MediaRecorder(stream);
+                initAudioContext();
+                input.textContent = '';
 
-            mediaRecorder = new MediaRecorder(stream);
-            initAudioContext();
+                mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
 
-            input.textContent = ''; 
+                mediaRecorder.onstop = () => {
+                    const formData = new FormData();
+                    formData.append('file', new Blob(audioChunks, { type: 'audio/webm' }), 'audio.webm');
+                    const token = localStorage.getItem('token');
+                    const transcribeApiUrl = `${process.env.TRANSCRIBE_SERVER_URL}/transcribe`;
 
-            mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
-
-            mediaRecorder.onstop = () => {
-                const formData = new FormData();
-                formData.append('file', new Blob(audioChunks, { type: 'audio/webm' }), 'audio.webm');
-                const token = localStorage.getItem('token');
-                const transcribeApiUrl = `${process.env.TRANSCRIBE_SERVER_URL}/transcribe`;
-
-                fetch(transcribeApiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + token,
-                    },
-                    body: formData,
-                    credentials: 'include'
-                })
+                    fetch(transcribeApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + token,
+                        },
+                        body: formData,
+                        credentials: 'include'
+                    })
                     .then(response => response.json())
                     .then(data => {
                         if (data.text) {
                             input.textContent = data.text;
-                        } else {
-                            console.error(data.error);
                         }
                     })
                     .catch((error) => {
                         console.error('Error:', error);
                     });
 
-                audioChunks = [];
-            };
+                    audioChunks = [];
+                };
 
-            mediaRecorder.start();
-            triggerDiv.style.backgroundColor = 'red';
-            canvasContainer.style.display = "block"; 
+                mediaRecorder.start();
+                triggerDiv.style.backgroundColor = 'red';
+                canvasContainer.style.display = "block";
+            } catch (error) {
+                console.error("Failed to acquire media stream.", error);
+                return;
+            }
         }
 
         recording = !recording;
     };
 
-    triggerDiv.addEventListener('click', function() {
-        console.log("Debug: Audio record button clicked.");
-        toggleRecording();
-    });
-
-    console.log("Debug: Event listener attached to audio record button.");
+    triggerDiv.addEventListener('click', toggleRecording);
 }
 
-// Ensure chatRecording is called after DOM is fully loaded:
 window.onload = function() {
-    console.log("Debug: Window fully loaded.");
     chatRecording();
 };
-
-
 
 
 
