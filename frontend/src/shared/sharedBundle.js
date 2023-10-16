@@ -1,6 +1,4 @@
 // frontend/src/shared/sharedBundle.js
-console.log("Script is loaded!");
-
 
 
 import socketIOClient from 'socket.io-client';
@@ -333,10 +331,10 @@ function chatRecording() {
 }
 
 // Ensure chatRecording is called after DOM is fully loaded:
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("Debug: DOM fully loaded.");
+window.onload = function() {
+    console.log("Debug: Window fully loaded.");
     chatRecording();
-});
+};
 
 
 
