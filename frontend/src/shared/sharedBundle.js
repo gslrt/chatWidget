@@ -327,7 +327,3 @@ document.addEventListener('DOMContentLoaded', function () {
     // Update the UI based on the new mode
     updateUIMode();
   });
-
-  // Initial UI setup
-  updateUIMode();
-}
