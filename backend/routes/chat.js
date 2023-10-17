@@ -64,9 +64,9 @@ router.handleSocketConnection = (socket, uid) => {
 
       const userInput = data.question;
       const chatMode = data.mode;
-      let maxTokens = 300;
+      let maxTokens = 100;
       if (chatMode === 'B') {
-        maxTokens = 100;
+        maxTokens = 40;
       }
 
       const currentTimestamp = new Date();
