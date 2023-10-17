@@ -15,6 +15,7 @@ const pool = new Pool({
   }
 });
 
+// Function to update database and session
 const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiResponse) => {
   if (!socket.request || !socket.request.session) {
     console.error('Session or request object is undefined.');
@@ -50,6 +51,15 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
   await pool.query('UPDATE website_chat_conversations SET end_timestamp = $1 WHERE conversation_id = $2', [currentTimestamp, socket.request.session.conversation_id]);
 };
 
+// Function to stream tokens
+const streamTokens = (socket, tokens) => {
+  socket.emit('start');
+  tokens.forEach(token => {
+    socket.emit('token', token);
+  });
+  socket.emit('end');
+};
+
 router.handleSocketConnection = (socket, uid) => {
   console.log(`[Chat Route] User ${uid} connected: ${socket.id}`);
 
@@ -59,11 +69,12 @@ router.handleSocketConnection = (socket, uid) => {
 
   socket.on('chatMessage', async (data) => {
     try {
-      // Enable TTS by default for modes A and B
-      data.ttsEnabled = (data.mode === 'A' || data.mode === 'B');
+      const chatMode = data.mode;
+      let ttsEnabled = (chatMode === 'A' || chatMode === 'B');
+      const streamEnabled = (chatMode === 'C');
 
       const userInput = data.question;
-      const chatMode = data.mode;
+
       let maxTokens = 100;
       if (chatMode === 'B') {
         maxTokens = 40;
@@ -109,11 +120,15 @@ router.handleSocketConnection = (socket, uid) => {
       const responseBody = await response.json();
       let aiResponse = responseBody;
 
-      if (data.ttsEnabled) {
-        let audioUrl = await generateAudio(aiResponse);
-        socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
+      if (streamEnabled) {
+        streamTokens(socket, aiResponse.split(''));  // Assuming aiResponse is a string
       } else {
-        socket.emit('botResponse', { 'text': aiResponse });
+        if (ttsEnabled) {
+          let audioUrl = await generateAudio(aiResponse);
+          socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
+        } else {
+          socket.emit('botResponse', { 'text': aiResponse });
+        }
       }
 
       await updateDatabaseAndSession(socket, currentTimestamp, userInput, aiResponse);
@@ -125,4 +140,3 @@ router.handleSocketConnection = (socket, uid) => {
 };
 
 module.exports = router;
-
