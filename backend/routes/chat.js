@@ -59,32 +59,31 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
 
 
 
+
 router.handleSocketConnection = (socket, uid) => {
   console.log(`[Chat Route] User ${uid} connected: ${socket.id}`);
-
-  // Capture the session ID from the client
+  
   socket.on('setSessionId', (sessionId) => {
     socket.request.session.sessionID = sessionId;
   });
 
   socket.on('chatMessage', async (data) => {
     try {
-      // Enable TTS by default
-      data.ttsEnabled = true;
+      const chatMode = data.mode; // Capture the chat mode
+      let ttsEnabled = (chatMode === 'A' || chatMode === 'B'); // Enable TTS only for Modes A and B
 
       console.log("[Chat Route] Received chat message:", data);
       const userInput = data.question;
-      const chatMode = data.mode; // Added chatMode
 
       // Determine maxTokens based on chatMode
-      let maxTokens = 150; // Default
+      let maxTokens = 300; // Default
       if (chatMode === 'B') {
-        maxTokens = 40; // Special case for Mode B
+        maxTokens = 100; // Special case for Mode B
       }
 
       const currentTimestamp = new Date();
       const role = 'public';
-      
+
       let hiveAccess;
       switch (role) {
         case 'public':
@@ -124,7 +123,8 @@ router.handleSocketConnection = (socket, uid) => {
       const responseBody = await response.json();
       let aiResponse = responseBody;
 
-      if (data.ttsEnabled) {
+      // Only generate audio if TTS is enabled
+      if (ttsEnabled) {
         let audioUrl = await generateAudio(aiResponse);
         socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
       } else {
