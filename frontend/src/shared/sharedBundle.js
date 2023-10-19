@@ -63,22 +63,13 @@ function updateUIMode() {
   sessionStorage.setItem('chatMode', currentMode);
 }
 
-
-
-
-
-
-
-
 export function sharedFunction() {
-  // Initialize socket and other variables
   const socket = socketIOClient("chatwidget-production.up.railway.app");
   let socketIOClientId = '';
   let userUID = '';
-  let currentBotMessageElement = null; // Keep track of the current bot message element
 
   // Event listener for the sessionReady event
-  document.addEventListener('sessionReady', function () {
+  document.addEventListener('sessionReady', function() {
     const sessionId = sessionStorage.getItem("sessionId");
     console.log("sessionReady event fired. sessionId:", sessionId);
     if (sessionId && socket) {
@@ -97,21 +88,14 @@ export function sharedFunction() {
     }
   });
 
-  // Placeholder for handling tokens
   socket.on('token', (token) => {
-    if (currentMode === 'C') {
-      // Append the token to the current bot message
-      const existingContent = currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
-      currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
-    }
+    // Handle the token, e.g., append each token to the bot's message in real-time.
   });
 
-  // Handle audio setup
   const audio = document.getElementById('audioPlayer');
   const thinkingStateElement = document.querySelector('[element="chat-thinking-state-wrapper"]');
   thinkingStateElement.style.display = 'none';
 
-  // Handle user input events
   document.querySelector('[element="chat-user-input"]').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -119,7 +103,6 @@ export function sharedFunction() {
     }
   });
 
-  // Handle user message submission
   document.querySelector('[trigger-action="submit-chat-input"]').addEventListener('click', function (e) {
     e.preventDefault();
     const userInput = document.querySelector('[element="chat-user-input"]').innerText.trim();
@@ -132,25 +115,23 @@ export function sharedFunction() {
     userMessageElement.querySelector('[element="chat-user-message-content"]').textContent = userInput;
     userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
     document.querySelector('[list-element="chat-history"]').appendChild(userMessageElement);
-
-    // Emit the chat message to the server
     socket.emit('chatMessage', {
       question: userInput,
       socketIOClientId: socketIOClientId,
       userUID: userUID,
       mode: currentMode
     });
-
-    // Create a new bot message element for Mode C
-    if (currentMode === 'C') {
-      currentBotMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
-      currentBotMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
-      document.querySelector('[list-element="chat-history"]').appendChild(currentBotMessageElement);
-    }
   });
 
 
-  
+  // Listen for the 'token' event
+socket.on('token', (token) => {
+  if (currentMode === 'C') {
+    // Append the token to the current bot message
+    const existingContent = currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
+    currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
+  }
+});
 
   // Visual feedback based on audio
   const audioPlayer = document.getElementById('audioPlayer');
@@ -340,14 +321,7 @@ window.onload = function() {
 
 
 
-// Listen for the 'token' event again
-  socket.on('token', (token) => {
-    if (currentMode === 'C') {
-      // Append the token to the current bot message
-      const existingContent = currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
-      currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
-    }
-  });
+
   
 
   
@@ -374,4 +348,3 @@ window.onload = function() {
   // Initial UI setup
   updateUIMode();
 }
-
