@@ -64,6 +64,8 @@ router.handleSocketConnection = (socket, uid) => {
 
       const userInput = data.question;
       const chatMode = data.mode;
+      const streamEnabled = (chatMode === 'C');
+
       let maxTokens = 100;
       if (chatMode === 'B') {
         maxTokens = 40;
