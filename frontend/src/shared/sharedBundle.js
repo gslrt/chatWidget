@@ -68,6 +68,8 @@ function updateUIMode() {
 
 
 
+
+
 export function sharedFunction() {
   const socket = socketIOClient("chatwidget-production.up.railway.app");
   let socketIOClientId = '';
