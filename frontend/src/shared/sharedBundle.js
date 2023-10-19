@@ -63,20 +63,27 @@ function updateUIMode() {
   sessionStorage.setItem('chatMode', currentMode);
 }
 
+
+
+
+
+
 export function sharedFunction() {
   const socket = socketIOClient("chatwidget-production.up.railway.app");
   let socketIOClientId = '';
   let userUID = '';
-  let currentBotMessageElement = null; // Declare this variable to keep track of the current bot message element
+  let isFirstToken = true;
+  let currentBotMessageElement;
 
   // Event listener for the sessionReady event
-  document.addEventListener('sessionReady', function() {
+  document.addEventListener('sessionReady', function () {
     const sessionId = sessionStorage.getItem("sessionId");
     console.log("sessionReady event fired. sessionId:", sessionId);
     if (sessionId && socket) {
       socket.emit('setSessionId', sessionId);
     }
   });
+  
 
   // When the socket connects, attempt to send the session ID to the server
   socket.on('connect', () => {
@@ -87,11 +94,6 @@ export function sharedFunction() {
     } else {
       console.warn("Session ID is not available in sessionStorage");
     }
-  });
-
-  // Generic token event
-  socket.on('token', (token) => {
-    // This can be left empty or filled with additional generic logic
   });
 
   const audio = document.getElementById('audioPlayer');
@@ -117,28 +119,36 @@ export function sharedFunction() {
     userMessageElement.querySelector('[element="chat-user-message-content"]').textContent = userInput;
     userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
     document.querySelector('[list-element="chat-history"]').appendChild(userMessageElement);
-
-    // Initialize a new bot message element right before sending a new user message
-    currentBotMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
-    currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';  // Initialize as empty
-    currentBotMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
-    document.querySelector('[list-element="chat-history"]').appendChild(currentBotMessageElement);
-
     socket.emit('chatMessage', {
       question: userInput,
       socketIOClientId: socketIOClientId,
       userUID: userUID,
       mode: currentMode
     });
+
+    isFirstToken = true; // Reset the flag for the new message
   });
 
-  // Listen for the 'token' event specific to Mode 'C'
+  // Listen for the 'token' event
   socket.on('token', (token) => {
-    if (currentMode === 'C' && currentBotMessageElement) {
+    if (currentMode === 'C') {
+      if (isFirstToken) {
+        currentBotMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
+        currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
+        currentBotMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
+        document.querySelector('[list-element="chat-history"]').appendChild(currentBotMessageElement);
+        isFirstToken = false;
+      }
+
       const existingContent = currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
       currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
     }
   });
+}
+
+
+
+  
 
   // Visual feedback based on audio
   const audioPlayer = document.getElementById('audioPlayer');
