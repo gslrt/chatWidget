@@ -67,6 +67,7 @@ export function sharedFunction() {
   const socket = socketIOClient("chatwidget-production.up.railway.app");
   let socketIOClientId = '';
   let userUID = '';
+  let currentBotMessageElement = null; // Declare this variable to keep track of the current bot message element
 
   // Event listener for the sessionReady event
   document.addEventListener('sessionReady', function() {
@@ -88,8 +89,9 @@ export function sharedFunction() {
     }
   });
 
+  // Generic token event
   socket.on('token', (token) => {
-    // Handle the token, e.g., append each token to the bot's message in real-time.
+    // This can be left empty or filled with additional generic logic
   });
 
   const audio = document.getElementById('audioPlayer');
@@ -115,6 +117,13 @@ export function sharedFunction() {
     userMessageElement.querySelector('[element="chat-user-message-content"]').textContent = userInput;
     userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
     document.querySelector('[list-element="chat-history"]').appendChild(userMessageElement);
+
+    // Initialize a new bot message element right before sending a new user message
+    currentBotMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
+    currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';  // Initialize as empty
+    currentBotMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
+    document.querySelector('[list-element="chat-history"]').appendChild(currentBotMessageElement);
+
     socket.emit('chatMessage', {
       question: userInput,
       socketIOClientId: socketIOClientId,
@@ -123,15 +132,13 @@ export function sharedFunction() {
     });
   });
 
-
-  // Listen for the 'token' event
-socket.on('token', (token) => {
-  if (currentMode === 'C') {
-    // Append the token to the current bot message
-    const existingContent = currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
-    currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
-  }
-});
+  // Listen for the 'token' event specific to Mode 'C'
+  socket.on('token', (token) => {
+    if (currentMode === 'C' && currentBotMessageElement) {
+      const existingContent = currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
+      currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
+    }
+  });
 
   // Visual feedback based on audio
   const audioPlayer = document.getElementById('audioPlayer');
