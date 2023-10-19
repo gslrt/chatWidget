@@ -59,36 +59,14 @@ router.handleSocketConnection = (socket, uid) => {
 
   socket.on('chatMessage', async (data) => {
     try {
-      data.ttsEnabled = (data.mode === 'A' || data.mode === 'B');
       const userInput = data.question;
       const chatMode = data.mode;
       const streamEnabled = (chatMode === 'C');
-
-      let maxTokens = 100;
-      if (chatMode === 'B') {
-        maxTokens = 40;
-      }
-
-      const currentTimestamp = new Date();
-      const role = 'public';
-      let hiveAccess;
-      switch (role) {
-        case 'public':
-          hiveAccess = process.env.HIVE_ACCESS_PUBLIC;
-          break;
-        default:
-          socket.emit('error', { error: 'Invalid role' });
-          return;
-      }
-
-      const url = process.env.CHAT_URL + hiveAccess;
-      let systemMessage = `You are a pirate. Max Tokens: ${maxTokens}`;
-      
+      const url = process.env.CHAT_URL;
       const dataToSend = {
         question: userInput,
         overrideConfig: {
-          maxTokens,
-          systemMessage,
+          // ... other config properties
         }
       };
 
@@ -103,25 +81,19 @@ router.handleSocketConnection = (socket, uid) => {
 
       if (streamEnabled) {
         const reader = response.body.getReader();
-        let done = false;
-        while (!done) {
+        while (true) {
           const { done, value } = await reader.read();
-          if (value) {
-            socket.emit('token', new TextDecoder().decode(value));
-          }
+          if (done) break;
+          socket.emit('token', value.toString());
         }
+        reader.releaseLock();
       } else {
         const responseBody = await response.json();
         let aiResponse = responseBody;
-
-        if (data.ttsEnabled) {
-          let audioUrl = await generateAudio(aiResponse);
-          socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
-        } else {
-          socket.emit('botResponse', { 'text': aiResponse });
-        }
+        socket.emit('botResponse', { 'text': aiResponse });
       }
 
+      const currentTimestamp = new Date();
       await updateDatabaseAndSession(socket, currentTimestamp, userInput, aiResponse);
       
     } catch (error) {
