@@ -366,4 +366,4 @@ window.onload = function() {
 
   // Initial UI setup
   updateUIMode();
-}
+
