@@ -59,14 +59,41 @@ router.handleSocketConnection = (socket, uid) => {
 
   socket.on('chatMessage', async (data) => {
     try {
+      // Enable TTS by default for modes A and B
+      data.ttsEnabled = (data.mode === 'A' || data.mode === 'B');
+
       const userInput = data.question;
       const chatMode = data.mode;
-      const streamEnabled = (chatMode === 'C');
-      const url = process.env.CHAT_URL;
+      let maxTokens = 100;
+      if (chatMode === 'B') {
+        maxTokens = 40;
+      }
+
+      const currentTimestamp = new Date();
+      const role = 'public';
+      let hiveAccess;
+      switch (role) {
+        case 'public':
+          hiveAccess = process.env.HIVE_ACCESS_PUBLIC;
+          break;
+        default:
+          socket.emit('error', { error: 'Invalid role' });
+          return;
+      }
+
+      const url = process.env.CHAT_URL + hiveAccess;
+      let systemMessage = `You are a pirate. Max Tokens: ${maxTokens}`;
+      
       const dataToSend = {
         question: userInput,
         overrideConfig: {
-          // ... other config properties
+          maxTokens,
+          systemMessage,
+          openAIApiKey: process.env.OPENAI_API_KEY,
+          pineconeEnv: process.env.PINECONE_ENVIRONMENT,
+          pineconeApiKey: process.env.PINECONE_API_KEY,
+          pineconeNamespace: process.env.PINECONE_NAMESPACE,
+          pineconeIndex: process.env.PINECONE_INDEX_NAME
         }
       };
 
@@ -79,23 +106,17 @@ router.handleSocketConnection = (socket, uid) => {
         body: JSON.stringify(dataToSend)
       });
 
-      if (streamEnabled) {
-        const reader = response.body.getReader();
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          socket.emit('token', value.toString());
-        }
-        reader.releaseLock();
+      const responseBody = await response.json();
+      let aiResponse = responseBody;
+
+      if (data.ttsEnabled) {
+        let audioUrl = await generateAudio(aiResponse);
+        socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
       } else {
-        const responseBody = await response.json();
-        let aiResponse = responseBody;
         socket.emit('botResponse', { 'text': aiResponse });
       }
 
-      const currentTimestamp = new Date();
       await updateDatabaseAndSession(socket, currentTimestamp, userInput, aiResponse);
-      
     } catch (error) {
       console.error('Error:', error);
       socket.emit('error', { error: 'An error occurred' });
