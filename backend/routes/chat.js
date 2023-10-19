@@ -59,9 +59,7 @@ router.handleSocketConnection = (socket, uid) => {
 
   socket.on('chatMessage', async (data) => {
     try {
-      // Enable TTS by default for modes A and B
       data.ttsEnabled = (data.mode === 'A' || data.mode === 'B');
-
       const userInput = data.question;
       const chatMode = data.mode;
       const streamEnabled = (chatMode === 'C');
@@ -91,11 +89,6 @@ router.handleSocketConnection = (socket, uid) => {
         overrideConfig: {
           maxTokens,
           systemMessage,
-          openAIApiKey: process.env.OPENAI_API_KEY,
-          pineconeEnv: process.env.PINECONE_ENVIRONMENT,
-          pineconeApiKey: process.env.PINECONE_API_KEY,
-          pineconeNamespace: process.env.PINECONE_NAMESPACE,
-          pineconeIndex: process.env.PINECONE_INDEX_NAME
         }
       };
 
@@ -108,17 +101,29 @@ router.handleSocketConnection = (socket, uid) => {
         body: JSON.stringify(dataToSend)
       });
 
-      const responseBody = await response.json();
-      let aiResponse = responseBody;
-
-      if (data.ttsEnabled) {
-        let audioUrl = await generateAudio(aiResponse);
-        socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
+      if (streamEnabled) {
+        const reader = response.body.getReader();
+        let done = false;
+        while (!done) {
+          const { done, value } = await reader.read();
+          if (value) {
+            socket.emit('token', new TextDecoder().decode(value));
+          }
+        }
       } else {
-        socket.emit('botResponse', { 'text': aiResponse });
+        const responseBody = await response.json();
+        let aiResponse = responseBody;
+
+        if (data.ttsEnabled) {
+          let audioUrl = await generateAudio(aiResponse);
+          socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
+        } else {
+          socket.emit('botResponse', { 'text': aiResponse });
+        }
       }
 
       await updateDatabaseAndSession(socket, currentTimestamp, userInput, aiResponse);
+      
     } catch (error) {
       console.error('Error:', error);
       socket.emit('error', { error: 'An error occurred' });
