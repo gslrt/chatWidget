@@ -6,6 +6,8 @@ const { Pool } = require('pg');
 const router = require('express').Router();
 const IPGeolocationAPI = require('ip-geolocation-api-javascript-sdk');
 const { getGeolocation } = require('../geolocation');
+const socketIOClient = require('socket.io-client');
+
 const ipgeolocationApi = new IPGeolocationAPI(process.env.GEOLOCATOR_API_KEY, false);
 
 const pool = new Pool({
@@ -14,6 +16,8 @@ const pool = new Pool({
     rejectUnauthorized: false
   }
 });
+
+const flowiseSocket = socketIOClient('chatwidget-production.up.railway.app'); // Flowise URL
 
 const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiResponse) => {
   if (!socket.request || !socket.request.session) {
@@ -57,11 +61,13 @@ router.handleSocketConnection = (socket, uid) => {
     socket.request.session.sessionID = sessionId;
   });
 
+  // Listen for token streaming from Flowise and forward to client
+  flowiseSocket.on('token', (token) => {
+    socket.emit('token', token);
+  });
+
   socket.on('chatMessage', async (data) => {
     try {
-      // Enable TTS by default for modes A and B
-      data.ttsEnabled = (data.mode === 'A' || data.mode === 'B');
-
       const userInput = data.question;
       const chatMode = data.mode;
       let maxTokens = 100;
@@ -83,7 +89,7 @@ router.handleSocketConnection = (socket, uid) => {
 
       const url = process.env.CHAT_URL + hiveAccess;
       let systemMessage = `You are a pirate. Max Tokens: ${maxTokens}`;
-      
+
       const dataToSend = {
         question: userInput,
         overrideConfig: {
@@ -97,7 +103,7 @@ router.handleSocketConnection = (socket, uid) => {
         }
       };
 
-      const response = await fetch(url, {
+       const response = await fetch(url, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${process.env.FLOWISE_API_KEY}`,
@@ -107,16 +113,13 @@ router.handleSocketConnection = (socket, uid) => {
       });
 
       const responseBody = await response.json();
-      let aiResponse = responseBody;
+      const aiResponse = responseBody;
 
-      if (data.ttsEnabled) {
-        let audioUrl = await generateAudio(aiResponse);
-        socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
-      } else {
-        socket.emit('botResponse', { 'text': aiResponse });
-      }
+      let audioUrl = await generateAudio(aiResponse);
+      socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
 
       await updateDatabaseAndSession(socket, currentTimestamp, userInput, aiResponse);
+
     } catch (error) {
       console.error('Error:', error);
       socket.emit('error', { error: 'An error occurred' });
