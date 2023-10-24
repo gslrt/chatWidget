@@ -19,6 +19,7 @@ const pool = new Pool({
 
 const flowiseSocket = socketIOClient('chatwidget-production.up.railway.app'); // Flowise URL
 
+
 const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiResponse) => {
   if (!socket.request || !socket.request.session) {
     console.error('Session or request object is undefined.');
@@ -53,6 +54,7 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
   await pool.query('INSERT INTO website_chat_messages (conversation_id, timestamp, direction, content) VALUES ($1, $2, $3, $4)', [socket.request.session.conversation_id, currentTimestamp, 'received', aiResponse]);
   await pool.query('UPDATE website_chat_conversations SET end_timestamp = $1 WHERE conversation_id = $2', [currentTimestamp, socket.request.session.conversation_id]);
 };
+
 
 router.handleSocketConnection = (socket, uid) => {
   console.log(`[Chat Route] User ${uid} connected: ${socket.id}`);
@@ -103,7 +105,7 @@ router.handleSocketConnection = (socket, uid) => {
         }
       };
 
-       const response = await fetch(url, {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${process.env.FLOWISE_API_KEY}`,
@@ -115,7 +117,12 @@ router.handleSocketConnection = (socket, uid) => {
       const responseBody = await response.json();
       const aiResponse = responseBody;
 
-      let audioUrl = await generateAudio(aiResponse);
+      // Generate audio only if mode is not 'C'
+      let audioUrl = null;
+      if (chatMode !== 'C') {
+        audioUrl = await generateAudio(aiResponse);
+      }
+
       socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
 
       await updateDatabaseAndSession(socket, currentTimestamp, userInput, aiResponse);
