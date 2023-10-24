@@ -124,14 +124,14 @@ export function sharedFunction() {
   });
 
 
-  // Listen for the 'token' event
-socket.on('token', (token) => {
-  if (currentMode === 'C') {
-    // Append the token to the current bot message
-    const existingContent = currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
-    currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
-  }
-});
+ // Listen for the 'token' event
+  socket.on('token', (token) => {
+    if (currentMode === 'C') {
+      // Append the token to the current bot message
+      const existingContent = currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
+      currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
+    }
+  });
 
   // Visual feedback based on audio
   const audioPlayer = document.getElementById('audioPlayer');
