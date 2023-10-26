@@ -82,6 +82,7 @@ export function sharedFunction() {
 
   // When the socket connects, attempt to send the session ID to the server
   socket.on('connect', () => {
+      console.log('Socket connected');  
     socketIOClientId = socket.id;
     const sessionId = sessionStorage.getItem("sessionId");
     if (sessionId) {
