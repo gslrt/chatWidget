@@ -117,6 +117,7 @@ router.handleSocketConnection = (socket, uid) => {
       
       const dataToSend = {
         question: userInput,
+        socketIOClientId: socket.id,
         overrideConfig: {
           maxTokens,
           systemMessage,
