@@ -262,9 +262,9 @@ socket.on('botResponse', (data) => {
     return;
   }
 
- // Create a new bot message element for the final response
+// Create a new bot message element for the final response
 const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
-botMessageElement.classList.remove('message', 'bot', 'hidden');  // <-- Updated line
+botMessageElement.classList.remove('hidden');  
 const formattedBotResponse = formatTextWithLineBreaks(data.text);
 botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
 botMessageElement.querySelector('[element="chat-bot-message-content"]').setAttribute('bot-response-raw', data.text);
