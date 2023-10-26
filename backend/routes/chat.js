@@ -90,7 +90,7 @@ router.handleSocketConnection = (socket, uid) => {
     socket.request.session.sessionID = sessionId;
   });
 
-  // New code to listen for token streaming from Flowise
+  // listen for token streaming
   flowiseSocket.on('token', (token) => {
       console.log('Connected to Flowise');
       console.log("Received token from Flowise:", token);  
