@@ -12,7 +12,17 @@ const socketIoBaseUrl = process.env.CHAT_URL.split('/api/v1/prediction/')[0];
 // Debug the base URL being used for Socket.IO connection
 console.log("Attempting to connect to Socket.IO server with base URL:", socketIoBaseUrl);
 
+
+let flowiseSocketId = null; // NEW: to store the Flowise socket ID
+
+// Existing Flowise socket connection
 const flowiseSocket = socketIOClient(socketIoBaseUrl);
+
+// NEW: Capture the Flowise socket ID on connect
+flowiseSocket.on('connect', () => {
+  flowiseSocketId = flowiseSocket.id;
+  console.log('Successfully connected to Flowise Socket.IO server with ID:', flowiseSocketId);
+});
 
 const ipgeolocationApi = new IPGeolocationAPI(process.env.GEOLOCATOR_API_KEY, false);
 
@@ -89,6 +99,8 @@ router.handleSocketConnection = (socket, uid) => {
     }
   });
 
+   
+
   socket.on('chatMessage', async (data) => {
     try {
       const userInput = data.question;
@@ -117,7 +129,7 @@ router.handleSocketConnection = (socket, uid) => {
       
       const dataToSend = {
         question: userInput,
-        socketIOClientId: socket.id,
+      socketIOClientId: flowiseSocketId,
         overrideConfig: {
           maxTokens,
           systemMessage,
@@ -137,6 +149,8 @@ router.handleSocketConnection = (socket, uid) => {
         },
         body: JSON.stringify(dataToSend)
       });
+
+    
 
       const responseBody = await response.json();
       const aiResponse = responseBody;
