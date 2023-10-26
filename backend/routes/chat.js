@@ -9,6 +9,9 @@ const { getGeolocation } = require('../geolocation');
 const socketIOClient = require('socket.io-client');
 
 const socketIoBaseUrl = process.env.CHAT_URL.split('/api/v1/prediction/')[0];
+// Debug the base URL being used for Socket.IO connection
+console.log("Attempting to connect to Socket.IO server with base URL:", socketIoBaseUrl);
+
 const flowiseSocket = socketIOClient(socketIoBaseUrl);
 
 const ipgeolocationApi = new IPGeolocationAPI(process.env.GEOLOCATOR_API_KEY, false);
@@ -55,6 +58,15 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
   await pool.query('UPDATE website_chat_conversations SET end_timestamp = $1 WHERE conversation_id = $2', [currentTimestamp, socket.request.session.conversation_id]);
 };
 
+// Debugging line to confirm Flowise socket connection
+flowiseSocket.on('connect', () => {
+  console.log('Successfully connected to Flowise Socket.IO server');
+});
+
+// Debugging line to confirm Flowise socket disconnection
+flowiseSocket.on('disconnect', (reason) => {
+  console.log(`Disconnected from Flowise Socket.IO server. Reason: ${reason}`);
+});
 
 router.handleSocketConnection = (socket, uid) => {
   console.log(`[Chat Route] User ${uid} connected: ${socket.id}`);
