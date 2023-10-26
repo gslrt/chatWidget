@@ -129,12 +129,14 @@ export function sharedFunction() {
 
 // Listen for the 'token' event
 socket.on('token', (token) => {
-  if (currentMode === 'C' && currentBotMessageElement) {
-    // Append the token to the current bot message
-    const existingContent = currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
-    currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
+  // Find the temporary text block
+  const tokenStreamElement = document.querySelector('[element="token-stream"]');
+  
+  // Update the text block with the received token
+  if (tokenStreamElement) {
+    const existingContent = tokenStreamElement.innerHTML;
+    tokenStreamElement.innerHTML = existingContent + token;
   }
-});
 
 
   // Visual feedback based on audio
