@@ -8,6 +8,8 @@ const IPGeolocationAPI = require('ip-geolocation-api-javascript-sdk');
 const { getGeolocation } = require('../geolocation');
 const socketIOClient = require('socket.io-client');
 
+const flowiseSocket = socketIOClient(process.env.CHAT_URL + process.env.HIVE_ACCESS_PUBLIC); 
+
 const ipgeolocationApi = new IPGeolocationAPI(process.env.GEOLOCATOR_API_KEY, false);
 
 const pool = new Pool({
@@ -16,8 +18,6 @@ const pool = new Pool({
     rejectUnauthorized: false
   }
 });
-
-const flowiseSocket = socketIOClient('chatwidget-production.up.railway.app'); // Flowise URL
 
 
 const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiResponse) => {
@@ -63,11 +63,6 @@ router.handleSocketConnection = (socket, uid) => {
     socket.request.session.sessionID = sessionId;
   });
 
-  // Listen for token streaming from Flowise and forward to client
-  flowiseSocket.on('token', (token) => {
-    socket.emit('token', token);
-  });
-
   socket.on('chatMessage', async (data) => {
     try {
       const userInput = data.question;
@@ -89,9 +84,9 @@ router.handleSocketConnection = (socket, uid) => {
           return;
       }
 
-      const url = process.env.CHAT_URL + hiveAccess;
+      const url = process.env.CHAT_URL + hiveAccess;  
       let systemMessage = `You are a pirate. Max Tokens: ${maxTokens}`;
-
+      
       const dataToSend = {
         question: userInput,
         overrideConfig: {
