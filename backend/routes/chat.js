@@ -54,6 +54,7 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
   await pool.query('UPDATE website_chat_conversations SET end_timestamp = $1 WHERE conversation_id = $2', [currentTimestamp, socket.request.session.conversation_id]);
 };
 
+
 router.handleSocketConnection = (socket, uid) => {
   console.log(`[Chat Route] User ${uid} connected: ${socket.id}`);
 
@@ -61,7 +62,7 @@ router.handleSocketConnection = (socket, uid) => {
     socket.request.session.sessionID = sessionId;
   });
 
-  // If chat mode is 'C', listen for token streaming from Flowise
+  // New code to listen for token streaming from Flowise
   flowiseSocket.on('token', (token) => {
     if (socket.chatMode === 'C') {
       socket.emit('token', token);
@@ -73,7 +74,7 @@ router.handleSocketConnection = (socket, uid) => {
       const userInput = data.question;
       const chatMode = data.mode;
       socket.chatMode = chatMode;  // Save the chat mode to the socket
-
+      
       let maxTokens = 100;
       if (chatMode === 'B') {
         maxTokens = 40;
