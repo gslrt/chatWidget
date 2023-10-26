@@ -93,25 +93,28 @@ export function sharedFunction() {
     console.log('start');
   });
 
-  socket.on('token', (token) => {
-    if (currentMode !== 'C') {
-      return;  // Skip if not in Mode C
-    }
+ socket.on('token', (token) => {
+  if (currentMode !== 'C') {
+    return;  // Skip if not in Mode C
+  }
+  
+  console.log("Received token:", token);
+
+  // If it's the first token, create a new bot message element
+  if (!currentTokenStreamElement) {
+    // Hide the thinking state when the first token is received in Mode C
+    thinkingStateElement.style.display = 'none';
     
-    console.log("Received token:", token);
+    currentTokenStreamElement = createElementFromTemplate('chat-bot-message-wrapper');
+    currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
+    currentTokenStreamElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
+    document.querySelector('[list-element="chat-history"]').appendChild(currentTokenStreamElement);
+  }
 
-    // If it's the first token, create a new bot message element
-    if (!currentTokenStreamElement) {
-      currentTokenStreamElement = createElementFromTemplate('chat-bot-message-wrapper');
-      currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
-      currentTokenStreamElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
-      document.querySelector('[list-element="chat-history"]').appendChild(currentTokenStreamElement);
-    }
-
-    // Update the bot message element with the received token
-    const existingContent = currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
-    currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
-  });
+  // Update the bot message element with the received token
+  const existingContent = currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
+  currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
+});
 
   socket.on('sourceDocuments', (sourceDocuments) => {
     console.log('sourceDocuments:', sourceDocuments);
