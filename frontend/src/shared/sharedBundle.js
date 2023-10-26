@@ -24,6 +24,7 @@ function formatTextWithLineBreaks(text) {
 let currentBotMessageElement = null; 
 
 
+
 // Initialize chat mode from sessionStorage or default to 'A'
 let currentMode = sessionStorage.getItem('chatMode') || 'A';
 
@@ -79,6 +80,11 @@ export function sharedFunction() {
       socket.emit('setSessionId', sessionId);
     }
   });
+
+  socket.onAny((event, ...args) => {
+  console.log(`socket event received: ${event}`);
+});
+
 
   // When the socket connects, attempt to send the session ID to the server
   socket.on('connect', () => {
