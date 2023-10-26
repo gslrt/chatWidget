@@ -3,6 +3,24 @@
 
 import socketIOClient from 'socket.io-client';
 
+
+socket.on('start', () => {
+  console.log('start');
+});
+
+socket.on('token', (token) => {
+  console.log('token:', token);
+});
+
+socket.on('sourceDocuments', (sourceDocuments) => {
+  console.log('sourceDocuments:', sourceDocuments);
+});
+
+socket.on('end', () => {
+  console.log('end');
+});
+
+
 // Helper functions
 function createElementFromTemplate(templateId) {
   const templateElement = document.querySelector(`[template-element="${templateId}"]`);
