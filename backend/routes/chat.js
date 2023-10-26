@@ -8,7 +8,8 @@ const IPGeolocationAPI = require('ip-geolocation-api-javascript-sdk');
 const { getGeolocation } = require('../geolocation');
 const socketIOClient = require('socket.io-client');
 
-const flowiseSocket = socketIOClient(process.env.CHAT_URL);
+const socketIoBaseUrl = process.env.CHAT_URL.split('/api/v1/prediction/')[0];
+const flowiseSocket = socketIOClient(socketIoBaseUrl);
 
 const ipgeolocationApi = new IPGeolocationAPI(process.env.GEOLOCATOR_API_KEY, false);
 
