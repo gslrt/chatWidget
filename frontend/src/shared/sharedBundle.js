@@ -21,6 +21,9 @@ function formatTextWithLineBreaks(text) {
   return text.replace(/\n/g, '<br/>');
 }
 
+let currentBotMessageElement = null; 
+
+
 // Initialize chat mode from sessionStorage or default to 'A'
 let currentMode = sessionStorage.getItem('chatMode') || 'A';
 
@@ -124,14 +127,15 @@ export function sharedFunction() {
   });
 
 
- // Listen for the 'token' event
-  socket.on('token', (token) => {
-    if (currentMode === 'C') {
-      // Append the token to the current bot message
-      const existingContent = currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
-      currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
-    }
-  });
+// Listen for the 'token' event
+socket.on('token', (token) => {
+  if (currentMode === 'C' && currentBotMessageElement) {
+    // Append the token to the current bot message
+    const existingContent = currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
+    currentBotMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
+  }
+});
+
 
   // Visual feedback based on audio
   const audioPlayer = document.getElementById('audioPlayer');
@@ -171,19 +175,33 @@ export function sharedFunction() {
     console.warn("Required DOM elements for visual feedback are not available yet.");
   }
 
-  socket.on('botResponse', (data) => {
-    const formattedBotResponse = formatTextWithLineBreaks(data.text);
-    const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
-    botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
-    botMessageElement.querySelector('[element="chat-bot-message-content"]').setAttribute('bot-response-raw', data.text);
-    if (data.audioUrl) {
-      audio.src = data.audioUrl;
-      audio.play();
-    }
-    botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
-    document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
-    thinkingStateElement.style.display = 'none';
-  });
+socket.on('botResponse', (data) => {
+  // Create a new bot message element for the final response
+  const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
+  const formattedBotResponse = formatTextWithLineBreaks(data.text);
+  botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
+  botMessageElement.querySelector('[element="chat-bot-message-content"]').setAttribute('bot-response-raw', data.text);
+
+  // If audio URL is present, play the audio
+  if (data.audioUrl) {
+    audio.src = data.audioUrl;
+    audio.play();
+  }
+
+  botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
+  document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
+
+  // If in mode 'C', set this as the current bot message element
+  if (currentMode === 'C') {
+    currentBotMessageElement = botMessageElement;
+  } else {
+    // Reset the current bot message element
+    currentBotMessageElement = null;
+  }
+
+  thinkingStateElement.style.display = 'none';
+});
+
 
 
 
