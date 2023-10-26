@@ -8,8 +8,7 @@ const IPGeolocationAPI = require('ip-geolocation-api-javascript-sdk');
 const { getGeolocation } = require('../geolocation');
 const socketIOClient = require('socket.io-client');
 
-const flowiseSocket = socketIOClient(process.env.CHAT_URL + process.env.HIVE_ACCESS_PUBLIC); 
-
+const flowiseSocket = socketIOClient(process.env.CHAT_URL + process.env.HIVE_ACCESS_PUBLIC);
 const ipgeolocationApi = new IPGeolocationAPI(process.env.GEOLOCATOR_API_KEY, false);
 
 const pool = new Pool({
@@ -59,12 +58,21 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
 router.handleSocketConnection = (socket, uid) => {
   console.log(`[Chat Route] User ${uid} connected: ${socket.id}`);
 
+  // Listen for token streaming from Flowise and forward to client
+  flowiseSocket.on('token', (token) => {
+    if (socket.currentChatMode === 'C') {
+      socket.emit('token', token);
+    }
+  });
+
   socket.on('setSessionId', (sessionId) => {
     socket.request.session.sessionID = sessionId;
   });
 
   socket.on('chatMessage', async (data) => {
     try {
+      socket.currentChatMode = data.mode;  // Update the current chat mode
+
       const userInput = data.question;
       const chatMode = data.mode;
       let maxTokens = 100;
@@ -84,7 +92,7 @@ router.handleSocketConnection = (socket, uid) => {
           return;
       }
 
-      const url = process.env.CHAT_URL + hiveAccess;  
+      const url = process.env.CHAT_URL + hiveAccess;
       let systemMessage = `You are a pirate. Max Tokens: ${maxTokens}`;
       
       const dataToSend = {
@@ -113,15 +121,13 @@ router.handleSocketConnection = (socket, uid) => {
       const aiResponse = responseBody;
 
       // Generate audio only if mode is not 'C'
-      let audioUrl = null;
-      if (chatMode !== 'C') {
-        audioUrl = await generateAudio(aiResponse);
+      if (socket.currentChatMode !== 'C') {
+        const audioUrl = await generateAudio(aiResponse);
+        socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
       }
 
-      socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
-
       await updateDatabaseAndSession(socket, currentTimestamp, userInput, aiResponse);
-
+      
     } catch (error) {
       console.error('Error:', error);
       socket.emit('error', { error: 'An error occurred' });
