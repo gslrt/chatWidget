@@ -139,4 +139,14 @@ router.handleSocketConnection = (socket, uid) => {
   });
 };
 
+
+flowiseSocket.on('error', (error) => {
+  console.error('Flowise Socket Error:', error);
+});
+
+flowiseSocket.on('connect_error', (error) => {
+  console.error('Flowise Socket Connect Error:', error);
+});
+
+
 module.exports = router;
