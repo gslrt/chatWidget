@@ -264,38 +264,21 @@ socket.on('botResponse', (data) => {
 
   // Create a new bot message element for the final response
   const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
-
-  // Debug: Check if element got created correctly
-  console.log("Before removing 'hidden': ", botMessageElement.classList);
-
-  botMessageElement.classList.remove('hidden');  // Only remove 'hidden'
   
-  // Debug: Check if 'hidden' class got removed
-  console.log("After removing 'hidden': ", botMessageElement.classList);
-
+  botMessageElement.classList.remove('hidden');
+  
   const formattedBotResponse = formatTextWithLineBreaks(data.text);
   botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
   botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
 
   // Append the bot message to the chat history
   document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
-
-  // Debug: Check if element got appended correctly
-  console.log("Appended bot message: ", botMessageElement);
-});
-
-
-
-
-
+  
   // If audio URL is present, play the audio
   if (data.audioUrl) {
     audio.src = data.audioUrl;
     audio.play();
   }
-
-  botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
-  document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
 
   // If in mode 'C', set this as the current bot message element
   if (currentMode === 'C') {
@@ -307,7 +290,6 @@ socket.on('botResponse', (data) => {
 
   thinkingStateElement.style.display = 'none';
 });
-
 
 
 
