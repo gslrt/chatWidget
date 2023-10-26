@@ -4,21 +4,6 @@
 import socketIOClient from 'socket.io-client';
 
 
-socket.on('start', () => {
-  console.log('start');
-});
-
-socket.on('token', (token) => {
-  console.log('token:', token);
-});
-
-socket.on('sourceDocuments', (sourceDocuments) => {
-  console.log('sourceDocuments:', sourceDocuments);
-});
-
-socket.on('end', () => {
-  console.log('end');
-});
 
 
 // Helper functions
@@ -101,6 +86,23 @@ export function sharedFunction() {
 
   socket.onAny((event, ...args) => {
   console.log(`socket event received: ${event}`);
+});
+
+
+  socket.on('start', () => {
+  console.log('start');
+});
+
+socket.on('token', (token) => {
+  console.log('token:', token);
+});
+
+socket.on('sourceDocuments', (sourceDocuments) => {
+  console.log('sourceDocuments:', sourceDocuments);
+});
+
+socket.on('end', () => {
+  console.log('end');
 });
 
 
