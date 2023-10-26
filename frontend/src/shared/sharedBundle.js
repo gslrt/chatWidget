@@ -147,32 +147,31 @@ export function sharedFunction() {
   const thinkingStateElement = document.querySelector('[element="chat-thinking-state-wrapper"]');
   thinkingStateElement.style.display = 'none';
 
-  document.querySelector('[element="chat-user-input"]').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      document.querySelector('[trigger-action="submit-chat-input"]').click();
-    }
-  });
+ document.querySelector('[trigger-action="submit-chat-input"]').addEventListener('click', function (e) {
+  e.preventDefault();
+  const userInput = document.querySelector('[element="chat-user-input"]').innerText.trim();
+  if (!userInput) {
+    return;
+  }
+  document.querySelector('[element="chat-user-input"]').innerText = '';
+  thinkingStateElement.style.display = 'block';
 
-  document.querySelector('[trigger-action="submit-chat-input"]').addEventListener('click', function (e) {
-    e.preventDefault();
-    const userInput = document.querySelector('[element="chat-user-input"]').innerText.trim();
-    if (!userInput) {
-      return;
-    }
-    document.querySelector('[element="chat-user-input"]').innerText = '';
-    thinkingStateElement.style.display = 'block';
-    const userMessageElement = createElementFromTemplate('chat-user-message-wrapper');
-    userMessageElement.querySelector('[element="chat-user-message-content"]').textContent = userInput;
-    userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
-    document.querySelector('[list-element="chat-history"]').appendChild(userMessageElement);
-    socket.emit('chatMessage', {
-      question: userInput,
-      socketIOClientId: socketIOClientId,
-      userUID: userUID,
-      mode: currentMode
-    });
+  // Reset the currentTokenStreamElement to null for a new question
+  currentTokenStreamElement = null;
+
+  const userMessageElement = createElementFromTemplate('chat-user-message-wrapper');
+  userMessageElement.querySelector('[element="chat-user-message-content"]').textContent = userInput;
+  userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
+  document.querySelector('[list-element="chat-history"]').appendChild(userMessageElement);
+
+  socket.emit('chatMessage', {
+    question: userInput,
+    socketIOClientId: socketIOClientId,
+    userUID: userUID,
+    mode: currentMode
   });
+});
+
 
 
 // Listen for the 'token' event to stream tokens to your temporary text block
@@ -229,11 +228,17 @@ export function sharedFunction() {
   }
 
 socket.on('botResponse', (data) => {
+  // Skip if in Mode C to avoid regular bot message
+  if (currentMode === 'C') {
+    return;
+  }
+
   // Create a new bot message element for the final response
   const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
   const formattedBotResponse = formatTextWithLineBreaks(data.text);
   botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
   botMessageElement.querySelector('[element="chat-bot-message-content"]').setAttribute('bot-response-raw', data.text);
+
 
   // If audio URL is present, play the audio
   if (data.audioUrl) {
@@ -254,7 +259,6 @@ socket.on('botResponse', (data) => {
 
   thinkingStateElement.style.display = 'none';
 });
-
 
 
 
