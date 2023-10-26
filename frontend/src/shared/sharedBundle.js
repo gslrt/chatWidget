@@ -262,14 +262,28 @@ socket.on('botResponse', (data) => {
     return;
   }
 
-// Create a new bot message element for the final response
-const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
-botMessageElement.classList.remove('hidden');  
-const formattedBotResponse = formatTextWithLineBreaks(data.text);
-botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
-botMessageElement.querySelector('[element="chat-bot-message-content"]').setAttribute('bot-response-raw', data.text);
-botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
-document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
+  // Create a new bot message element for the final response
+  const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
+
+  // Debug: Check if element got created correctly
+  console.log("Before removing 'hidden': ", botMessageElement.classList);
+
+  botMessageElement.classList.remove('hidden');  // Only remove 'hidden'
+  
+  // Debug: Check if 'hidden' class got removed
+  console.log("After removing 'hidden': ", botMessageElement.classList);
+
+  const formattedBotResponse = formatTextWithLineBreaks(data.text);
+  botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
+  botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
+
+  // Append the bot message to the chat history
+  document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
+
+  // Debug: Check if element got appended correctly
+  console.log("Appended bot message: ", botMessageElement);
+});
+
 
 
 
