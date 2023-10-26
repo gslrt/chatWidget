@@ -129,6 +129,8 @@ export function sharedFunction() {
 
 // Listen for the 'token' event to stream tokens to your temporary text block
   socket.on('token', (token) => {
+      console.log("Received token:", token);
+
     // Find the temporary text block
     const tokenStreamElement = document.querySelector('[element="token-stream"]');
     
