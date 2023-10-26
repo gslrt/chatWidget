@@ -74,6 +74,7 @@ export function sharedFunction() {
   const socket = socketIOClient("chatwidget-production.up.railway.app");
   let socketIOClientId = '';
   let userUID = '';
+  let currentTokenStreamElement = null;  // New variable to keep track of the bot message element
 
   // Event listener for the sessionReady event
   document.addEventListener('sessionReady', function() {
@@ -85,26 +86,46 @@ export function sharedFunction() {
   });
 
   socket.onAny((event, ...args) => {
-  console.log(`socket event received: ${event}`);
-});
-
+    console.log(`socket event received: ${event}`);
+  });
 
   socket.on('start', () => {
-  console.log('start');
-});
+    console.log('start');
+  });
 
-socket.on('token', (token) => {
-  console.log('token:', token);
-});
+  socket.on('token', (token) => {
+    if (currentMode !== 'C') {
+      return;  // Skip if not in Mode C
+    }
+    
+    console.log("Received token:", token);
 
-socket.on('sourceDocuments', (sourceDocuments) => {
-  console.log('sourceDocuments:', sourceDocuments);
-});
+    // If it's the first token, create a new bot message element
+    if (!currentTokenStreamElement) {
+      currentTokenStreamElement = createElementFromTemplate('chat-bot-message-wrapper');
+      currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
+      currentTokenStreamElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
+      document.querySelector('[list-element="chat-history"]').appendChild(currentTokenStreamElement);
+    }
 
-socket.on('end', () => {
-  console.log('end');
-});
+    // Update the bot message element with the received token
+    const existingContent = currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
+    currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
+  });
 
+  socket.on('sourceDocuments', (sourceDocuments) => {
+    console.log('sourceDocuments:', sourceDocuments);
+  });
+
+  socket.on('end', () => {
+    if (currentMode !== 'C') {
+      return;  // Skip if not in Mode C
+    }
+    
+    console.log('end');
+    // Reset the currentTokenStreamElement so that a new one will be created on the next 'start'
+    currentTokenStreamElement = null;
+  });
 
   // When the socket connects, attempt to send the session ID to the server
   socket.on('connect', () => {
