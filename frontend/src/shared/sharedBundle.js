@@ -127,16 +127,17 @@ export function sharedFunction() {
   });
 
 
-// Listen for the 'token' event
-socket.on('token', (token) => {
-  // Find the temporary text block
-  const tokenStreamElement = document.querySelector('[element="token-stream"]');
-  
-  // Update the text block with the received token
-  if (tokenStreamElement) {
-    const existingContent = tokenStreamElement.innerHTML;
-    tokenStreamElement.innerHTML = existingContent + token;
-  }
+// Listen for the 'token' event to stream tokens to your temporary text block
+  socket.on('token', (token) => {
+    // Find the temporary text block
+    const tokenStreamElement = document.querySelector('[element="token-stream"]');
+    
+    // Update the text block with the received token
+    if (tokenStreamElement) {
+      const existingContent = tokenStreamElement.innerHTML;
+      tokenStreamElement.innerHTML = existingContent + token;
+    }
+  });
 
 
   // Visual feedback based on audio
