@@ -147,6 +147,30 @@ export function sharedFunction() {
   const thinkingStateElement = document.querySelector('[element="chat-thinking-state-wrapper"]');
   thinkingStateElement.style.display = 'none';
 
+
+  document.querySelector('[element="chat-user-input"]').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    if (e.shiftKey) {
+      // Insert a line break when Shift + Enter is pressed
+      const selection = window.getSelection();
+      const range = selection.getRangeAt(0);
+      const br = document.createElement("br");
+      range.deleteContents();
+      range.insertNode(br);
+      range.setStartAfter(br);
+      range.setEndAfter(br);
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    } else {
+      // Submit the message when Enter is pressed without Shift
+      document.querySelector('[trigger-action="submit-chat-input"]').click();
+    }
+  }
+});
+
+
  document.querySelector('[trigger-action="submit-chat-input"]').addEventListener('click', function (e) {
   e.preventDefault();
   const userInput = document.querySelector('[element="chat-user-input"]').innerText.trim();
