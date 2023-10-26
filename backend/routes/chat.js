@@ -23,6 +23,11 @@ const pool = new Pool({
   }
 });
 
+flowiseSocket.onAny((event, ...args) => {
+  console.log(`Received event ${event} with data:`, args);
+});
+
+
 const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiResponse) => {
   if (!socket.request || !socket.request.session) {
     console.error('Session or request object is undefined.');
