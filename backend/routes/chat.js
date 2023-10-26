@@ -19,7 +19,6 @@ const pool = new Pool({
   }
 });
 
-
 const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiResponse) => {
   if (!socket.request || !socket.request.session) {
     console.error('Session or request object is undefined.');
@@ -55,7 +54,6 @@ const updateDatabaseAndSession = async (socket, currentTimestamp, userInput, aiR
   await pool.query('UPDATE website_chat_conversations SET end_timestamp = $1 WHERE conversation_id = $2', [currentTimestamp, socket.request.session.conversation_id]);
 };
 
-
 router.handleSocketConnection = (socket, uid) => {
   console.log(`[Chat Route] User ${uid} connected: ${socket.id}`);
 
@@ -75,7 +73,7 @@ router.handleSocketConnection = (socket, uid) => {
       const userInput = data.question;
       const chatMode = data.mode;
       socket.chatMode = chatMode;  // Save the chat mode to the socket
-      
+
       let maxTokens = 100;
       if (chatMode === 'B') {
         maxTokens = 40;
@@ -130,7 +128,7 @@ router.handleSocketConnection = (socket, uid) => {
       socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
 
       await updateDatabaseAndSession(socket, currentTimestamp, userInput, aiResponse);
-      
+
     } catch (error) {
       console.error('Error:', error);
       socket.emit('error', { error: 'An error occurred' });
