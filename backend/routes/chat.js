@@ -64,6 +64,7 @@ router.handleSocketConnection = (socket, uid) => {
 
   // New code to listen for token streaming from Flowise
   flowiseSocket.on('token', (token) => {
+      console.log("Received token from Flowise:", token);  // Debugging line
     if (socket.chatMode === 'C') {
       socket.emit('token', token);
     }
