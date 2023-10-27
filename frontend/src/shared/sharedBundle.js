@@ -110,9 +110,10 @@ export function sharedFunction() {
     
 currentTokenStreamElement = createElementFromTemplate('chat-bot-message-wrapper');
 currentTokenStreamElement.classList.remove('hidden');
-    currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
-    currentTokenStreamElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
-    document.querySelector('[list-element="chat-history"]').appendChild(currentTokenStreamElement);
+currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
+currentTokenStreamElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
+document.querySelector('[list-element="chat-history"]').appendChild(currentTokenStreamElement);
+
   }
 
   // Update the bot message element with the received token
@@ -180,6 +181,9 @@ currentTokenStreamElement.classList.remove('hidden');
 
  document.querySelector('[trigger-action="submit-chat-input"]').addEventListener('click', function (e) {
   e.preventDefault();
+
+
+   
   const userInput = document.querySelector('[element="chat-user-input"]').innerText.trim();
   if (!userInput) {
     return;
@@ -191,13 +195,14 @@ currentTokenStreamElement.classList.remove('hidden');
   currentTokenStreamElement = null;
 
   const userMessageElement = createElementFromTemplate('chat-user-message-wrapper');
-userMessageElement.classList.add('message-hidden');  // Add this line
+userMessageElement.classList.add('message-hidden');  
 userMessageElement.querySelector('[element="chat-user-message-content"]').textContent = userInput;
 userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
 document.querySelector('[list-element="chat-history"]').appendChild(userMessageElement);
-void userMessageElement.offsetWidth;  // Add this line
-userMessageElement.classList.remove('message-hidden');  // Add this line
-userMessageElement.classList.add('message-visible');  // Add this line
+void userMessageElement.offsetWidth;  
+userMessageElement.classList.remove('message-hidden');  
+userMessageElement.classList.add('message-visible');  
+
 
 
 
@@ -272,14 +277,15 @@ socket.on('botResponse', (data) => {
 
   // Create a new bot message element for the final response
 const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
-botMessageElement.classList.add('message-hidden');  // Add this line
+botMessageElement.classList.add('message-hidden');  
 const formattedBotResponse = formatTextWithLineBreaks(data.text);
 botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
 botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
 document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
-void botMessageElement.offsetWidth;  // Add this line
-botMessageElement.classList.remove('message-hidden');  // Add this line
-botMessageElement.classList.add('message-visible');  // Add this line
+void botMessageElement.offsetWidth; 
+botMessageElement.classList.remove('message-hidden');  
+botMessageElement.classList.add('message-visible'); 
+
 
   
   // If audio URL is present, play the audio
