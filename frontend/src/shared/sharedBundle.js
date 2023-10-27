@@ -101,14 +101,15 @@ export function sharedFunction() {
     return;  // Skip if not in Mode C
   }
 
+  console.log("Received token:", token);
+
   // If it's the first token, create a new bot message element
   if (!currentTokenStreamElement) {
     // Hide the thinking state when the first token is received in Mode C
     thinkingStateElement.style.display = 'none';
     
     currentTokenStreamElement = createElementFromTemplate('chat-bot-message-wrapper');
-    botMessageElement.classList.remove('hidden');  
-    botMessageElement.classList.add('message-hidden');  
+    currentTokenStreamElement.classList.add('message-hidden');
     currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
     currentTokenStreamElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
     document.querySelector('[list-element="chat-history"]').appendChild(currentTokenStreamElement);
@@ -222,7 +223,19 @@ userMessageElement.classList.add('message-visible');
 
 
 
+// Listen for the 'token' event to stream tokens to your temporary text block
+  socket.on('token', (token) => {
+      console.log("Received token:", token);
 
+    // Find the temporary text block
+    const tokenStreamElement = document.querySelector('[element="token-stream"]');
+    
+    // Update the text block with the received token
+    if (tokenStreamElement) {
+      const existingContent = tokenStreamElement.innerHTML;
+      tokenStreamElement.innerHTML = existingContent + token;
+    }
+  });
 
 
   // Visual feedback based on audio
