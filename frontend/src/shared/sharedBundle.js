@@ -191,10 +191,14 @@ currentTokenStreamElement.classList.remove('hidden');
   currentTokenStreamElement = null;
 
   const userMessageElement = createElementFromTemplate('chat-user-message-wrapper');
-userMessageElement.classList.remove('hidden');
+userMessageElement.classList.add('message-hidden');  // Add this line
 userMessageElement.querySelector('[element="chat-user-message-content"]').textContent = userInput;
 userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
 document.querySelector('[list-element="chat-history"]').appendChild(userMessageElement);
+void userMessageElement.offsetWidth;  // Add this line
+userMessageElement.classList.remove('message-hidden');  // Add this line
+userMessageElement.classList.add('message-visible');  // Add this line
+
 
 
   socket.emit('chatMessage', {
@@ -267,16 +271,16 @@ socket.on('botResponse', (data) => {
   }
 
   // Create a new bot message element for the final response
-  const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
-  
-  botMessageElement.classList.remove('hidden');
-  
-  const formattedBotResponse = formatTextWithLineBreaks(data.text);
-  botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
-  botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
+const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
+botMessageElement.classList.add('message-hidden');  // Add this line
+const formattedBotResponse = formatTextWithLineBreaks(data.text);
+botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
+botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
+document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
+void botMessageElement.offsetWidth;  // Add this line
+botMessageElement.classList.remove('message-hidden');  // Add this line
+botMessageElement.classList.add('message-visible');  // Add this line
 
-  // Append the bot message to the chat history
-  document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
   
   // If audio URL is present, play the audio
   if (data.audioUrl) {
