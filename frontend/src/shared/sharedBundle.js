@@ -107,7 +107,8 @@ export function sharedFunction() {
     thinkingStateElement.style.display = 'none';
     
     currentTokenStreamElement = createElementFromTemplate('chat-bot-message-wrapper');
-    currentTokenStreamElement.classList.add('message-hidden');
+    botMessageElement.classList.remove('hidden');  
+    botMessageElement.classList.add('message-hidden');  
     currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
     currentTokenStreamElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
     document.querySelector('[list-element="chat-history"]').appendChild(currentTokenStreamElement);
