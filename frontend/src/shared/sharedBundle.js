@@ -105,7 +105,8 @@ export function sharedFunction() {
     // Hide the thinking state when the first token is received in Mode C
     thinkingStateElement.style.display = 'none';
     
-    currentTokenStreamElement = createElementFromTemplate('chat-bot-message-wrapper');
+currentTokenStreamElement = createElementFromTemplate('chat-bot-message-wrapper');
+currentTokenStreamElement.classList.remove('hidden');
     currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
     currentTokenStreamElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
     document.querySelector('[list-element="chat-history"]').appendChild(currentTokenStreamElement);
