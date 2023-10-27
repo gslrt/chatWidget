@@ -195,13 +195,15 @@ document.querySelector('[list-element="chat-history"]').appendChild(currentToken
   currentTokenStreamElement = null;
 
   const userMessageElement = createElementFromTemplate('chat-user-message-wrapper');
+userMessageElement.classList.remove('hidden');
 userMessageElement.classList.add('message-hidden');  
 userMessageElement.querySelector('[element="chat-user-message-content"]').textContent = userInput;
 userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
 document.querySelector('[list-element="chat-history"]').appendChild(userMessageElement);
 void userMessageElement.offsetWidth;  
 userMessageElement.classList.remove('message-hidden');  
-userMessageElement.classList.add('message-visible');  
+userMessageElement.classList.add('message-visible');
+
 
 
 
@@ -277,14 +279,16 @@ socket.on('botResponse', (data) => {
 
   // Create a new bot message element for the final response
 const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
+botMessageElement.classList.remove('hidden');  
 botMessageElement.classList.add('message-hidden');  
 const formattedBotResponse = formatTextWithLineBreaks(data.text);
 botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
 botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
 document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
-void botMessageElement.offsetWidth; 
+void botMessageElement.offsetWidth;  
 botMessageElement.classList.remove('message-hidden');  
-botMessageElement.classList.add('message-visible'); 
+botMessageElement.classList.add('message-visible');
+
 
 
   
