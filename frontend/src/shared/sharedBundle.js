@@ -270,10 +270,10 @@ socket.on('botResponse', (data) => {
 
   // Create a new bot message element for the final response
   const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
-  
+
   // Add a 'hidden' class initially for the animation
   botMessageElement.classList.add('message-hidden');
-  
+
   // Populate the message content and time stamp
   const formattedBotResponse = formatTextWithLineBreaks(data.text);
   botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
@@ -282,13 +282,13 @@ socket.on('botResponse', (data) => {
   // Append the bot message to the chat history first
   document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
 
-  // Trigger reflow to make sure the initial hidden state is applied
+  // Trigger reflow to ensure the initial hidden state is applied
   void botMessageElement.offsetWidth;
-  
+
   // Remove the 'hidden' class and add a 'visible' class to trigger the animation
   botMessageElement.classList.remove('message-hidden');
   botMessageElement.classList.add('message-visible');
-  
+
   // If audio URL is present, play the audio
   if (data.audioUrl) {
     audio.src = data.audioUrl;
@@ -303,9 +303,14 @@ socket.on('botResponse', (data) => {
     currentBotMessageElement = null;
   }
 
-  // Hide the thinking state element
-  thinkingStateElement.style.display = 'none';
+  // Hide the thinking state element, if it's defined
+  if (thinkingStateElement) {
+    thinkingStateElement.style.display = 'none';
+  } else {
+    console.warn('thinkingStateElement is not defined or null');
+  }
 });
+
 
 
 
