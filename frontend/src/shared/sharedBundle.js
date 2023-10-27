@@ -108,13 +108,41 @@ export function sharedFunction() {
     // Hide the thinking state when the first token is received in Mode C
     thinkingStateElement.style.display = 'none';
     
-currentTokenStreamElement = createElementFromTemplate('chat-bot-message-wrapper');
-currentTokenStreamElement.classList.remove('hidden');
-    currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
-    currentTokenStreamElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
-    document.querySelector('[list-element="chat-history"]').appendChild(currentTokenStreamElement);
-  }
+    const userMessageElement = createElementFromTemplate('chat-user-message-wrapper');
+    userMessageElement.classList.remove('hidden');
+    userMessageElement.querySelector('[element="chat-user-message-content"]').textContent = userInput;
+    userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
+    document.querySelector('[list-element="chat-history"]').appendChild(userMessageElement);
 
+    // New code to add animation for userMessageElement
+    userMessageElement.classList.add('message-hidden'); // Add the hidden class initially
+    
+    // Trigger reflow to make sure the initial hidden state is applied
+    void userMessageElement.offsetWidth;
+    
+    // Switch to the visible state to trigger the animation
+    userMessageElement.classList.remove('message-hidden');
+    userMessageElement.classList.add('message-visible');
+  });
+
+  socket.on('botResponse', (data) => {
+    // Existing code to create and append botMessageElement...
+    const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
+    botMessageElement.classList.remove('hidden');
+    botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
+    botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
+    document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
+
+    // New code to add animation for botMessageElement
+    botMessageElement.classList.add('message-hidden'); // Add the hidden class initially
+    
+    // Trigger reflow to make sure the initial hidden state is applied
+    void botMessageElement.offsetWidth;
+    
+    // Switch to the visible state to trigger the animation
+    botMessageElement.classList.remove('message-hidden');
+    botMessageElement.classList.add('message-visible');
+  });
   // Update the bot message element with the received token
   const existingContent = currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
   currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
@@ -211,7 +239,8 @@ document.querySelector('[list-element="chat-history"]').appendChild(userMessageE
   socket.on('token', (token) => {
       console.log("Received token:", token);
 
-
+    // Find the temporary text block
+    const tokenStreamElement = document.querySelector('[element="token-stream"]');
     
     // Update the text block with the received token
     if (tokenStreamElement) {
@@ -259,9 +288,6 @@ document.querySelector('[list-element="chat-history"]').appendChild(userMessageE
     console.warn("Required DOM elements for visual feedback are not available yet.");
   }
 
-
-
-  
 socket.on('botResponse', (data) => {
   // Skip if in Mode C to avoid regular bot message
   if (currentMode === 'C') {
@@ -270,25 +296,16 @@ socket.on('botResponse', (data) => {
 
   // Create a new bot message element for the final response
   const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
-
-  // Add a 'hidden' class initially for the animation
-  botMessageElement.classList.add('message-hidden');
-
-  // Populate the message content and time stamp
+  
+  botMessageElement.classList.remove('hidden');
+  
   const formattedBotResponse = formatTextWithLineBreaks(data.text);
   botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
   botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
 
-  // Append the bot message to the chat history first
+  // Append the bot message to the chat history
   document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
-
-  // Trigger reflow to ensure the initial hidden state is applied
-  void botMessageElement.offsetWidth;
-
-  // Remove the 'hidden' class and add a 'visible' class to trigger the animation
-  botMessageElement.classList.remove('message-hidden');
-  botMessageElement.classList.add('message-visible');
-
+  
   // If audio URL is present, play the audio
   if (data.audioUrl) {
     audio.src = data.audioUrl;
@@ -303,15 +320,8 @@ socket.on('botResponse', (data) => {
     currentBotMessageElement = null;
   }
 
-  // Hide the thinking state element, if it's defined
-  if (thinkingStateElement) {
-    thinkingStateElement.style.display = 'none';
-  } else {
-    console.warn('thinkingStateElement is not defined or null');
-  }
+  thinkingStateElement.style.display = 'none';
 });
-
-
 
 
 
