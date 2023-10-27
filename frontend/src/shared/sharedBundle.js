@@ -107,8 +107,7 @@ export function sharedFunction() {
     thinkingStateElement.style.display = 'none';
     
     currentTokenStreamElement = createElementFromTemplate('chat-bot-message-wrapper');
-    botMessageElement.classList.remove('hidden');  
-    botMessageElement.classList.add('message-hidden');  
+    currentTokenStreamElement.classList.add('message-hidden');
     currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
     currentTokenStreamElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
     document.querySelector('[list-element="chat-history"]').appendChild(currentTokenStreamElement);
@@ -119,10 +118,17 @@ export function sharedFunction() {
     currentTokenStreamElement.classList.add('message-visible');
   }
 
-  // Update the bot message element with the received token
-  const existingContent = currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
-  currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
-});
+  const messageContentElement = currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]');
+const span = document.createElement('span');
+span.className = 'fade-in';
+span.innerHTML = token;
+messageContentElement.appendChild(span);
+
+// Delay to trigger the CSS transition
+setTimeout(() => {
+  span.classList.add('show');
+}, 50);
+
 
 
   socket.on('sourceDocuments', (sourceDocuments) => {
