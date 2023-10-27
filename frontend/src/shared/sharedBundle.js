@@ -100,20 +100,22 @@ export function sharedFunction() {
   if (currentMode !== 'C') {
     return;  // Skip if not in Mode C
   }
-  
-  console.log("Received token:", token);
 
   // If it's the first token, create a new bot message element
   if (!currentTokenStreamElement) {
     // Hide the thinking state when the first token is received in Mode C
     thinkingStateElement.style.display = 'none';
     
-currentTokenStreamElement = createElementFromTemplate('chat-bot-message-wrapper');
-currentTokenStreamElement.classList.remove('hidden');
-currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
-currentTokenStreamElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
-document.querySelector('[list-element="chat-history"]').appendChild(currentTokenStreamElement);
+    currentTokenStreamElement = createElementFromTemplate('chat-bot-message-wrapper');
+    currentTokenStreamElement.classList.add('message-hidden');
+    currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
+    currentTokenStreamElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
+    document.querySelector('[list-element="chat-history"]').appendChild(currentTokenStreamElement);
+    void currentTokenStreamElement.offsetWidth;
 
+    // Here is where you trigger the slide-in effect
+    currentTokenStreamElement.classList.remove('message-hidden');
+    currentTokenStreamElement.classList.add('message-visible');
   }
 
   // Update the bot message element with the received token
@@ -121,11 +123,12 @@ document.querySelector('[list-element="chat-history"]').appendChild(currentToken
   currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
 });
 
+
   socket.on('sourceDocuments', (sourceDocuments) => {
     console.log('sourceDocuments:', sourceDocuments);
   });
 
-  socket.on('end', () => {
+  ('end', () => {
     if (currentMode !== 'C') {
       return;  // Skip if not in Mode C
     }
@@ -136,7 +139,7 @@ document.querySelector('[list-element="chat-history"]').appendChild(currentToken
   });
 
   // When the socket connects, attempt to send the session ID to the server
-  socket.on('connect', () => {
+  ('connect', () => {
       console.log('Socket connected');  
     socketIOClientId = socket.id;
     const sessionId = sessionStorage.getItem("sessionId");
@@ -218,19 +221,7 @@ userMessageElement.classList.add('message-visible');
 
 
 
-// Listen for the 'token' event to stream tokens to your temporary text block
-  socket.on('token', (token) => {
-      console.log("Received token:", token);
 
-    // Find the temporary text block
-    const tokenStreamElement = document.querySelector('[element="token-stream"]');
-    
-    // Update the text block with the received token
-    if (tokenStreamElement) {
-      const existingContent = tokenStreamElement.innerHTML;
-      tokenStreamElement.innerHTML = existingContent + token;
-    }
-  });
 
 
   // Visual feedback based on audio
