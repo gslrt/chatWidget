@@ -106,6 +106,9 @@ router.handleSocketConnection = (socket, uid) => {
       const userInput = data.question;
       const chatMode = data.mode;
       socket.chatMode = chatMode;  // Save the chat mode to the socket
+
+       // Emitting the 'start' event here
+    socket.emit('start');
       
       let maxTokens = 100;
       if (chatMode === 'B') {
