@@ -96,12 +96,10 @@ export function sharedFunction() {
     console.log('start');
   });
 
- socket.on('token', (token) => {
+socket.on('token', (token) => {
   if (currentMode !== 'C') {
     return;  // Skip if not in Mode C
   }
-
-  console.log("Received token:", token);
 
   // If it's the first token, create a new bot message element
   if (!currentTokenStreamElement) {
@@ -109,6 +107,10 @@ export function sharedFunction() {
     thinkingStateElement.style.display = 'none';
     
     currentTokenStreamElement = createElementFromTemplate('chat-bot-message-wrapper');
+
+    // Remove the 'hidden' class if it exists
+    currentTokenStreamElement.classList.remove('hidden');
+
     currentTokenStreamElement.classList.add('message-hidden');
     currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
     currentTokenStreamElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
@@ -124,6 +126,7 @@ export function sharedFunction() {
   const existingContent = currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
   currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
 });
+
 
 
   socket.on('sourceDocuments', (sourceDocuments) => {
