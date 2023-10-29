@@ -286,19 +286,15 @@ document.querySelector('[trigger-action="submit-chat-input"]').addEventListener(
   });
 
 
- const userMessageElement = createElementFromTemplate('chat-user-message-wrapper');
+  const userMessageElement = createElementFromTemplate('chat-user-message-wrapper');
   userMessageElement.classList.remove('hidden');
   userMessageElement.classList.add('message-hidden');  
   userMessageElement.querySelector('[element="chat-user-message-content"]').textContent = userInput;
   userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
-  const chatHistory = document.querySelector('[list-element="chat-history"]');  
-  chatHistory.appendChild(userMessageElement);
+  document.querySelector('[list-element="chat-history"]').appendChild(userMessageElement);
   void userMessageElement.offsetWidth;  
   userMessageElement.classList.remove('message-hidden');  
   userMessageElement.classList.add('message-visible');
-
-  chatHistory.scrollTop = chatHistory.scrollHeight;  
-
 });
 
 
@@ -367,23 +363,17 @@ socket.on('botResponse', (data) => {
     return;
   }
 
-// Create a new bot message element for the final response
+  // Create a new bot message element for the final response
 const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
 botMessageElement.classList.remove('hidden');  
 botMessageElement.classList.add('message-hidden');  
 const formattedBotResponse = formatTextWithLineBreaks(data.text);
 botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
 botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
-const chatHistory = document.querySelector('[element="chat-history"]');
-chatHistory.appendChild(botMessageElement);
+document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
 void botMessageElement.offsetWidth;  
 botMessageElement.classList.remove('message-hidden');  
 botMessageElement.classList.add('message-visible');
-
-// Scroll the chat history to the bottom
-chatHistory.scrollTop = chatHistory.scrollHeight;
-
-
 
 
 
