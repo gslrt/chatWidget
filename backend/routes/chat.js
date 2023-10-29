@@ -173,6 +173,7 @@ router.handleSocketConnection = (socket, uid) => {
     socket.emit('error', { error: 'An error occurred' });
   }
 });
+}
 
 
 flowiseSocket.on('error', (error) => {
