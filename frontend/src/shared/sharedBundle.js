@@ -332,16 +332,29 @@ socket.on('botResponse', (data) => {
   }
 
   // Create a new bot message element for the final response
-const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
-botMessageElement.classList.remove('hidden');  
-botMessageElement.classList.add('message-hidden');  
-const formattedBotResponse = formatTextWithLineBreaks(data.text);
-botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
-botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
-document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
-void botMessageElement.offsetWidth;  
-botMessageElement.classList.remove('message-hidden');  
-botMessageElement.classList.add('message-visible');
+  const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
+  botMessageElement.classList.remove('hidden');  
+  botMessageElement.classList.add('message-hidden');  
+  const formattedBotResponse = formatTextWithLineBreaks(data.text);
+  botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
+  botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
+  document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
+  void botMessageElement.offsetWidth;  
+  botMessageElement.classList.remove('message-hidden');  
+  botMessageElement.classList.add('message-visible');
+
+  // Get the conversationModeTextBlock element
+  const conversationModeTextBlock = document.querySelector('[element="bot-response-conversation-mode"]');
+  
+  if (conversationModeTextBlock) {
+    // Remove the pulse class when a new bot response is received
+    conversationModeTextBlock.classList.remove('pulse');
+    
+    // After updating the message and showing it, add the pulse class to indicate waiting for a new bot response.
+    setTimeout(() => {
+      conversationModeTextBlock.classList.add('pulse');
+    }, 500);  // Should match the duration in the CSS transition for fade-out
+  }
 
 
 
