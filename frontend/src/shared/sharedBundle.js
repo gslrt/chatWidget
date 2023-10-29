@@ -387,7 +387,7 @@ if (currentMode === 'B') {
   }
 }
 
-
+});
 
 
 
