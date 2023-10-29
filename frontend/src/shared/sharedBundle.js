@@ -165,11 +165,11 @@ socket.on('end', () => {
 
 
 
-  // Handle tokens for Mode C
-  socket.on('token', (token) => {
-    if (currentMode !== 'C') {
-      return;  // Skip if not in Mode C
-    }
+ // Handle tokens for Mode C
+socket.on('token', (token) => {
+  if (currentMode !== 'C') {
+    return;  // Skip if not in Mode C
+  }
 
   // If it's the first token, create a new bot message element
   if (!currentTokenStreamElement) {
@@ -181,13 +181,13 @@ socket.on('end', () => {
     // Remove the 'hidden' class if it exists
     currentTokenStreamElement.classList.remove('hidden');
 
-    currentTokenStreamElement.classList.add('message-hidden');
+    currentTokenStreamElement.classList.add('message-hidden', 'fade-in');
     currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
     currentTokenStreamElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
     document.querySelector('[list-element="chat-history"]').appendChild(currentTokenStreamElement);
     void currentTokenStreamElement.offsetWidth;
 
-    // Here is where you trigger the slide-in effect
+    // Here is where you trigger the slide-in and fade-in effect
     currentTokenStreamElement.classList.remove('message-hidden');
     currentTokenStreamElement.classList.add('message-visible');
   }
@@ -195,7 +195,13 @@ socket.on('end', () => {
   // Update the bot message element with the received token
   const existingContent = currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
   currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
+
+  // Trigger the fade-in effect
+  setTimeout(() => {
+    currentTokenStreamElement.classList.add('visible');
+  }, 0);
 });
+
 
 
 
