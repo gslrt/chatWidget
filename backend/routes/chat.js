@@ -161,7 +161,7 @@ router.handleSocketConnection = (socket, uid) => {
         audioUrl = await generateAudio(aiResponse);
       }
 
-      s   socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
+    socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
 
     // Emitting the 'end' event after sending the AI response
     socket.emit('end');
