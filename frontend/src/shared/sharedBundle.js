@@ -41,6 +41,7 @@ function updateUIMode() {
   const conversationModeWrapper = document.querySelector('[element="conversation-mode-message-wrapper"]');
   const visualizerWrapper = document.querySelector('[element="interface-visualizer-wrapper"]');
   const chatHistory = document.querySelector('[element="chat-history"]');
+  const chatInput = document.querySelector('[element="chat-input"]'); // Get the chat input element
 
   switch (currentMode) {
     case 'A':
@@ -49,6 +50,7 @@ function updateUIMode() {
       conversationModeWrapper.classList.add('hide');
       visualizerWrapper.classList.remove('conversation-mode');
       chatHistory.classList.remove('conversation-mode');
+      if (chatInput) chatInput.classList.remove('conversation-mode'); // Remove the class if exists
       break;
     case 'B':
       modeTitle.textContent = "Conversation Mode";
@@ -56,6 +58,7 @@ function updateUIMode() {
       conversationModeWrapper.classList.remove('hide');
       visualizerWrapper.classList.add('conversation-mode');
       chatHistory.classList.add('conversation-mode');
+      if (chatInput) chatInput.classList.add('conversation-mode'); // Add the class
       break;
     case 'C':
       modeTitle.textContent = "Mode C";
@@ -63,11 +66,14 @@ function updateUIMode() {
       conversationModeWrapper.classList.add('hide');
       visualizerWrapper.classList.remove('conversation-mode');
       chatHistory.classList.remove('conversation-mode');
+      if (chatInput) chatInput.classList.remove('conversation-mode'); // Remove the class if exists
       break;
     default:
       console.error('Invalid mode');
       return;
   }
+
+
 
   // Store the current mode in sessionStorage
   sessionStorage.setItem('chatMode', currentMode);
