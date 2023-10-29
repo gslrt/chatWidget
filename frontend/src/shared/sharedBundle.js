@@ -374,13 +374,21 @@ botMessageElement.classList.add('message-hidden');
 const formattedBotResponse = formatTextWithLineBreaks(data.text);
 botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
 botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
-const chatHistory = document.querySelector('[list-element="chat-history"]');
+
+// Append the new bot message to the chat history
+const chatHistory = document.querySelector('[element="chat-history"]');
 chatHistory.appendChild(botMessageElement);
-void botMessageElement.offsetWidth;  
+
+// Reflow hack to trigger transitions
+void botMessageElement.offsetWidth;
+
+// Make the bot message visible
 botMessageElement.classList.remove('message-hidden');  
 botMessageElement.classList.add('message-visible');
 
-chatHistory.scrollTop = chatHistory.scrollHeight; 
+// Scroll the chat history to the bottom
+chatHistory.scrollTop = chatHistory.scrollHeight;
+
 
 
 
