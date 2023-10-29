@@ -105,15 +105,21 @@ socket.on('start', () => {
   const submitButton = document.querySelector('[trigger-action="submit-chat-input"]');
   
   if (modeSwitchButton && submitButton) {
-    console.log('Disabling buttons');  // Debugging line
+    console.log('Before disabling, modeSwitchButton disabled status:', modeSwitchButton.disabled);
+    console.log('Before disabling, submitButton disabled status:', submitButton.disabled);
+
     modeSwitchButton.disabled = true;
     submitButton.disabled = true;
     modeSwitchButton.style.opacity = '0.7';
     submitButton.style.opacity = '0.7';
+
+    console.log('After disabling, modeSwitchButton disabled status:', modeSwitchButton.disabled);
+    console.log('After disabling, submitButton disabled status:', submitButton.disabled);
   } else {
-    console.error('Buttons not found in the DOM');  // Debugging line
+    console.error('Buttons not found in the DOM');
   }
 });
+
 
 // When the bot finishes processing, enable buttons and restore opacity
 socket.on('end', () => {
