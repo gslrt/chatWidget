@@ -74,10 +74,15 @@ function updateUIMode() {
 }
 
 export function sharedFunction() {
+  // Existing initializations
   const socket = socketIOClient("chatwidget-production.up.railway.app");
   let socketIOClientId = '';
   let userUID = '';
-  let currentTokenStreamElement = null;  // New variable to keep track of the bot message element
+  let currentTokenStreamElement = null;
+
+  // Get references to the mode switch and submit buttons
+  const modeSwitchButton = document.querySelector('[trigger-action="toggle-chat-mode"]');
+  const submitButton = document.querySelector('[trigger-action="submit-chat-input"]');
 
   // Event listener for the sessionReady event
   document.addEventListener('sessionReady', function() {
@@ -88,6 +93,7 @@ export function sharedFunction() {
     }
   });
 
+  // Other existing socket event listeners
   socket.onAny((event, ...args) => {
     console.log(`socket event received: ${event}`);
   });
@@ -96,10 +102,27 @@ export function sharedFunction() {
     console.log('start');
   });
 
-socket.on('token', (token) => {
-  if (currentMode !== 'C') {
-    return;  // Skip if not in Mode C
-  }
+  // When the bot starts processing, disable buttons and reduce opacity
+  socket.on('start', () => {
+    modeSwitchButton.disabled = true;
+    submitButton.disabled = true;
+    modeSwitchButton.style.opacity = '0.7';
+    submitButton.style.opacity = '0.7';
+  });
+
+  // When the bot finishes processing, enable buttons and restore opacity
+  socket.on('end', () => {
+    modeSwitchButton.disabled = false;
+    submitButton.disabled = false;
+    modeSwitchButton.style.opacity = '1';
+    submitButton.style.opacity = '1';
+  });
+
+  // Handle tokens for Mode C
+  socket.on('token', (token) => {
+    if (currentMode !== 'C') {
+      return;  // Skip if not in Mode C
+    }
 
   // If it's the first token, create a new bot message element
   if (!currentTokenStreamElement) {
@@ -144,8 +167,8 @@ socket.on('token', (token) => {
   });
 
   // When the socket connects, attempt to send the session ID to the server
-  ('connect', () => {
-      console.log('Socket connected');  
+  socket.on('connect', () => {  // <-- Corrected this line
+    console.log('Socket connected');  
     socketIOClientId = socket.id;
     const sessionId = sessionStorage.getItem("sessionId");
     if (sessionId) {
@@ -153,10 +176,6 @@ socket.on('token', (token) => {
     } else {
       console.warn("Session ID is not available in sessionStorage");
     }
-  });
-
-  socket.on('token', (token) => {
-    // Handle the token, e.g., append each token to the bot's message in real-time.
   });
 
   const audio = document.getElementById('audioPlayer');
