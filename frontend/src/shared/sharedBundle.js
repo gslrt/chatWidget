@@ -356,25 +356,25 @@ botMessageElement.classList.add('message-visible');
 
    thinkingStateElement.style.display = 'none';
   
-   // Special handling for Conversation Mode
-if (currentMode === 'B') {
-  const conversationModeTextBlock = document.querySelector('[element="bot-response-conversation-mode"]');
-  if (conversationModeTextBlock) {
-    // Fade out current content
-    conversationModeTextBlock.classList.remove('visible');
-    conversationModeTextBlock.classList.add('fade');
+  // Special handling for Conversation Mode
+  if (currentMode === 'B') {
+    const conversationModeTextBlock = document.querySelector('[element="bot-response-conversation-mode"]');
+    if (conversationModeTextBlock) {
+      // Fade out current content
+      conversationModeTextBlock.classList.remove('visible');
+      conversationModeTextBlock.classList.add('fade');
 
-    // Wait for the fade-out to complete, then update and fade in
-    setTimeout(() => {
-      conversationModeTextBlock.innerHTML = data.text;
-      conversationModeTextBlock.classList.remove('fade');
-      conversationModeTextBlock.classList.add('visible');
-    }, 500); // Should match the duration in the CSS transition
-  } else {
-    console.error("Couldn't find the text block for Conversation Mode.");
+      // Wait for the fade-out to complete, then update and fade in
+      setTimeout(() => {
+        conversationModeTextBlock.innerHTML = data.text;
+        conversationModeTextBlock.classList.remove('fade');
+        conversationModeTextBlock.classList.add('visible');
+      }, 500); // Should match the duration in the CSS transition
+    } else {
+      console.error("Couldn't find the text block for Conversation Mode.");
+    }
   }
-}
-
+}); 
 
 
 
