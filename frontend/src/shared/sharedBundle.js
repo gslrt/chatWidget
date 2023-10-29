@@ -98,25 +98,30 @@ export function sharedFunction() {
     console.log(`socket event received: ${event}`);
   });
 
-  socket.on('start', () => {
-    console.log('start');
-  });
-
   // When the bot starts processing, disable buttons and reduce opacity
-  socket.on('start', () => {
-    modeSwitchButton.disabled = true;
-    submitButton.disabled = true;
-    modeSwitchButton.style.opacity = '0.7';
-    submitButton.style.opacity = '0.7';
-  });
+socket.on('start', () => {
+  console.log('Start event triggered'); // Debug log
+  console.log('Mode switch button:', modeSwitchButton); // Debug log
+  console.log('Submit button:', submitButton); // Debug log
 
-  // When the bot finishes processing, enable buttons and restore opacity
-  socket.on('end', () => {
-    modeSwitchButton.disabled = false;
-    submitButton.disabled = false;
-    modeSwitchButton.style.opacity = '1';
-    submitButton.style.opacity = '1';
-  });
+  modeSwitchButton.disabled = true;
+  submitButton.disabled = true;
+  modeSwitchButton.style.opacity = '0.7';
+  submitButton.style.opacity = '0.7';
+});
+
+// When the bot finishes processing, enable buttons and restore opacity
+socket.on('end', () => {
+  console.log('End event triggered'); // Debug log
+  console.log('Mode switch button:', modeSwitchButton); // Debug log
+  console.log('Submit button:', submitButton); // Debug log
+  
+  modeSwitchButton.disabled = false;
+  submitButton.disabled = false;
+  modeSwitchButton.style.opacity = '1';
+  submitButton.style.opacity = '1';
+});
+
 
   // Handle tokens for Mode C
   socket.on('token', (token) => {
