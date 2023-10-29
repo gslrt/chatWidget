@@ -44,34 +44,56 @@ function updateUIMode() {
   const chatInput = document.querySelector('[element="chat-input"]'); // Get the chat input element
 
   switch (currentMode) {
-    case 'A':
-      modeTitle.textContent = "Mode A";
-      modeDescription.textContent = "Wait for audio";
-      conversationModeWrapper.classList.add('hide');
-      visualizerWrapper.classList.remove('conversation-mode');
-      chatHistory.classList.remove('conversation-mode');
-      if (chatInput) chatInput.classList.remove('conversation-mode'); // Remove the class if exists
-      break;
-    case 'B':
-      modeTitle.textContent = "Conversation Mode";
-      modeDescription.textContent = "Free talk";
-      conversationModeWrapper.classList.remove('hide');
-      visualizerWrapper.classList.add('conversation-mode');
-      chatHistory.classList.add('conversation-mode');
-      if (chatInput) chatInput.classList.add('conversation-mode'); // Add the class
-      break;
-    case 'C':
-      modeTitle.textContent = "Mode C";
-      modeDescription.textContent = "Text only";
-      conversationModeWrapper.classList.add('hide');
-      visualizerWrapper.classList.remove('conversation-mode');
-      chatHistory.classList.remove('conversation-mode');
-      if (chatInput) chatInput.classList.remove('conversation-mode'); // Remove the class if exists
-      break;
-    default:
-      console.error('Invalid mode');
-      return;
-  }
+  case 'A':
+    modeTitle.textContent = "Mode A";
+    modeDescription.textContent = "Wait for audio";
+    conversationModeWrapper.classList.add('hide');
+    visualizerWrapper.classList.remove('conversation-mode');
+    chatHistory.classList.remove('conversation-mode');
+    if (chatInput) chatInput.classList.remove('conversation-mode'); // Remove the class if exists
+    
+    // Clear the text and remove pulsing for Mode A
+    if (conversationModeTextBlock) {
+      conversationModeTextBlock.textContent = ''; 
+      conversationModeTextBlock.classList.remove('waiting'); 
+    }
+
+    break;
+  case 'B':
+    modeTitle.textContent = "Conversation Mode";
+    modeDescription.textContent = "Free talk";
+    conversationModeWrapper.classList.remove('hide');
+    visualizerWrapper.classList.add('conversation-mode');
+    chatHistory.classList.add('conversation-mode');
+    if (chatInput) chatInput.classList.add('conversation-mode'); // Add the class
+    
+    // Set default text and remove pulsing for Mode B
+    if (conversationModeTextBlock) {
+      conversationModeTextBlock.textContent = 'Default Text for Conversation Mode'; 
+      conversationModeTextBlock.classList.remove('waiting'); 
+    }
+
+    break;
+  case 'C':
+    modeTitle.textContent = "Mode C";
+    modeDescription.textContent = "Text only";
+    conversationModeWrapper.classList.add('hide');
+    visualizerWrapper.classList.remove('conversation-mode');
+    chatHistory.classList.remove('conversation-mode');
+    if (chatInput) chatInput.classList.remove('conversation-mode'); // Remove the class if exists
+    
+    // Clear the text and remove pulsing for Mode C
+    if (conversationModeTextBlock) {
+      conversationModeTextBlock.textContent = ''; 
+      conversationModeTextBlock.classList.remove('waiting'); 
+    }
+
+    break;
+  default:
+    console.error('Invalid mode');
+    return;
+}
+
 
 
 
