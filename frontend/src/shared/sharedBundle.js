@@ -98,14 +98,8 @@ export function sharedFunction() {
     console.log(`socket event received: ${event}`);
   });
 
-
-
-
-
-  
 // When the bot starts processing, disable "buttons" and reduce opacity
 socket.on('start', () => {
-  console.log('Start event triggered');
   const modeSwitchButton = document.querySelector('[trigger-action="toggle-chat-mode"]');
   const submitButton = document.querySelector('[trigger-action="submit-chat-input"]');
   
@@ -119,7 +113,6 @@ socket.on('start', () => {
 
 // When the bot finishes processing, enable "buttons" and restore opacity
 socket.on('end', () => {
-  console.log('End event triggered');
   const modeSwitchButton = document.querySelector('[trigger-action="toggle-chat-mode"]');
   const submitButton = document.querySelector('[trigger-action="submit-chat-input"]');
   
@@ -130,7 +123,6 @@ socket.on('end', () => {
     console.error('Buttons not found in the DOM');
   }
 });
-
 
 
 
@@ -264,6 +256,7 @@ document.querySelector('[trigger-action="submit-chat-input"]').addEventListener(
     userUID: userUID,
     mode: currentMode
   });
+});
 
 
 
@@ -496,6 +489,7 @@ window.onload = function() {
 
   
 
+  
 
   
 // Listen for clicks on the toggle chat mode element
