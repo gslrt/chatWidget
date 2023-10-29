@@ -291,7 +291,7 @@ document.querySelector('[trigger-action="submit-chat-input"]').addEventListener(
   userMessageElement.classList.add('message-hidden');  
   userMessageElement.querySelector('[element="chat-user-message-content"]').textContent = userInput;
   userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
-  const chatHistory = document.querySelector('[list-element="chat-history"]');  
+  const chatHistory = document.querySelector('[element="chat-history"]');  
   chatHistory.appendChild(userMessageElement);
   void userMessageElement.offsetWidth;  
   userMessageElement.classList.remove('message-hidden');  
@@ -374,7 +374,7 @@ botMessageElement.classList.add('message-hidden');
 const formattedBotResponse = formatTextWithLineBreaks(data.text);
 botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
 botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
-const chatHistory = document.querySelector('[list-element="chat-history"]');
+const chatHistory = document.querySelector('[element="chat-history"]');
 chatHistory.appendChild(botMessageElement);
 void botMessageElement.offsetWidth;  
 botMessageElement.classList.remove('message-hidden');  
