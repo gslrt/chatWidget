@@ -161,16 +161,18 @@ router.handleSocketConnection = (socket, uid) => {
         audioUrl = await generateAudio(aiResponse);
       }
 
-      socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
+      s   socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
 
-      await updateDatabaseAndSession(socket, currentTimestamp, userInput, aiResponse);
+    // Emitting the 'end' event after sending the AI response
+    socket.emit('end');
 
-    } catch (error) {
-      console.error('Error:', error);
-      socket.emit('error', { error: 'An error occurred' });
-    }
-  });
-};
+    await updateDatabaseAndSession(socket, currentTimestamp, userInput, aiResponse);
+
+  } catch (error) {
+    console.error('Error:', error);
+    socket.emit('error', { error: 'An error occurred' });
+  }
+});
 
 
 flowiseSocket.on('error', (error) => {
