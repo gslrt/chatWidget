@@ -105,6 +105,7 @@ socket.on('start', () => {
   const submitButton = document.querySelector('[trigger-action="submit-chat-input"]');
   
   if (modeSwitchButton && submitButton) {
+    console.log('Buttons found in the DOM');
     console.log('Before disabling, modeSwitchButton disabled status:', modeSwitchButton.disabled);
     console.log('Before disabling, submitButton disabled status:', submitButton.disabled);
 
@@ -119,6 +120,7 @@ socket.on('start', () => {
     console.error('Buttons not found in the DOM');
   }
 });
+
 
 
 // When the bot finishes processing, enable buttons and restore opacity
