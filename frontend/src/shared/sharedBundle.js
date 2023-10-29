@@ -248,6 +248,12 @@ document.querySelector('[trigger-action="submit-chat-input"]').addEventListener(
   // Reset the currentTokenStreamElement to null for a new question
   currentTokenStreamElement = null;
 
+// Add 'waiting' class to trigger pulsing effect
+  const conversationModeTextBlock = document.querySelector('[element="bot-response-conversation-mode"]');
+  if (conversationModeTextBlock) {
+    conversationModeTextBlock.classList.add('waiting');
+  }
+  
   
   socket.emit('chatMessage', {
     question: userInput,
@@ -325,6 +331,9 @@ document.querySelector('[trigger-action="submit-chat-input"]').addEventListener(
     console.warn("Required DOM elements for visual feedback are not available yet.");
   }
 
+
+  
+
 socket.on('botResponse', (data) => {
   // Skip if in Mode C to avoid regular bot message
   if (currentMode === 'C') {
@@ -392,6 +401,12 @@ if (currentMode === 'B') {
     console.error("Couldn't find the text block for Conversation Mode.");
   }
 }
+
+   // Remove 'waiting' class to stop pulsing effect
+  const conversationModeTextBlock = document.querySelector('[element="bot-response-conversation-mode"]');
+  if (conversationModeTextBlock) {
+    conversationModeTextBlock.classList.remove('waiting');
+  }
 
 });
 
