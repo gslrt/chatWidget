@@ -100,33 +100,38 @@ export function sharedFunction() {
 
 // When the bot starts processing, disable buttons and reduce opacity
 socket.on('start', () => {
-  console.log('Received start event');  // Debugging line
+  console.log('Received start event');
   const modeSwitchButton = document.querySelector('[trigger-action="toggle-chat-mode"]');
   const submitButton = document.querySelector('[trigger-action="submit-chat-input"]');
+  
   if (modeSwitchButton && submitButton) {
+    console.log('Disabling buttons');  // Debugging line
     modeSwitchButton.disabled = true;
     submitButton.disabled = true;
     modeSwitchButton.style.opacity = '0.7';
     submitButton.style.opacity = '0.7';
   } else {
-    console.log('Buttons not found in the DOM');  // Debugging line
+    console.error('Buttons not found in the DOM');  // Debugging line
   }
 });
 
 // When the bot finishes processing, enable buttons and restore opacity
 socket.on('end', () => {
-  console.log('Received end event');  // Debugging line
+  console.log('Received end event');
   const modeSwitchButton = document.querySelector('[trigger-action="toggle-chat-mode"]');
   const submitButton = document.querySelector('[trigger-action="submit-chat-input"]');
+  
   if (modeSwitchButton && submitButton) {
+    console.log('Enabling buttons');  // Debugging line
     modeSwitchButton.disabled = false;
     submitButton.disabled = false;
     modeSwitchButton.style.opacity = '1';
     submitButton.style.opacity = '1';
   } else {
-    console.log('Buttons not found in the DOM');  // Debugging line
+    console.error('Buttons not found in the DOM');  // Debugging line
   }
 });
+
 
 
 
@@ -180,7 +185,7 @@ socket.on('end', () => {
 
 
   // When the socket connects, attempt to send the session ID to the server
-  socket.on('connect', () => {  // <-- Corrected this line
+  socket.on('connect', () => {
     console.log('Socket connected');  
     socketIOClientId = socket.id;
     const sessionId = sessionStorage.getItem("sessionId");
