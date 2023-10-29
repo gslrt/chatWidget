@@ -133,7 +133,6 @@ socket.on('chatMessage', async (data) => {
     
     const url = process.env.CHAT_URL + hiveAccess;
     
-    
     const dataToSend = {
       question: userInput,
       socketIOClientId: flowiseSocketId,
@@ -148,16 +147,24 @@ socket.on('chatMessage', async (data) => {
       }
     };
 
-    
+    // Added the missing fetch call here
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.FLOWISE_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(dataToSend)
+    });
 
-      const responseBody = await response.json();
-      const aiResponse = responseBody;
+    const responseBody = await response.json();
+    const aiResponse = responseBody;
 
-      // Generate audio only if mode is not 'C'
-      let audioUrl = null;
-      if (chatMode !== 'C') {
-        audioUrl = await generateAudio(aiResponse);
-      }
+    // Generate audio only if mode is not 'C'
+    let audioUrl = null;
+    if (chatMode !== 'C') {
+      audioUrl = await generateAudio(aiResponse);
+    }
 
     socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
 
@@ -171,7 +178,7 @@ socket.on('chatMessage', async (data) => {
     socket.emit('error', { error: 'An error occurred' });
   }
 });
-}
+
 
 
 flowiseSocket.on('error', (error) => {
