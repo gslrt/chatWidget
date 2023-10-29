@@ -354,8 +354,19 @@ botMessageElement.classList.add('message-visible');
     currentBotMessageElement = null;
   }
 
-  thinkingStateElement.style.display = 'none';
-});
+   thinkingStateElement.style.display = 'none';
+  
+    // Special handling for Conversation Mode
+    if (currentMode === 'B') {
+      const conversationModeTextBlock = document.querySelector('[element="bot-response-conversation-mode"]');
+      if (conversationModeTextBlock) {
+        // Update the text block with the AI's response
+        conversationModeTextBlock.innerHTML = data.text;
+      } else {
+        console.error("Couldn't find the text block for Conversation Mode.");
+      }
+    }
+  });
 
 
 
