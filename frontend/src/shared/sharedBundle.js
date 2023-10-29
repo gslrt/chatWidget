@@ -98,32 +98,47 @@ export function sharedFunction() {
     console.log(`socket event received: ${event}`);
   });
 
-// When the bot starts processing, disable "buttons" and reduce opacity
+// When the bot starts processing, disable buttons and reduce opacity
 socket.on('start', () => {
+  console.log('Received start event');
   const modeSwitchButton = document.querySelector('[trigger-action="toggle-chat-mode"]');
   const submitButton = document.querySelector('[trigger-action="submit-chat-input"]');
   
   if (modeSwitchButton && submitButton) {
-    modeSwitchButton.classList.add('disabled');
-    submitButton.classList.add('disabled');
+    console.log('Buttons found in the DOM');
+    console.log('Before disabling, modeSwitchButton disabled status:', modeSwitchButton.disabled);
+    console.log('Before disabling, submitButton disabled status:', submitButton.disabled);
+
+    modeSwitchButton.disabled = true;
+    submitButton.disabled = true;
+    modeSwitchButton.style.opacity = '0.7';
+    submitButton.style.opacity = '0.7';
+
+    console.log('After disabling, modeSwitchButton disabled status:', modeSwitchButton.disabled);
+    console.log('After disabling, submitButton disabled status:', submitButton.disabled);
   } else {
     console.error('Buttons not found in the DOM');
   }
 });
 
-// When the bot finishes processing, enable "buttons" and restore opacity
+
+
+// When the bot finishes processing, enable buttons and restore opacity
 socket.on('end', () => {
+  console.log('Received end event');
   const modeSwitchButton = document.querySelector('[trigger-action="toggle-chat-mode"]');
   const submitButton = document.querySelector('[trigger-action="submit-chat-input"]');
   
   if (modeSwitchButton && submitButton) {
-    modeSwitchButton.classList.remove('disabled');
-    submitButton.classList.remove('disabled');
+    console.log('Enabling buttons');  // Debugging line
+    modeSwitchButton.disabled = false;
+    submitButton.disabled = false;
+    modeSwitchButton.style.opacity = '1';
+    submitButton.style.opacity = '1';
   } else {
-    console.error('Buttons not found in the DOM');
+    console.error('Buttons not found in the DOM');  // Debugging line
   }
 });
-
 
 
 
@@ -216,14 +231,12 @@ socket.on('end', () => {
   }
 });
 
-document.querySelector('[trigger-action="submit-chat-input"]').addEventListener('click', function(e) {
-  const submitButton = document.querySelector('[trigger-action="submit-chat-input"]');
-  if (submitButton.classList.contains('disabled')) {
-    return;
-  }
-  
+
+ document.querySelector('[trigger-action="submit-chat-input"]').addEventListener('click', function (e) {
   e.preventDefault();
-  
+
+
+   
   const userInput = document.querySelector('[element="chat-user-input"]').innerText.trim();
   if (!userInput) {
     return;
@@ -235,16 +248,14 @@ document.querySelector('[trigger-action="submit-chat-input"]').addEventListener(
   currentTokenStreamElement = null;
 
   const userMessageElement = createElementFromTemplate('chat-user-message-wrapper');
-  userMessageElement.classList.remove('hidden');
-  userMessageElement.classList.add('message-hidden');  
-  userMessageElement.querySelector('[element="chat-user-message-content"]').textContent = userInput;
-  userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
-  document.querySelector('[list-element="chat-history"]').appendChild(userMessageElement);
-  void userMessageElement.offsetWidth;  
-  userMessageElement.classList.remove('message-hidden');  
-  userMessageElement.classList.add('message-visible');
-});
-
+userMessageElement.classList.remove('hidden');
+userMessageElement.classList.add('message-hidden');  
+userMessageElement.querySelector('[element="chat-user-message-content"]').textContent = userInput;
+userMessageElement.querySelector('[element="chat-history-user-timestamp"]').textContent = getCurrentTime();
+document.querySelector('[list-element="chat-history"]').appendChild(userMessageElement);
+void userMessageElement.offsetWidth;  
+userMessageElement.classList.remove('message-hidden');  
+userMessageElement.classList.add('message-visible');
 
 
 
@@ -492,26 +503,23 @@ window.onload = function() {
   
 
   
-// Listen for clicks on the toggle chat mode element
-document.querySelector('[trigger-action="toggle-chat-mode"]').addEventListener('click', function() {
-  const modeSwitchButton = document.querySelector('[trigger-action="toggle-chat-mode"]');
-  if (modeSwitchButton.classList.contains('disabled')) {
-    return;
-  }
-  // Cycle through modes A -> B -> C -> A
-  if (currentMode === 'A') {
-    currentMode = 'B';
-  } else if (currentMode === 'B') {
-    currentMode = 'C';
-  } else if (currentMode === 'C') {
-    currentMode = 'A';
-  } else {
-    console.error('Invalid current mode');
-    return;
-  }
-  // Update the UI based on the new mode
-  updateUIMode();
-});
+  // Listen for clicks on the toggle element
+  document.querySelector('[trigger-action="toggle-chat-mode"]').addEventListener('click', function() {
+    // Cycle through modes A -> B -> C -> A
+    if (currentMode === 'A') {
+      currentMode = 'B';
+    } else if (currentMode === 'B') {
+      currentMode = 'C';
+    } else if (currentMode === 'C') {
+      currentMode = 'A';
+    } else {
+      console.error('Invalid current mode');
+      return;
+    }
+
+    // Update the UI based on the new mode
+    updateUIMode();
+  });
 
   // Initial UI setup
   updateUIMode();
