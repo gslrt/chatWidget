@@ -18,7 +18,7 @@ let flowiseSocketId = null; // NEW: to store the Flowise socket ID
 // Existing Flowise socket connection
 const flowiseSocket = socketIOClient(socketIoBaseUrl);
 
-// NEW: Capture the Flowise socket ID on connect
+// Capture the Flowise socket ID on connect
 flowiseSocket.on('connect', () => {
   flowiseSocketId = flowiseSocket.id;
   console.log('Successfully connected to Flowise Socket.IO server with ID:', flowiseSocketId);
@@ -101,57 +101,52 @@ router.handleSocketConnection = (socket, uid) => {
 
    
 
-  socket.on('chatMessage', async (data) => {
-    try {
-      const userInput = data.question;
-      const chatMode = data.mode;
-      socket.chatMode = chatMode;  // Save the chat mode to the socket
+socket.on('chatMessage', async (data) => {
+  try {
+    const userInput = data.question;
+    const chatMode = data.mode;
+    socket.chatMode = chatMode;  // Save the chat mode to the socket
 
-       // Emitting the 'start' event here
+    // Emitting the 'start' event here
     socket.emit('start');
       
-      let maxTokens = 100;
-      if (chatMode === 'B') {
-        maxTokens = 40;
-      }
-
-      const currentTimestamp = new Date();
-      const role = 'public';
-      let hiveAccess;
-      switch (role) {
-        case 'public':
-          hiveAccess = process.env.HIVE_ACCESS_PUBLIC;
-          break;
-        default:
-          socket.emit('error', { error: 'Invalid role' });
-          return;
-      }
-
-      const url = process.env.CHAT_URL + hiveAccess;  
-      let systemMessage = `You are a pirate. Max Tokens: ${maxTokens}`;
-      
-      const dataToSend = {
-        question: userInput,
+    let maxTokens = 100;  // Default max tokens
+    let systemMessage = 'You are a pirate.';  // Default system message
+    
+    // If in Conversation Mode (Mode B), adjust settings
+    if (chatMode === 'B') {
+      maxTokens = 10;  // Shorter responses
+      systemMessage = 'You are a bear in conversation mode. Max Tokens: 40';  // Custom system message
+    }
+    
+    const currentTimestamp = new Date();
+    const role = 'public';
+    let hiveAccess;
+    switch (role) {
+      case 'public':
+        hiveAccess = process.env.HIVE_ACCESS_PUBLIC;
+        break;
+      default:
+        socket.emit('error', { error: 'Invalid role' });
+        return;
+    }
+    
+    const url = process.env.CHAT_URL + hiveAccess;
+    
+    
+    const dataToSend = {
+      question: userInput,
       socketIOClientId: flowiseSocketId,
-        overrideConfig: {
-          maxTokens,
-          systemMessage,
-          openAIApiKey: process.env.OPENAI_API_KEY,
-          pineconeEnv: process.env.PINECONE_ENVIRONMENT,
-          pineconeApiKey: process.env.PINECONE_API_KEY,
-          pineconeNamespace: process.env.PINECONE_NAMESPACE,
-          pineconeIndex: process.env.PINECONE_INDEX_NAME
-        }
-      };
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${process.env.FLOWISE_API_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(dataToSend)
-      });
+      overrideConfig: {
+        maxTokens,
+        systemMessage,
+        openAIApiKey: process.env.OPENAI_API_KEY,
+        pineconeEnv: process.env.PINECONE_ENVIRONMENT,
+        pineconeApiKey: process.env.PINECONE_API_KEY,
+        pineconeNamespace: process.env.PINECONE_NAMESPACE,
+        pineconeIndex: process.env.PINECONE_INDEX_NAME
+      }
+    };
 
     
 
