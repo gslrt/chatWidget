@@ -165,7 +165,7 @@ socket.on('end', () => {
 
 
 
- // Handle tokens for Mode C
+// Handle tokens for Mode C
 socket.on('token', (token) => {
   if (currentMode !== 'C') {
     return;  // Skip if not in Mode C
@@ -181,26 +181,32 @@ socket.on('token', (token) => {
     // Remove the 'hidden' class if it exists
     currentTokenStreamElement.classList.remove('hidden');
 
-    currentTokenStreamElement.classList.add('message-hidden', 'fade-in');
+    currentTokenStreamElement.classList.add('message-hidden');
     currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = '';
     currentTokenStreamElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
     document.querySelector('[list-element="chat-history"]').appendChild(currentTokenStreamElement);
     void currentTokenStreamElement.offsetWidth;
 
-    // Here is where you trigger the slide-in and fade-in effect
+    // Here is where you trigger the slide-in effect
     currentTokenStreamElement.classList.remove('message-hidden');
     currentTokenStreamElement.classList.add('message-visible');
   }
 
-  // Update the bot message element with the received token
-  const existingContent = currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML;
-  currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]').innerHTML = existingContent + token;
+  // Create a new span element for the token and apply a 'fade-in' class
+  const tokenSpan = document.createElement('span');
+  tokenSpan.className = 'fade-in-token';  // This is a new class you'll define in your CSS
+  tokenSpan.innerHTML = token;
 
-  // Trigger the fade-in effect
+  // Append the new span element to the bot message element
+  const messageContent = currentTokenStreamElement.querySelector('[element="chat-bot-message-content"]');
+  messageContent.appendChild(tokenSpan);
+
+  // Remove the 'fade-in' class after the animation (assumed to be 500ms)
   setTimeout(() => {
-    currentTokenStreamElement.classList.add('visible');
-  }, 0);
+    tokenSpan.classList.remove('fade-in-token');
+  }, 500);
 });
+
 
 
 
