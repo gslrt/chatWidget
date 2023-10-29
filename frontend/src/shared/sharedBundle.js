@@ -34,14 +34,15 @@ let currentBotMessageElement = null;
 // Initialize chat mode from sessionStorage or default to 'A'
 let currentMode = sessionStorage.getItem('chatMode') || 'A';
 
-// Function to update UI based on the current mode
 function updateUIMode() {
   const modeTitle = document.querySelector('[element="toggle-chat-mode-title"]');
   const modeDescription = document.querySelector('[element="toggle-chat-mode-description"]');
   const conversationModeWrapper = document.querySelector('[element="conversation-mode-message-wrapper"]');
   const visualizerWrapper = document.querySelector('[element="interface-visualizer-wrapper"]');
   const chatHistory = document.querySelector('[element="chat-history"]');
-  const chatInput = document.querySelector('[element="chat-input"]'); // Get the chat input element
+  const chatInput = document.querySelector('[element="chat-input"]');
+  const conversationModeTextBlock = document.querySelector('[element="bot-response-conversation-mode"]');
+
 
   switch (currentMode) {
   case 'A':
