@@ -148,14 +148,15 @@ socket.on('chatMessage', async (data) => {
     };
 
     // Added the missing fetch call here
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.FLOWISE_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(dataToSend)
-    });
+  const response = await fetch(url, {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${process.env.FLOWISE_API_KEY}`,
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(dataToSend)
+});
+  }
 
     const responseBody = await response.json();
     const aiResponse = responseBody;
