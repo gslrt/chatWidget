@@ -115,8 +115,8 @@ socket.on('chatMessage', async (data) => {
     
     // If in Conversation Mode (Mode B), adjust settings
     if (chatMode === 'B') {
-      maxTokens = 10;  // Shorter responses
-      systemMessage = 'You are a bear in conversation mode. Max Tokens: 40';  // Custom system message
+      maxTokens = 20;  // Shorter responses
+      systemMessage = 'You are a bear in conversation mode. Max Tokens: 20';  // Custom system message
     }
     
     const currentTimestamp = new Date();
