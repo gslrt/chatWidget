@@ -264,7 +264,6 @@ document.querySelector('[trigger-action="submit-chat-input"]').addEventListener(
     userUID: userUID,
     mode: currentMode
   });
-});
 
 
 
@@ -497,7 +496,6 @@ window.onload = function() {
 
   
 
-  
 
   
 // Listen for clicks on the toggle chat mode element
