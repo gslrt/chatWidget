@@ -356,7 +356,7 @@ botMessageElement.classList.add('message-visible');
 
    thinkingStateElement.style.display = 'none';
   
-  // Special handling for Conversation Mode
+    // Special handling for Conversation Mode
   if (currentMode === 'B') {
     const conversationModeTextBlock = document.querySelector('[element="bot-response-conversation-mode"]');
     if (conversationModeTextBlock) {
@@ -369,12 +369,16 @@ botMessageElement.classList.add('message-visible');
         conversationModeTextBlock.innerHTML = data.text;
         conversationModeTextBlock.classList.remove('fade');
         conversationModeTextBlock.classList.add('visible');
+
+        // Add the fade-in class for fade-in effect
+        conversationModeTextBlock.classList.add('fade-in');
+
       }, 500); // Should match the duration in the CSS transition
     } else {
       console.error("Couldn't find the text block for Conversation Mode.");
     }
   }
-}); 
+});
 
 
 
