@@ -156,15 +156,16 @@ export function sharedFunction() {
     console.log('sourceDocuments:', sourceDocuments);
   });
 
-  ('end', () => {
-    if (currentMode !== 'C') {
-      return;  // Skip if not in Mode C
-    }
-    
-    console.log('end');
-    // Reset the currentTokenStreamElement so that a new one will be created on the next 'start'
-    currentTokenStreamElement = null;
-  });
+ socket.on('end', () => {
+  if (currentMode !== 'C') {
+    return;  // Skip if not in Mode C
+  }
+  
+  console.log('end');
+  // Reset the currentTokenStreamElement so that a new one will be created on the next 'start'
+  currentTokenStreamElement = null;
+});
+
 
   // When the socket connects, attempt to send the session ID to the server
   socket.on('connect', () => {  // <-- Corrected this line
