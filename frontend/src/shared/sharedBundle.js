@@ -242,6 +242,15 @@ document.querySelector('[trigger-action="submit-chat-input"]').addEventListener(
   // Reset the currentTokenStreamElement to null for a new question
   currentTokenStreamElement = null;
 
+  
+  socket.emit('chatMessage', {
+    question: userInput,
+    socketIOClientId: socketIOClientId,
+    userUID: userUID,
+    mode: currentMode
+  });
+
+
   const userMessageElement = createElementFromTemplate('chat-user-message-wrapper');
   userMessageElement.classList.remove('hidden');
   userMessageElement.classList.add('message-hidden');  
@@ -254,16 +263,6 @@ document.querySelector('[trigger-action="submit-chat-input"]').addEventListener(
 });
 
 
-
-
-
-
-  socket.emit('chatMessage', {
-    question: userInput,
-    socketIOClientId: socketIOClientId,
-    userUID: userUID,
-    mode: currentMode
-  });
 
 
 
