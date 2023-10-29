@@ -98,29 +98,36 @@ export function sharedFunction() {
     console.log(`socket event received: ${event}`);
   });
 
-  // When the bot starts processing, disable buttons and reduce opacity
+// When the bot starts processing, disable buttons and reduce opacity
 socket.on('start', () => {
-  console.log('Start event triggered'); // Debug log
-  console.log('Mode switch button:', modeSwitchButton); // Debug log
-  console.log('Submit button:', submitButton); // Debug log
-
-  modeSwitchButton.disabled = true;
-  submitButton.disabled = true;
-  modeSwitchButton.style.opacity = '0.7';
-  submitButton.style.opacity = '0.7';
+  console.log('Received start event');  // Debugging line
+  const modeSwitchButton = document.querySelector('[trigger-action="toggle-chat-mode"]');
+  const submitButton = document.querySelector('[trigger-action="submit-chat-input"]');
+  if (modeSwitchButton && submitButton) {
+    modeSwitchButton.disabled = true;
+    submitButton.disabled = true;
+    modeSwitchButton.style.opacity = '0.7';
+    submitButton.style.opacity = '0.7';
+  } else {
+    console.log('Buttons not found in the DOM');  // Debugging line
+  }
 });
 
 // When the bot finishes processing, enable buttons and restore opacity
 socket.on('end', () => {
-  console.log('End event triggered'); // Debug log
-  console.log('Mode switch button:', modeSwitchButton); // Debug log
-  console.log('Submit button:', submitButton); // Debug log
-  
-  modeSwitchButton.disabled = false;
-  submitButton.disabled = false;
-  modeSwitchButton.style.opacity = '1';
-  submitButton.style.opacity = '1';
+  console.log('Received end event');  // Debugging line
+  const modeSwitchButton = document.querySelector('[trigger-action="toggle-chat-mode"]');
+  const submitButton = document.querySelector('[trigger-action="submit-chat-input"]');
+  if (modeSwitchButton && submitButton) {
+    modeSwitchButton.disabled = false;
+    submitButton.disabled = false;
+    modeSwitchButton.style.opacity = '1';
+    submitButton.style.opacity = '1';
+  } else {
+    console.log('Buttons not found in the DOM');  // Debugging line
+  }
 });
+
 
 
   // Handle tokens for Mode C
