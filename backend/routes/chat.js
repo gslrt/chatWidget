@@ -114,7 +114,7 @@ socket.on('chatMessage', async (data) => {
     
     // If in Conversation Mode (Mode B), adjust settings
     if (chatMode === 'B') {
-      maxTokens = 40;  // Shorter responses
+      maxTokens = 80;  // Shorter responses
       systemMessage = 'Use maximum two short sentences as response';  // Custom system message
     }
     
@@ -136,7 +136,6 @@ socket.on('chatMessage', async (data) => {
       question: userInput,
       socketIOClientId: flowiseSocketId,
       overrideConfig: {
-        model: 'gpt-4-1106-preview', 
         maxTokens,
         systemMessage,
         openAIApiKey: process.env.OPENAI_API_KEY,
