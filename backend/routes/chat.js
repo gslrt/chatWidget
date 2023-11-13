@@ -158,13 +158,20 @@ socket.on('chatMessage', async (data) => {
     const responseBody = await response.json();
     const aiResponse = responseBody;
 
-    // Generate audio only if mode is not 'C'
-    let audioUrl = null;
-    if (chatMode !== 'C') {
-      audioUrl = await generateAudio(aiResponse);
-    }
+    
+        // Extract the text part from aiResponse
+        // Assuming aiResponse contains a property 'text' that holds the response
+        const responseText = aiResponse.text || '';  // Use a fallback empty string
 
-    socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
+
+   // Generate audio only if mode is not 'C'
+let audioUrl = null;
+if (chatMode !== 'C') {
+  audioUrl = await generateAudio(responseText); 
+}
+
+socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
+
 
     // Emitting the 'end' event after sending the AI response
     socket.emit('end');
