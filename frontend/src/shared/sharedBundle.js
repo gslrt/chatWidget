@@ -27,11 +27,24 @@ function formatTextWithLineBreaks(text) {
   return text.replace(/\n/g, '<br/>');
 }
 
+// Define the array for mode order
+const modeOrder = ['B', 'A', 'C']; // Initial order - can be changed as needed
+
+// Function to find the next mode in the array
+function getNextMode(currentMode) {
+  const currentIndex = modeOrder.indexOf(currentMode);
+  if (currentIndex === -1) {
+    console.error('Current mode not found in modeOrder array');
+    return currentMode; // Return the current mode if not found
+  }
+  // Get the next index, or loop back to the beginning
+  const nextIndex = (currentIndex + 1) % modeOrder.length;
+  return modeOrder[nextIndex];
+}
+
+
+
 let currentBotMessageElement = null; 
-
-
-
-// Initialize chat mode from sessionStorage or default to 'A'
 let currentMode = sessionStorage.getItem('chatMode') || 'A';
 
 function updateUIMode() {
@@ -42,6 +55,8 @@ function updateUIMode() {
   const chatHistory = document.querySelector('[element="chat-history"]');
   const chatInput = document.querySelector('[element="chat-input"]');
   const conversationModeTextBlock = document.querySelector('[element="bot-response-conversation-mode"]');
+
+
 
 
   switch (currentMode) {
@@ -101,6 +116,8 @@ function updateUIMode() {
   // Store the current mode in sessionStorage
   sessionStorage.setItem('chatMode', currentMode);
 }
+
+
 
 export function sharedFunction() {
   // Existing initializations
@@ -590,20 +607,13 @@ document.querySelector('[trigger-action="toggle-chat-mode"]').addEventListener('
   if (modeSwitchButton.classList.contains('disabled')) {
     return;
   }
-  // Cycle through modes A -> B -> C -> A
-  if (currentMode === 'A') {
-    currentMode = 'B';
-  } else if (currentMode === 'B') {
-    currentMode = 'C';
-  } else if (currentMode === 'C') {
-    currentMode = 'A';
-  } else {
-    console.error('Invalid current mode');
-    return;
-  }
+  
+  currentMode = getNextMode(currentMode); // Get the next mode based on the array
+
   // Update the UI based on the new mode
   updateUIMode();
 });
+
 
   // Initial UI setup
   updateUIMode();
