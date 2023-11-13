@@ -18,7 +18,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 const setupGoogleCredentials = require('./setupGoogleCreds.js');  
 
 // Call the function to set up Google Cloud credentials
@@ -36,6 +35,7 @@ const corsOptions = {
     }
 };
 app.use(cors(corsOptions));
+
 // Create HTTP Server
 const server = http.createServer(app);
 
@@ -55,7 +55,6 @@ const sessionMiddleware = session({
     saveUninitialized: false
 });
 
-
 // Use session middleware with Express
 app.use(sessionMiddleware);
 
@@ -72,7 +71,6 @@ app.use('/frontend/dist', express.static(path.join(__dirname, 'frontend/dist')))
 app.use('/chat', chatRoute);
 app.use('/analytics', analyticsRoutes);
 
-
 // Set up CORS for Socket.io
 const io = socketIo(server, {
   cors: {
@@ -83,15 +81,10 @@ const io = socketIo(server, {
 
 // Use session middleware with Socket.io
 io.use((socket, next) => {
-    if (socket.request.res) {
-        sessionMiddleware(socket.request, socket.request.res, next);
-    } else {
-        next(new Error('No response object'));
-    }
+    sessionMiddleware(socket.request, {}, next);
 });
 
-
-// Socket.io connection
+// Socket.io connection with error handling
 io.on('connection', (socket) => {
     const uid = uuid.v4();  
     socket.emit('uid', uid);  // Emit the UUID to the client
@@ -102,12 +95,16 @@ io.on('connection', (socket) => {
     socket.emit('debugSessionId', sessionId);
 
     chatRoute.handleSocketConnection(socket, uid);
+
+    socket.on('error', (error) => {
+        console.error('Socket.io Error:', error);
+    });
 });
 
-
-
-
-
+// Error handling for Socket.io
+io.on('connect_error', (error) => {
+    console.error('Connection Error:', error);
+});
 
 // Debugging log: Socket.io connection established
 console.log("[Server] Socket.io connection established");
