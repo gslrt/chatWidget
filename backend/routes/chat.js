@@ -13,7 +13,7 @@ const socketIoBaseUrl = process.env.CHAT_URL.split('/api/v1/prediction/')[0];
 console.log("Attempting to connect to Socket.IO server with base URL:", socketIoBaseUrl);
 
 
-let flowiseSocketId = null; // NEW: to store the Flowise socket ID
+let flowiseSocketId = null; 
 
 // Existing Flowise socket connection
 const flowiseSocket = socketIOClient(socketIoBaseUrl);
@@ -115,8 +115,8 @@ socket.on('chatMessage', async (data) => {
     
     // If in Conversation Mode (Mode B), adjust settings
     if (chatMode === 'B') {
-      maxTokens = 20;  // Shorter responses
-      systemMessage = 'You are a bear in conversation mode. Max Tokens: 20';  // Custom system message
+      maxTokens = 40;  // Shorter responses
+      systemMessage = 'Keep the reply to a minimum of 2 short sentences';  
     }
     
     const currentTimestamp = new Date();
@@ -137,7 +137,6 @@ socket.on('chatMessage', async (data) => {
       question: userInput,
       socketIOClientId: flowiseSocketId,
       overrideConfig: {
-        model: 'gpt-4-1106-preview', 
         maxTokens,
         systemMessage,
         openAIApiKey: process.env.OPENAI_API_KEY,
