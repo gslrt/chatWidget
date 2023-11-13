@@ -386,7 +386,7 @@ document.querySelector('[trigger-action="submit-chat-input"]').addEventListener(
 
   
 
-ssocket.on('botResponse', (data) => {
+socket.on('botResponse', (data) => {
   // Skip if in Mode C to avoid regular bot message
   if (currentMode === 'C') {
     return;
