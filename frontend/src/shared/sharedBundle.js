@@ -386,33 +386,30 @@ document.querySelector('[trigger-action="submit-chat-input"]').addEventListener(
 
   
 
-socket.on('botResponse', (data) => {
-  console.log("Received botResponse:", data); // Log the entire data object
-  console.log("Type of data:", typeof data); // Log the type of the data
-
-  if (typeof data === 'object' && data !== null) {
-      console.log("Data.text:", data.text); // Log the 'text' property if it exists
-      console.log("Type of data.text:", typeof data.text); // Log the type of the 'text' property
-  } else {
-      console.error("Data is not an object or is null");
-  }
-
+ssocket.on('botResponse', (data) => {
   // Skip if in Mode C to avoid regular bot message
   if (currentMode === 'C') {
     return;
   }
 
+  // Extract the actual text from data.text object
+  const actualText = data.text.text; // Access the 'text' property of the 'data.text' object
+
   // Create a new bot message element for the final response
-const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
-botMessageElement.classList.remove('hidden');  
-botMessageElement.classList.add('message-hidden');  
-const formattedBotResponse = formatTextWithLineBreaks(data.text);
-botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
-botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
-document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
-void botMessageElement.offsetWidth;  
-botMessageElement.classList.remove('message-hidden');  
-botMessageElement.classList.add('message-visible');
+  const botMessageElement = createElementFromTemplate('chat-bot-message-wrapper');
+  botMessageElement.classList.remove('hidden');  
+  botMessageElement.classList.add('message-hidden');  
+
+  // Use the actualText for formatting and displaying
+  const formattedBotResponse = formatTextWithLineBreaks(actualText);
+  botMessageElement.querySelector('[element="chat-bot-message-content"]').innerHTML = formattedBotResponse;
+  botMessageElement.querySelector('[element="chat-history-bot-timestamp"]').textContent = getCurrentTime();
+  document.querySelector('[list-element="chat-history"]').appendChild(botMessageElement);
+  void botMessageElement.offsetWidth;  
+  botMessageElement.classList.remove('message-hidden');  
+  botMessageElement.classList.add('message-visible');  
+
+
 
 
 
