@@ -430,37 +430,34 @@ socket.on('botResponse', (data) => {
 
    thinkingStateElement.style.display = 'none';
   
-  // Special handling for Conversation Mode
+// Special handling for Conversation Mode
 if (currentMode === 'B') {
   const conversationModeTextBlock = document.querySelector('[element="bot-response-conversation-mode"]');
   if (conversationModeTextBlock) {
-    conversationModeTextBlock.innerHTML = data.text.text;
+    // Store the actual text for later use
+    const actualText = data.text.text; // Assuming this is the correct text
 
-
-    
     // Fade out current content
     conversationModeTextBlock.classList.remove('visible');
     conversationModeTextBlock.classList.add('fade');
-    
+
     // Remove the 'fade' class after the fade-out animation (assumed to be 500ms)
     setTimeout(() => {
       conversationModeTextBlock.classList.remove('fade');
     }, 500);
-    
+
     // Wait for the fade-out to complete, then update and fade in
     setTimeout(() => {
-      conversationModeTextBlock.innerHTML = data.text;
+      conversationModeTextBlock.innerHTML = actualText;
       conversationModeTextBlock.classList.remove('fade');
       conversationModeTextBlock.classList.add('visible', 'fade-in');
-      
+
       // Remove the 'fade-in' class after the animation (1s) to reset for the next message
       setTimeout(() => {
         conversationModeTextBlock.classList.remove('fade-in');
       }, 1000);
-      
+
     }, 500);  // Should match the duration in the CSS transition
-  } else {
-    console.error("Couldn't find the text block for Conversation Mode.");
   }
 }
 
