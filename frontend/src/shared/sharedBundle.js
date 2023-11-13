@@ -85,7 +85,7 @@ function updateUIMode() {
     
     // Set default text and remove pulsing for Mode B
     if (conversationModeTextBlock) {
-      conversationModeTextBlock.textContent = 'Default Text for Conversation Mode'; 
+      conversationModeTextBlock.textContent = 'Feel free to start or continue our conversation here'; 
       conversationModeTextBlock.classList.remove('waiting'); 
     }
 
@@ -434,6 +434,10 @@ socket.on('botResponse', (data) => {
 if (currentMode === 'B') {
   const conversationModeTextBlock = document.querySelector('[element="bot-response-conversation-mode"]');
   if (conversationModeTextBlock) {
+    conversationModeTextBlock.innerHTML = data.text.text;
+  }
+}
+
     
     // Fade out current content
     conversationModeTextBlock.classList.remove('visible');
