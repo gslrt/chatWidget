@@ -137,6 +137,7 @@ socket.on('chatMessage', async (data) => {
       question: userInput,
       socketIOClientId: flowiseSocketId,
       overrideConfig: {
+        model: 'gpt-4-1106-preview', 
         maxTokens,
         systemMessage,
         openAIApiKey: process.env.OPENAI_API_KEY,
