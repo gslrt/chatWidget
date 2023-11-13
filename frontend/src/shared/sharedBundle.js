@@ -435,8 +435,7 @@ if (currentMode === 'B') {
   const conversationModeTextBlock = document.querySelector('[element="bot-response-conversation-mode"]');
   if (conversationModeTextBlock) {
     conversationModeTextBlock.innerHTML = data.text.text;
-  }
-}
+
 
     
     // Fade out current content
