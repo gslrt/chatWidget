@@ -9,10 +9,11 @@ const { getGeolocation } = require('../geolocation');
 const socketIOClient = require('socket.io-client');
 
 const socketIoBaseUrl = process.env.CHAT_URL.split('/api/v1/prediction/')[0];
+// Debug the base URL being used for Socket.IO connection
 console.log("Attempting to connect to Socket.IO server with base URL:", socketIoBaseUrl);
 
 
-let flowiseSocketId = null; 
+let flowiseSocketId = null; // NEW: to store the Flowise socket ID
 
 // Existing Flowise socket connection
 const flowiseSocket = socketIOClient(socketIoBaseUrl);
@@ -109,13 +110,13 @@ socket.on('chatMessage', async (data) => {
     // Emitting the 'start' event here
     socket.emit('start');
       
-    let maxTokens = 400;  // Default max tokens
+    let maxTokens = 100;  // Default max tokens
     let systemMessage = 'You are a pirate.';  // Default system message
     
     // If in Conversation Mode (Mode B), adjust settings
     if (chatMode === 'B') {
-      maxTokens = 80;  // Shorter responses
-      systemMessage = 'Use maximum two short sentences as response';  // Custom system message
+      maxTokens = 20;  // Shorter responses
+      systemMessage = 'You are a bear in conversation mode. Max Tokens: 20';  // Custom system message
     }
     
     const currentTimestamp = new Date();
@@ -155,21 +156,16 @@ socket.on('chatMessage', async (data) => {
       body: JSON.stringify(dataToSend)
     });
 
-  const responseBody = await response.json();
-  const aiResponse = responseBody;
+    const responseBody = await response.json();
+    const aiResponse = responseBody;
 
-  // Extract the text part from aiResponse
-  // Assuming aiResponse contains a property 'text' that holds the response
-  const responseText = aiResponse.text || '';  // Use a fallback empty string
+    // Generate audio only if mode is not 'C'
+    let audioUrl = null;
+    if (chatMode !== 'C') {
+      audioUrl = await generateAudio(aiResponse);
+    }
 
-  // Generate audio only if mode is not 'C'
-  let audioUrl = null;
-  if (chatMode !== 'C') {
-    audioUrl = await generateAudio(responseText); // Pass responseText instead of aiResponse
-  }
-
-socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
-
+    socket.emit('botResponse', { 'text': aiResponse, 'audioUrl': audioUrl });
 
     // Emitting the 'end' event after sending the AI response
     socket.emit('end');
