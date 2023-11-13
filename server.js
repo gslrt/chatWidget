@@ -83,13 +83,13 @@ const io = socketIo(server, {
 
 // Use session middleware with Socket.io
 io.use((socket, next) => {
-    sessionMiddleware(socket.request, socket.request.res, () => {
-        // Manually save the session before calling next
-        socket.request.session.save(() => {
-            next();
-        });
-    });
+    if (socket.request.res) {
+        sessionMiddleware(socket.request, socket.request.res, next);
+    } else {
+        next(new Error('No response object'));
+    }
 });
+
 
 // Socket.io connection
 io.on('connection', (socket) => {
