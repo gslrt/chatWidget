@@ -387,6 +387,16 @@ document.querySelector('[trigger-action="submit-chat-input"]').addEventListener(
   
 
 socket.on('botResponse', (data) => {
+  console.log("Received botResponse:", data); // Log the entire data object
+  console.log("Type of data:", typeof data); // Log the type of the data
+
+  if (typeof data === 'object' && data !== null) {
+      console.log("Data.text:", data.text); // Log the 'text' property if it exists
+      console.log("Type of data.text:", typeof data.text); // Log the type of the 'text' property
+  } else {
+      console.error("Data is not an object or is null");
+  }
+
   // Skip if in Mode C to avoid regular bot message
   if (currentMode === 'C') {
     return;
