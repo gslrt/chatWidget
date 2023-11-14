@@ -134,6 +134,7 @@ socket.on('chatMessage', async (data) => {
     
     const dataToSend = {
       question: userInput,
+      chatId: socket.request.session.conversation_id,
       socketIOClientId: flowiseSocketId,
       overrideConfig: {
         maxTokens,
