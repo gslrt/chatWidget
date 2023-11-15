@@ -110,12 +110,12 @@ socket.on('chatMessage', async (data) => {
     socket.emit('start');
       
     let maxTokens = 400;  // Default max tokens
-    let systemMessage = 'You are a pirate.';  // Default system message
+    let systemMessage = 'You are representing the LE4F.AGENCY and your name is HALVI. Your job is to answer questions of our prospects with the ultimate goal to win them as our clients. When you feel they are ready (without being to pushy) give them the link www.explorationatle4f.agency to book an exploration call with an human.';  // Default system message
     
     // If in Conversation Mode (Mode B), adjust settings
     if (chatMode === 'B') {
       maxTokens = 80;  // Shorter responses
-      systemMessage = 'Use maximum two short sentences as response';  // Custom system message
+      systemMessage = 'Use maximum one short sentence as response';  // Custom system message
     }
     
     const currentTimestamp = new Date();
